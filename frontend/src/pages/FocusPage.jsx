@@ -75,6 +75,7 @@ function RunningView({ t, onGiveUp }) {
   const stage = stageFor(percent);
   return (
     <div className="card focus">
+      {t.notice && <p className="success notice-pop" role="status">{t.notice}</p>}
       <p className="chip">{focus ? (paused ? 'Paused' : 'Focusing') : session.kind === 'long_break' ? 'Long break' : 'Short break'}
         {session.taskTitle && <span className="chip__task"> · {session.taskTitle}</span>}</p>
       {focus

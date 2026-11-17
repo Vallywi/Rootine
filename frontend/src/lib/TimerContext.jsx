@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import * as api from './api.js';
 import { useAuth } from './AuthContext.jsx';
-import { alertDone, alertSoon, tickSound } from './alerts.js';
+import { alertDone, alertSoon, ringBell, tickSound } from './alerts.js';
 
 const TimerContext = createContext(null);
 export const useTimer = () => useContext(TimerContext);
@@ -15,6 +15,7 @@ export function TimerProvider({ children }) {
   const [result, setResult] = useState(null); // last finished session, shown on the Focus screen
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const completing = useRef(false);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -100,6 +101,22 @@ export function TimerProvider({ children }) {
     tickSound(secondsLeft, settingsRef.current);
   }, [session, secondsLeft]);
 
+  // Keep ringing until the plant is collected (or, after a break, until the next session is started or dismissed). Stops by itself after 5 minutes.
+  const ringing = !!result && result.status === 'completed' && !result.collected && !(session && session.status !== 'completed');
+  useEffect(() => {
+    if (!ringing) return undefined;
+    const id = setInterval(() => ringBell(settingsRef.current), 4000);
+    const stop = setTimeout(() => clearInterval(id), 5 * 60 * 1000);
+    return () => { clearInterval(id); clearTimeout(stop); };
+  }, [ringing, result?.session?.id]);
+
+  // The "Time to rest" message fades after a few seconds.
+  useEffect(() => {
+    if (!notice) return undefined;
+    const id = setTimeout(() => setNotice(''), 6000);
+    return () => clearTimeout(id);
+  }, [notice]);
+
   const complete = useCallback(async () => {
     if (completing.current || !session) return;
     completing.current = true;
@@ -141,8 +158,17 @@ export function TimerProvider({ children }) {
       const finished = result?.session;
       if (!finished) return;
       await api.post(`/sessions/${finished.id}/collect`);
-      setResult((r) => (r ? { ...r, collected: true } : r));
+      // Keep the rhythm going: the rest starts by itself right after the plant is collected.
+      try {
+        const data = await api.post('/sessions', { kind: 'break' });
+        setResult(null);
+        apply(data);
+        setNotice('Plant added to your garden! Time to rest.');
+      } catch {
+        setResult((r) => (r ? { ...r, collected: true } : r)); // show the normal "added" screen with a Start break button
+      }
     }),
+    notice, clearNotice: () => setNotice(''),
     giveUp: () => guard(async () => {
       const kind = session.kind;
       const data = await api.post(`/sessions/${session.id}/give-up`);

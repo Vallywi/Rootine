@@ -102,3 +102,29 @@ export async function askNotificationPermission() {
   if (!notificationsSupported()) return 'unsupported';
   return Notification.requestPermission();
 }
+
+// Repeats the bell while a finished plant waits to be collected (or a break is over).
+export function ringBell(settings) {
+  if (settings.soundEnabled) bell();
+}
+
+// A tiny cute "pop" for taps and clicks.
+export function popSound(settings, high = false) {
+  if (!settings.soundEnabled) return;
+  try {
+    const ac = ctx();
+    const t = ac.currentTime;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = 'sine';
+    const from = high ? 700 : 520;
+    osc.frequency.setValueAtTime(from, t);
+    osc.frequency.exponentialRampToValueAtTime(from * 1.8, t + 0.07);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.22, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
+    osc.connect(gain).connect(ac.destination);
+    osc.start(t);
+    osc.stop(t + 0.15);
+  } catch { /* sound is optional */ }
+}

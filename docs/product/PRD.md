@@ -674,3 +674,5 @@ Approving the PRD should include either confirming or replacing unresolved assum
 | FR-44 | A leaderboard ranks the user and friends by completed focus minutes, This week or All time. A user can stop sharing their score. Up to 50 friends. | P2 |
 
 Notes: FR-32 (friends, P2) is now delivered as FR-43 and FR-44. Search by email is not offered, so nobody can find out which emails are registered. The "almost done" wording was interpreted from "may oras kapag malapit na matapos"; change the threshold in frontend/src/lib/TimerContext.jsx (warnMs) if a different rule is wanted.
+
+| FR-45 | Sounds (when the sound setting is on): a pop on every tap, a beep each second for the last 10 seconds, and a loud bell at zero. The bell repeats every 4 seconds (up to 5 minutes) until the plant is collected, or after a break until the next session is started or dismissed. Collecting a plant starts the break automatically. | P1 |

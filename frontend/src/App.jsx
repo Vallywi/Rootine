@@ -13,6 +13,7 @@ import FriendsPage from './pages/FriendsPage.jsx';
 import Plant from './components/Plant.jsx';
 import Backdrop from './components/Backdrop.jsx';
 import Landing from './pages/Landing.jsx';
+import ClickSounds from './components/ClickSounds.jsx';
 
 function Splash({ children }) {
   return (
@@ -84,6 +85,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Gate />
+        <ClickSounds />
         <UpdateBanner />
       </AuthProvider>
     </BrowserRouter>

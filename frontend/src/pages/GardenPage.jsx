@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import * as api from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Plant, { PLANTS } from '../components/Plant.jsx';
+import Badges from '../components/Badges.jsx';
 import { FormError, GoalRing, formatDate } from '../components/ui.jsx';
 
 const hoursMinutes = (min) => (min >= 60 ? `${Math.floor(min / 60)} h ${min % 60} min` : `${min} min`);
@@ -68,16 +69,7 @@ export default function GardenPage() {
         </p>
       </div>
 
-      <h2>Badges</h2>
-      <ul className="badges">
-        {badges.map((b) => (
-          <li key={b.id} className={`badge ${b.earned ? 'is-earned' : ''}`}>
-            <span className="badge__icon" aria-hidden="true">{b.earned ? '🏅' : '🔒'}</span>
-            <strong>{b.name}</strong>
-            <span className="small">{b.earned ? 'Earned' : `${b.progress} of ${b.target}`}</span>
-          </li>
-        ))}
-      </ul>
+      <Badges badges={badges} />
 
       <div className="row row--between row--wrap">
         <h2>Plants ({stats.totalPlants})</h2>

@@ -52,7 +52,7 @@ export default function Layout() {
         </span>
         <nav aria-label="Main" className="nav nav--top" data-tour="nav">
           {links.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className="nav__link">{l.label}{l.badge && requests > 0 && <span className="badge" aria-label={`${requests} new friend requests`}>{requests}</span>}</NavLink>
+            <NavLink key={l.to} to={l.to} end={l.end} className="nav__link">{l.label}{l.badge && requests > 0 && <span className="count-badge" aria-label={`${requests} new friend requests`}>{requests}</span>}</NavLink>
           ))}
         </nav>
         <span className="row topbar__right" data-tour="tools">
@@ -74,7 +74,7 @@ export default function Layout() {
       <nav aria-label="Main (mobile)" className="nav nav--bottom" data-tour="nav">
         {links.map((l) => (
           <NavLink key={l.to} to={l.to} end={l.end} className="nav__link">
-            <span aria-hidden="true" className="nav__icon">{l.icon}{l.badge && requests > 0 && <span className="badge">{requests}</span>}</span>
+            <span aria-hidden="true" className="nav__icon">{l.icon}{l.badge && requests > 0 && <span className="count-badge">{requests}</span>}</span>
             <span>{l.label}</span>
           </NavLink>
         ))}

@@ -384,3 +384,7 @@ Rootine can be installed from Chrome or Edge like an app. It stays a website. Th
 - components/Avatar.jsx (picture or first letter, plus shrinkToJpeg) and PhotoEditor.jsx.
 - pages/FriendsPage.jsx: friend code, add form, requests, leaderboard, friends list, privacy switch. The Friends tab shows a badge with waiting requests.
 - TimerContext exposes nearEnd. alerts.js has alertSoon. The big clock, TimerOverlay, and PopOutTimer style .is-near.
+
+## Addendum: tasks and badges
+
+pages/TasksPage.jsx has the detail fields, status filter chips, sort menu, and due labels. components/Badges.jsx shows grouped badges. The red number on the Friends tab uses the class count-badge (it used to clash with the Garden badge class).

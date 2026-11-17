@@ -246,3 +246,7 @@ Section 14 of the PRD has the formal acceptance criteria. Each criterion must po
 - backend/tests/friends.test.js (15 tests): codes, requests, accepting, privacy of profile data, leaderboard order and ties, week vs all time, sharing switch, photo rules (type, size, CSRF, who can load it), delete account.
 - Browser checks (isolated server): near-end warning and a single chime, drawer (open, tabs, Esc, outside tap, sign out), friend flow with two browser profiles, photo upload, badge, privacy switch, phone audit of the drawer and Friends page.
 - Not tested: a real phone, real Picture-in-Picture, Safari and Firefox.
+
+## Addendum: task details and badges
+
+backend/tests/task-details.test.js (6 tests): defaults, all fields, status and isDone in step, bad values refused, badge list and progress, and badge counts from the garden endpoint. Browser checks: adding tasks with details, due labels, summary, sorting, filtering, status change, the Focus picker order, and badges (grouped, not clipped, no sideways scroll).

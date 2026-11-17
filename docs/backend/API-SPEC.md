@@ -343,3 +343,9 @@ All routes need a login. Non-GET requests need the CSRF header.
 | GET /api/friends/leaderboard?period=week or all&tzOffset=n | { period, rows[], hidden }. Row: id, displayName, avatarUrl, isMe, minutes, plants, streak, rank. Ties share a rank. Only friends with shareProgress true are listed. |
 
 Changed: user objects have avatarUrl (string or null). GET and PUT /api/settings have shareProgress (boolean, default true).
+
+## Addendum: task details and badges
+
+Tasks (POST and PATCH /api/tasks) accept: category (study, work, personal, chores, health, other), priority (low, medium, high, urgent), status (todo, doing, done), dueDate ("YYYY-MM-DD" or null, a real calendar date), notes (up to 500 characters or null). Defaults: other, medium, todo, no date. Task objects return all of these plus isDone. status and isDone stay in step: sending isDone true sets status done, isDone false from done sets todo.
+
+GET /api/garden badges are now objects with id, group, icon, name, hint, earned, progress, target (22 badges). Badge progress comes from: collected plants, longest streak, total focus hours, longest session, kinds of plants grown, trees grown, finished tasks, and accepted friends.

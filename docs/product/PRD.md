@@ -676,3 +676,6 @@ Approving the PRD should include either confirming or replacing unresolved assum
 Notes: FR-32 (friends, P2) is now delivered as FR-43 and FR-44. Search by email is not offered, so nobody can find out which emails are registered. The "almost done" wording was interpreted from "may oras kapag malapit na matapos"; change the threshold in frontend/src/lib/TimerContext.jsx (warnMs) if a different rule is wanted.
 
 | FR-45 | Sounds (when the sound setting is on): a pop on every tap, a beep each second for the last 10 seconds, and a loud bell at zero. The bell repeats every 4 seconds (up to 5 minutes) until the plant is collected, or after a break until the next session is started or dismissed. Collecting a plant starts the break automatically. | P1 |
+
+| FR-46 | A task has a kind (study, work, personal, chores, health, other), an urgency (low, medium, high, urgent), a status (to do, doing, done), an optional due date, optional notes, and an optional Pomodoro estimate. The list shows friendly due labels (Overdue by 2 days, Due today, Due tomorrow), can be filtered by status, and sorted by urgency, due date, or newest. | P1 |
+| FR-47 | The Garden page shows 22 badges in 5 groups (Plants, Streaks, Focus time, Collection, Tasks and friends). Each shows a picture, what it needs, and progress. | P2 |

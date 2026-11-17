@@ -57,6 +57,14 @@ CREATE TABLE IF NOT EXISTS tasks (
 );
 CREATE INDEX IF NOT EXISTS tasks_user_idx ON tasks (user_id);
 
+-- task details (added later; safe to run again)
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS category text NOT NULL DEFAULT 'other' CHECK (category IN ('study', 'work', 'personal', 'chores', 'health', 'other'));
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS priority text NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent'));
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'todo' CHECK (status IN ('todo', 'doing', 'done'));
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS due_date text CHECK (due_date ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS notes text CHECK (char_length(notes) <= 500);
+UPDATE tasks SET status = 'done' WHERE is_done AND status <> 'done';
+
 CREATE TABLE IF NOT EXISTS timer_sessions (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,

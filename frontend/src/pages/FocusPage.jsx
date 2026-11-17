@@ -160,7 +160,7 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
   const [taskId, setTaskId] = useState('');
   const [tasks, setTasks] = useState([]);
   useEffect(() => {
-    api.get('/tasks').then((d) => setTasks(d.tasks.filter((x) => !x.isDone))).catch(() => {});
+    api.get('/tasks').then((d) => setTasks(d.tasks.filter((x) => !x.isDone).sort((a, b) => ['urgent', 'high', 'medium', 'low'].indexOf(a.priority) - ['urgent', 'high', 'medium', 'low'].indexOf(b.priority)))).catch(() => {});
   }, []);
   const untilLong = Math.max(0, settings.longBreakInterval - t.focusSinceLongBreak);
   // A tree needs a longer focus. If the rhythm gets shorter, go back to a plant that is still allowed.
@@ -220,7 +220,7 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
           <label htmlFor="task">Working on (optional)</label>
           <select id="task" value={taskId} onChange={(e) => setTaskId(e.target.value)}>
             <option value="">No task</option>
-            {tasks.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}
+            {tasks.map((x) => <option key={x.id} value={x.id}>{x.title}{x.priority === 'urgent' ? ' (urgent)' : x.priority === 'high' ? ' (high)' : ''}</option>)}
           </select>
         </div>
         <FormError>{t.error}</FormError>

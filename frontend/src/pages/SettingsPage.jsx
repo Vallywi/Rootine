@@ -20,6 +20,7 @@ export default function SettingsPage() {
       <AlertSettings />
       <LookSettings />
       <InstallCard />
+      <HelpCard />
       <AccountSettings />
     </section>
   );
@@ -60,6 +61,7 @@ function TimerSettings() {
     <form className="card" onSubmit={save} noValidate>
       <h2>Pomodoro timer</h2>
       {locked && <p className="notice" role="status">Timer lengths are locked while a session is running. Finish or give up first.</p>}
+      <p className="muted small">Tip: you can also pick a ready-made rhythm (like 25 / 5 or 50 / 10) on the Focus screen.</p>
       {TIMING.map(([key, label, limitKey]) => (
         <Field key={key} label={label} hint={range(limitKey) && `Allowed: ${range(limitKey)}`} error={fields[key]}>
           {(p) => <input {...p} type="number" inputMode="numeric" disabled={locked} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />}
@@ -139,6 +141,16 @@ function LookSettings() {
           </label>
         ))}
       </fieldset>
+    </div>
+  );
+}
+
+function HelpCard() {
+  return (
+    <div className="card">
+      <h2>Need a hand?</h2>
+      <p className="muted">Take the short tour again to see how Rootine works, from picking a rhythm to collecting your plant.</p>
+      <button type="button" className="btn btn--small" onClick={() => window.dispatchEvent(new Event('rootine:tour'))}>Replay the tour</button>
     </div>
   );
 }

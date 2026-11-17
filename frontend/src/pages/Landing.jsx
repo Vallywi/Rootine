@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import Plant, { PLANTS } from '../components/Plant.jsx';
-import GrowingPlant, { prefersReducedMotion } from '../components/GrowingPlant.jsx';
+import GrowingPlant from '../components/GrowingPlant.jsx';
+import Reveal from '../components/Reveal.jsx';
+import { useGrowLoop } from '../lib/useGrowLoop.js';
 
 const STEPS = [
   { emoji: '🌰', title: 'Pick a seed', text: 'Choose a plant and the task you want to work on.', color: 'butter' },
@@ -24,21 +25,6 @@ const STAGES = [
   { stage: 'small', label: 'Growing' },
   { stage: 'full', label: 'Bloom!' },
 ];
-
-// Loops 0 -> 1 -> pause -> 0 so the visitor sees a seed grow into a flower. Stays fully grown for people who prefer less motion.
-function useGrowLoop(growMs = 9000, holdMs = 2500) {
-  const [value, setValue] = useState(prefersReducedMotion() ? 1 : 0);
-  useEffect(() => {
-    if (prefersReducedMotion()) return undefined;
-    const start = Date.now();
-    const id = setInterval(() => {
-      const t = (Date.now() - start) % (growMs + holdMs);
-      setValue(Math.min(1, t / growMs));
-    }, 120);
-    return () => clearInterval(id);
-  }, [growMs, holdMs]);
-  return value;
-}
 
 export default function Landing() {
   const grow = useGrowLoop();
@@ -82,7 +68,7 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="section" aria-labelledby="how">
+        <Reveal as="section" className="section" aria-labelledby="how">
           <h2 id="how" className="section__title">How it works</h2>
           <ol className="steps">
             {STEPS.map((s, i) => (
@@ -94,9 +80,9 @@ export default function Landing() {
               </li>
             ))}
           </ol>
-        </section>
+        </Reveal>
 
-        <section className="section" aria-labelledby="grow">
+        <Reveal as="section" className="section" aria-labelledby="grow">
           <h2 id="grow" className="section__title">Watch your plant grow</h2>
           <p className="section__lead">Every plant goes through four little stages while you focus.</p>
           <ul className="stages">
@@ -108,9 +94,9 @@ export default function Landing() {
             ))}
           </ul>
           <p className="center muted">Choose from {Object.values(PLANTS).map((p) => p.name).join(', ')}.</p>
-        </section>
+        </Reveal>
 
-        <section className="section" aria-labelledby="why">
+        <Reveal as="section" className="section" aria-labelledby="why">
           <h2 id="why" className="section__title">Everything you need to stay on track</h2>
           <ul className="features">
             {FEATURES.map((f) => (
@@ -123,14 +109,14 @@ export default function Landing() {
               </li>
             ))}
           </ul>
-        </section>
+        </Reveal>
 
-        <section className="cta card" aria-labelledby="cta">
+        <Reveal as="section" className="cta card" aria-labelledby="cta">
           <Plant type="sunflower" stage="full" size={120} title="" />
           <h2 id="cta">Ready to plant your first seed?</h2>
           <p className="muted">Create an account in under a minute and start your garden today.</p>
           <Link to="/register" className="btn btn--big">Create my account</Link>
-        </section>
+        </Reveal>
       </main>
 
       <footer className="landing__footer">

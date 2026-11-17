@@ -44,7 +44,7 @@ test('start validation: unknown plant, missing plant, minutes out of range', asy
   assert.equal((await c.post('/sessions', { kind: 'focus', plantType: 'rose' })).status, 400);
   assert.equal((await c.post('/sessions', { kind: 'focus' })).status, 400);
   assert.equal((await startFocus(c, { minutes: 14 })).status, 400);
-  assert.equal((await startFocus(c, { minutes: 61 })).status, 400);
+  assert.equal((await startFocus(c, { minutes: 91 })).status, 400);
   const custom = await startFocus(c, { minutes: 30 });
   assert.equal(custom.body.session.plannedSeconds, 1800);
 });
@@ -275,4 +275,27 @@ test('collect-all: collects every waiting plant once and leaves other users alon
   assert.deepEqual((await a.post('/sessions/collect-all')).body, { collected: 0 });
   assert.equal((await a.get('/garden')).body.plants.length, 2);
   assert.equal((await b.get('/garden')).body.pending.length, 1); // b is untouched
+});
+
+test('a saved preset sets the focus and break lengths (Sprint 15/3, Ultradian 90/20)', async () => {
+  const c = await newUser();
+  await c.put('/settings', { focusMinutes: 15, shortBreakMinutes: 3 });
+  const sprint = await startFocus(c);
+  assert.equal(sprint.body.session.plannedSeconds, 15 * 60);
+  s.clock.t += s.minutes(15);
+  await c.post(`/sessions/${sprint.body.session.id}/complete`);
+  const brk = await c.post('/sessions', { kind: 'break' });
+  assert.equal(brk.body.session.plannedSeconds, 3 * 60);
+  await c.post(`/sessions/${brk.body.session.id}/give-up`);
+
+  await c.put('/settings', { focusMinutes: 90, shortBreakMinutes: 20 });
+  const long = await startFocus(c);
+  assert.equal(long.body.session.plannedSeconds, 90 * 60);
+  s.clock.t += s.minutes(90);
+  await c.post(`/sessions/${long.body.session.id}/complete`);
+  const brk2 = await c.post('/sessions', { kind: 'break' });
+  assert.equal(brk2.body.session.plannedSeconds, 20 * 60);
+  // a custom length for one session still works up to 90 minutes
+  await c.post(`/sessions/${brk2.body.session.id}/give-up`);
+  assert.equal((await startFocus(c, { minutes: 90 })).body.session.plannedSeconds, 5400);
 });

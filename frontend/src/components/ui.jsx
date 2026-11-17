@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 // Label, hint, and error tied to the input. Errors use text and an icon, not color alone.
 export function Field({ label, hint, error, children }) {
@@ -43,7 +43,12 @@ export function ConfirmDialog({ open, title, children, confirmLabel, cancelLabel
 
 // "3 of 4 today" ring. The number is also written as text.
 export function GoalRing({ done, goal, size = 96 }) {
-  const pct = Math.min(1, goal ? done / goal : 0);
+  const target = Math.min(1, goal ? done / goal : 0);
+  const [pct, setPct] = useState(0); // starts empty, then fills with a transition
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setPct(target));
+    return () => cancelAnimationFrame(id);
+  }, [target]);
   const r = 40, c = 2 * Math.PI * r;
   return (
     <div className="goal-ring" style={{ width: size, height: size }}>

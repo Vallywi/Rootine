@@ -65,8 +65,8 @@ All timestamps are milliseconds since 1970 (UTC numbers). Durations are seconds 
 | Password | 8 to 128 characters |
 | Task title | 1 to 120 characters |
 | Estimated Pomodoros | empty, or whole number 1 to 99 |
-| Focus minutes | whole number 15 to 60 |
-| Short break minutes | whole number 5 to 15 |
+| Focus minutes | whole number 15 to 90 |
+| Short break minutes | whole number 3 to 20 |
 | Long break minutes | whole number 10 to 30 |
 | Long-break interval | whole number 2 to 6 |
 | Tasks per user | up to 200 |
@@ -160,7 +160,7 @@ Body `{}`. `200`: `{ "ok": true }`. Deletes the server-side session and clears t
     "theme": "light"
   },
   "limits": {
-    "focus": [15, 60], "shortBreak": [5, 15], "longBreak": [10, 30], "interval": [2, 6], "dailyGoal": [1, 12]
+    "focus": [15, 90], "shortBreak": [3, 20], "longBreak": [10, 30], "interval": [2, 6], "dailyGoal": [1, 12]
   }
 }
 ```

@@ -125,7 +125,7 @@ Every request passes through these steps in order:
 
 ### 5.2 Settings (FR-12, FR-35, FR-36)
 
-- Fields and limits: focus 15 to 60, short break 5 to 15, long break 10 to 30, long-break interval 2 to 6, sound on or off, notifications on or off, daily goal 1 to 12, theme `light` or `dark`.
+- Fields and limits: focus 15 to 90, short break 3 to 20, long break 10 to 30, long-break interval 2 to 6, sound on or off, notifications on or off, daily goal 1 to 12, theme `light` or `dark`.
 - Reject unknown fields and non-integer numbers.
 - While the user has an active or paused session, reject changes to the four timing values with 409. Sound, notification, daily goal, and theme may still change.
 
@@ -145,7 +145,7 @@ This is the core. Rules:
 
 | Action | Rule |
 |---|---|
-| **Start** | Reject with 409 if the user already has an active or paused session (BR-1). For focus: plant type must be one of the allowed types, optional task must belong to the user, optional custom minutes must be 15 to 60. Copy the duration and task title into the session (BR-11, BR-12). Set `started_at` and `target_at` from the server clock. For break: the server decides short or long. |
+| **Start** | Reject with 409 if the user already has an active or paused session (BR-1). For focus: plant type must be one of the allowed types, optional task must belong to the user, optional custom minutes must be 15 to 90. Copy the duration and task title into the session (BR-11, BR-12). Set `started_at` and `target_at` from the server clock. For break: the server decides short or long. |
 | **Pause** | Only for an active session. Save the remaining milliseconds and set status to paused. |
 | **Resume** | Only for a paused session. Set a new `target_at = now + saved remaining`. |
 | **Complete** | Allowed only when `now >= target_at` minus a small latency allowance (about 1.5 seconds). Idempotent: a second call returns the same completed session and changes nothing (BR-6). Runs inside one database transaction. Increases the long-break counter for focus. Resets it after a completed long break. |

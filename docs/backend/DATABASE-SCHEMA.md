@@ -37,8 +37,8 @@ users 1 ───< auth_sessions
 | gender | text | one of `female`, `male`, `non_binary`, `prefer_not_to_say` | Same note as `full_name` |
 | password_hash | text | required | `scrypt` format, never plain text |
 | created_at | bigint | required | Milliseconds since 1970 |
-| focus_minutes | integer | default 25, range 15 to 60 | Timer setting |
-| short_break_minutes | integer | default 5, range 5 to 15 | Timer setting |
+| focus_minutes | integer | default 25, range 15 to 90 | Timer setting |
+| short_break_minutes | integer | default 5, range 3 to 20 | Timer setting |
 | long_break_minutes | integer | default 15, range 10 to 30 | Timer setting |
 | long_break_interval | integer | default 4, range 2 to 6 | Timer setting |
 | sound_enabled | boolean | default true | Alert preference |
@@ -135,6 +135,7 @@ At school-project scale these run fast with the indexes above.
 
 - **First version:** keep the schema in `backend/db/001_init.sql` and run it in the Supabase SQL editor (or with `psql`). Use `CREATE TABLE IF NOT EXISTS` so it is safe to repeat.
 - **Upgrade to collectable plants:** `collected_at` is added once, and plants that were already finished are marked collected so nothing disappears. Running the schema again does not collect waiting plants.
+- **Upgrade to the new timer limits:** the two `CHECK` constraints (`users_focus_minutes_check`, `users_short_break_minutes_check`) are dropped and added again by name each time the schema runs, so older databases move from 15 to 60 and 5 to 15 to the new 15 to 90 and 3 to 20.
 - **Later changes:** keep numbered migration files (`001_init.sql`, `002_...`) once real users exist. **[TO CONFIRM]** whether needed for the course.
 - **Demo seed (optional):** a script that adds a demo user with a few completed plants, so a presentation never starts with an empty garden. Keep it out of production.
 

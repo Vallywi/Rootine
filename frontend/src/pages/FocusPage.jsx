@@ -6,6 +6,7 @@ import { useTimer } from '../lib/TimerContext.jsx';
 import Plant, { PLANTS, STAGE_LABEL, stageFor } from '../components/Plant.jsx';
 import GrowingPlant from '../components/GrowingPlant.jsx';
 import Confetti from '../components/Confetti.jsx';
+import PresetPicker from '../components/PresetPicker.jsx';
 import { ConfirmDialog, FormError, GoalRing, formatClock } from '../components/ui.jsx';
 
 export default function FocusPage() {
@@ -180,9 +181,10 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
       {note && <p className="success center" role="status">{note}</p>}
       <div className="card focus">
         <h1>Plant a seed</h1>
-        <p className="muted">Focus for {settings.focusMinutes} minutes to grow it.</p>
-        <Plant type={plant} stage="seed" size={160} fit="full" title={`${PLANTS[plant].name} seed`} />
-        <fieldset className="plant-picker">
+        <p className="muted">Focus for {settings.focusMinutes} minutes to grow it, then rest for {settings.shortBreakMinutes}.</p>
+        <Plant type={plant} stage="seed" size={200} title={`${PLANTS[plant].name} seed`} />
+        <PresetPicker />
+        <fieldset className="plant-picker" data-tour="plants">
           <legend>Choose a plant</legend>
           {Object.entries(PLANTS).map(([key, p]) => (
             <label key={key} className={`plant-option ${plant === key ? 'is-selected' : ''}`}>
@@ -192,7 +194,7 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
             </label>
           ))}
         </fieldset>
-        <div className="field field--center">
+        <div className="field field--center" data-tour="task">
           <label htmlFor="task">Working on (optional)</label>
           <select id="task" value={taskId} onChange={(e) => setTaskId(e.target.value)}>
             <option value="">No task</option>
@@ -200,7 +202,7 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
           </select>
         </div>
         <FormError>{t.error}</FormError>
-        <button className="btn btn--big" disabled={t.busy} onClick={() => t.startFocus(plant, taskId ? Number(taskId) : null)}>
+        <button className="btn btn--big" data-tour="start" disabled={t.busy} onClick={() => t.startFocus(plant, taskId ? Number(taskId) : null)}>
           {t.busy ? 'Starting…' : 'Start focus'}
         </button>
         <p className="muted small">

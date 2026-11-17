@@ -87,8 +87,8 @@ export default function TasksPage() {
         <div className="card center"><p className="big-emoji" aria-hidden="true">🌰</p><p>No tasks yet. Add one above, then pick it before you focus.</p></div>
       ) : (
         <ul className="list">
-          {tasks.map((task) => (
-            <li key={task.id} className={`card task ${task.isDone ? 'is-done' : ''}`}>
+          {tasks.map((task, idx) => (
+            <li key={task.id} style={{ '--i': idx }} className={`card task ${task.isDone ? 'is-done' : ''}`}>
               {editing?.id === task.id ? (
                 <form onSubmit={saveEdit} className="stack stack--tight" noValidate>
                   <Field label="Task name" error={fields.title}>

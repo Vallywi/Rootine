@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   display_name text NOT NULL CHECK (char_length(display_name) BETWEEN 1 AND 40),
   password_hash text NOT NULL,
   created_at bigint NOT NULL,
-  focus_minutes integer NOT NULL DEFAULT 25 CHECK (focus_minutes BETWEEN 15 AND 60),
-  short_break_minutes integer NOT NULL DEFAULT 5 CHECK (short_break_minutes BETWEEN 5 AND 15),
+  focus_minutes integer NOT NULL DEFAULT 25,
+  short_break_minutes integer NOT NULL DEFAULT 5,
   long_break_minutes integer NOT NULL DEFAULT 15 CHECK (long_break_minutes BETWEEN 10 AND 30),
   long_break_interval integer NOT NULL DEFAULT 4 CHECK (long_break_interval BETWEEN 2 AND 6),
   sound_enabled boolean NOT NULL DEFAULT true,
@@ -23,6 +23,13 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name text CHECK (char_length(ful
 ALTER TABLE users ADD COLUMN IF NOT EXISTS age integer CHECK (age BETWEEN 5 AND 120);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS gender text CHECK (gender IN ('female', 'male', 'non_binary', 'prefer_not_to_say'));
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower_uq ON users (lower(email));
+
+-- Timer lengths: focus 15 to 90 and short break 3 to 20 minutes (the six presets need this range).
+-- Dropped and added again by name, so older databases with the narrower limits are upgraded.
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_focus_minutes_check;
+ALTER TABLE users ADD CONSTRAINT users_focus_minutes_check CHECK (focus_minutes BETWEEN 15 AND 90);
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_short_break_minutes_check;
+ALTER TABLE users ADD CONSTRAINT users_short_break_minutes_check CHECK (short_break_minutes BETWEEN 3 AND 20);
 
 CREATE TABLE IF NOT EXISTS auth_sessions (
   token_hash text PRIMARY KEY,

@@ -50,6 +50,10 @@ The backend should let tests set the current time, so a 25-minute session can be
 | T-C2 | Collect a running, given-up, or break session, and another user's session | 409 for the first three, 404 for another user's session |
 | T-C3 | Collect all with two waiting plants, twice, and with a second user who also has a waiting plant | `collected: 2`, then `0`. The other user's plant is untouched. |
 | T-C4 | Upgrade an old database that has finished plants, then run the upgrade again | Old finished plants are collected. A plant finished after the first upgrade is still waiting after the second. |
+| T-R1 | Save each rhythm: 15/3, 25/5, 40/10, 50/10, 75/15, 90/20 | 200 for each, and `GET /settings` reports focus 15 to 90 and short break 3 to 20 |
+| T-R2 | Save focus 14 or 91, short break 2 or 21 | 400 on that field |
+| T-R3 | Save Sprint 15/3, start a focus session, finish it, start a break. Repeat with 90/20. | Focus lasts 15 minutes and the break 3. Then 90 and 20. |
+| T-R4 | Upgrade an old database that has the narrower limits, twice | 90 and 3 are accepted, 91 and 2 are rejected, and exactly one constraint exists per column |
 
 ### Security
 
@@ -124,6 +128,11 @@ Run on a phone-width screen first, then desktop.
 | F-1e | Finish a session | Full plant, confetti, **Collect plant** and **Collect later**. The break buttons are not shown until the plant is collected. |
 | F-1f | Choose **Collect later**, then open Focus and Garden | A "ready to collect" banner on Focus. The plant is listed under "Ready to collect" in the Garden and moves to Plants after **Collect**. |
 | F-1g | Turn on reduced motion in the system settings | Clouds, butterflies, confetti, and growth transitions stop. Every screen still shows the plant stage in static form. |
+| F-1h | Choose each rhythm on the Focus screen, then reload | The chosen one is still selected, the title says "Focus for N minutes ... then rest for M", and the timer starts at N |
+| F-1i | Choose Custom with focus 5, then with focus 33 and break 7 | A clear message for 5, then "Focus for 33 minutes" is shown and saved |
+| F-1j | Register a new account | The tour opens by itself. Each step lights up the right control. Back and Next work. Escape and Skip close it. It does not come back after a reload. |
+| F-1k | Press the ? button in the top bar, and use Settings, Replay the tour | The tour opens again from the first step |
+| F-1l | Use the tour with the keyboard only (Tab, Enter, Escape) and with a screen reader | Focus stays inside the tour card. The title and text are read for every step. |
 | F-2 | Register with a weak password | Inline error under the field |
 | F-3 | Register correctly | Lands on Focus screen |
 | F-4 | Add, edit, complete, and delete a task | Delete asks for confirmation. History stays. |

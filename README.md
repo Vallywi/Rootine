@@ -1,6 +1,6 @@
 # Rootine
 
-A Pomodoro focus web app. While you focus, a plant grows. Finish the session, then tap **Collect plant** to add it to your garden. Give up and it withers. It works in any browser, on phones and computers, and can be installed from Chrome like an app (PWA).
+A Pomodoro focus web app. While you focus, a plant grows. Finish the session, then tap **Collect plant** to add it to your garden. Give up and it withers. Pick a rhythm that fits you (15/3, 25/5, 40/10, 50/10, 75/15, 90/20, or your own), and take the short tour on your first visit. It works in any browser, on phones and computers, and can be installed from Chrome like an app (PWA).
 
 Plans and specs are in [`docs/`](docs/README.md).
 

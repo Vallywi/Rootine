@@ -121,6 +121,9 @@ Each screen needs these states built from the start: **loading, empty, error, su
 - Submit buttons show a busy label and are disabled to prevent double submit.
 
 ### 6.2 Focus screen (main screen)
+- **Rhythms (FR-42):** `PresetPicker` shows six rhythms and Custom as cards (emoji, `25 / 5`, name). The chosen one is saved to the account. A short bubble below explains who it is best for. Custom shows two number fields with the allowed range and an error message for out-of-range values. Cards have a small bounce on hover and when chosen.
+- **Beginner tour (FR-43):** `Tour` lights up the real controls (rhythms, plants, task, Start focus, navigation) with a spotlight that glides between steps, and explains growing and collecting with small animated examples in the card. It opens by itself the first time (remembered per account in the browser), has Back, Next, Skip tour, and step dots, traps focus inside the card, closes with Escape, and replays from the **?** button in the top bar or from Settings. Targets are marked with `data-tour` attributes. If a target is not on screen, the step is shown in the middle.
+- **Motion:** the landing sections slide in as they scroll into view, lists and grids pop in one after another, the goal ring fills when it appears, finished tasks get an animated strike-through, earned badges shine, and the main button gently breathes. All of it stops with reduced motion.
 - **Growing animation (FR-41):** `GrowingPlant` takes a `progress` from 0 to 1. The whole plant scales up from the pot, the leaves unfurl around 20 to 50 percent, and the flower pops open from 60 to 95 percent. Each part uses a CSS transition, so new values glide. A small squish and sparkles play when the stage changes. At the end, confetti bursts. With reduced motion, parts change without transitions and confetti and sparkles are hidden.
 - **Collect (FR-40):** when a session finishes, the result shows the full plant and **Collect plant** (with **Collect later**). After collecting: "Added to your garden!" with a hop and "+1", then **Start break**, **Skip break**, and **See my garden**. A break cannot start before the plant is collected or deferred. Plants left uncollected show a "ready to collect" banner with **Collect all** on the Focus screen.
 
@@ -213,7 +216,7 @@ Notes for the Settings screen:
 - Each input has a visible label, a hint where useful, and an error message linked by `aria-describedby`.
 - Errors never rely on color alone. They include a ⚠ icon and text.
 - Number inputs use `inputMode="numeric"` and 16 px text so phones do not zoom in.
-- Match the limits in the PRD: focus 15 to 60, short break 5 to 15, long break 10 to 30, interval 2 to 6, task title 1 to 120 characters, estimate 1 to 99.
+- Match the limits in the PRD: focus 15 to 90, short break 3 to 20, long break 10 to 30, interval 2 to 6, task title 1 to 120 characters, estimate 1 to 99.
 
 ---
 

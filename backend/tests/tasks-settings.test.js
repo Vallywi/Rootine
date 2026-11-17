@@ -78,7 +78,7 @@ test('settings: defaults, update, limits, and unknown fields', async () => {
   const ok = await c.put('/settings', { focusMinutes: 30, soundEnabled: false });
   assert.equal(ok.body.settings.focusMinutes, 30);
   assert.equal(ok.body.settings.soundEnabled, false);
-  for (const bad of [{ focusMinutes: 14 }, { focusMinutes: 61 }, { focusMinutes: 25.5 }, { shortBreakMinutes: 4 }, { longBreakMinutes: 31 }, { longBreakInterval: 7 }, { dailyGoal: 0 }, { dailyGoal: 13 }, { theme: 'blue' }, { evil: 1 }]) {
+  for (const bad of [{ focusMinutes: 14 }, { focusMinutes: 91 }, { focusMinutes: 25.5 }, { shortBreakMinutes: 2 }, { shortBreakMinutes: 21 }, { longBreakMinutes: 31 }, { longBreakInterval: 7 }, { dailyGoal: 0 }, { dailyGoal: 13 }, { theme: 'blue' }, { evil: 1 }]) {
     const r = await c.put('/settings', bad);
     assert.equal(r.status, 400, JSON.stringify(bad));
   }
@@ -101,4 +101,16 @@ test('settings: timer lengths are locked during a session, other settings are no
   assert.equal(locked.status, 409);
   const free = await c.put('/settings', { soundEnabled: false, dailyGoal: 6, theme: 'dark' });
   assert.equal(free.status, 200);
+});
+
+test('presets: all six rhythms can be saved (15/3, 25/5, 40/10, 50/10, 75/15, 90/20)', async () => {
+  const c = await s.register('presets@example.com');
+  for (const [focus, rest] of [[15, 3], [25, 5], [40, 10], [50, 10], [75, 15], [90, 20]]) {
+    const r = await c.put('/settings', { focusMinutes: focus, shortBreakMinutes: rest });
+    assert.equal(r.status, 200, `${focus}/${rest}`);
+    assert.equal(r.body.settings.focusMinutes, focus);
+    assert.equal(r.body.settings.shortBreakMinutes, rest);
+  }
+  const limits = (await c.get('/settings')).body.limits;
+  assert.deepEqual([limits.focus, limits.shortBreak], [[15, 90], [3, 20]]);
 });

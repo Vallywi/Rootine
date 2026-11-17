@@ -86,8 +86,8 @@ export default function GardenPage() {
         </div>
       ) : (
         <ul className="grid">
-          {plants.map((p) => (
-            <li key={p.id} className={`card plant-card ${fresh.includes(p.id) ? 'just-collected' : ''}`}>
+          {plants.map((p, idx) => (
+            <li key={p.id} style={{ '--i': idx }} className={`card plant-card ${fresh.includes(p.id) ? 'just-collected' : ''}`}>
               <Plant type={p.plantType} stage="full" size={110} />
               <strong>{PLANTS[p.plantType].name}</strong>
               <span className="small muted">{formatDate(p.endedAt)} · {p.minutes} min</span>

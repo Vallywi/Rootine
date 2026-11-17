@@ -279,7 +279,7 @@ The recommended MVP baseline is a confirmation dialog, which satisfies FR-24 and
 #### Pomodoro settings
 
 - New accounts begin with 25-minute focus, 5-minute short break, 15-minute long break, and a long break after 4 completed focus sessions.
-- Fields: Focus (15–60 minutes), Short break (5–15), Long break (10–30), and Long break after (2–6 completed focus sessions). All accept whole numbers only.
+- Fields: Focus (15–90 minutes), Short break (3–20), Long break (10–30), and Long break after (2–6 completed focus sessions). All accept whole numbers only.
 - Show allowed range next to each persistent label. Use an appropriate numeric keyboard on mobile without removing keyboard access to non-numeric controls.
 - **Save Pomodoro settings** shows pending, success, and error states. Invalid submission retains the last saved values and preserves current input for correction.
 - During any active or paused focus or break session, lock all four fields and explain that changes apply to future sessions only.
@@ -423,7 +423,7 @@ Every interactive component specifies: default, hover where available, focus-vis
 - On failed submit, focus the first invalid field and provide a linked error summary for forms with multiple errors.
 - **Task title:** trim for blank checking; reject blank/whitespace; treat markup as displayable text, not executable content; enforce the OQ-20 maximum once approved.
 - **Estimate:** optional; when present, positive whole number; enforce the OQ-20 maximum once approved.
-- **Focus duration:** whole number, 15–60.
+- **Focus duration:** whole number, 15–90.
 - **Short break:** whole number, 5–15.
 - **Long break:** whole number, 10–30.
 - **Long-break interval:** whole number, 2–6.
@@ -606,7 +606,7 @@ Recommended state treatment:
 | FR-2 | Log in, Log out, protected screens, expiry | Explicit authentication actions; protected navigation and safe session-end route |
 | FR-3 | Removed (no password reset) | None |
 | FR-4, FR-5 | Deferred P2 | No MVP profile/avatar or guest-session UI |
-| FR-6 | Focus setup | Saved or one-time whole-minute focus duration, 15–60 |
+| FR-6 | Focus setup | Saved or one-time whole-minute focus duration, 15–90 |
 | FR-7 | Active timer | Remaining time, plant, optional task, Pause and Give up |
 | FR-8 | Active/background/restoring | Timestamp-derived display and return-from-background refresh |
 | FR-9 | Active/paused timer | Idempotent Pause/Resume states without reset or extension |

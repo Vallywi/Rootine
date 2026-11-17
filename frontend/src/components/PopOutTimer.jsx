@@ -33,7 +33,6 @@ function PipView({ v }) {
 
       <div className="pip__card">
         <div className="pip__art" aria-hidden="true">
-          <span className="pip__mound" />
           {v.plantType ? <GrowingPlant type={v.plantType} progress={v.percent} size={72} title="" /> : <span className="pip__emoji">{v.emoji}</span>}
         </div>
         <div className="pip__info">
@@ -42,7 +41,6 @@ function PipView({ v }) {
           {v.mode === 'run' && task && <span className="pip__task" title={task}>{task}</span>}
           {v.mode === 'done' && v.coins > 0 && <span className="pip__coins"><span aria-hidden="true">{'\uD83E\uDE99'}</span> +{v.coins} coins when you collect</span>}
           {v.near && <span className="pip__soon">Almost there!</span>}
-          {v.paused && <span className="pip__soon pip__soon--paused">Paused</span>}
           {v.error && <span className="pip__error" role="alert">{v.error}</span>}
         </div>
         <div className="pip__actions">

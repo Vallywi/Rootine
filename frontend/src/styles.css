@@ -995,3 +995,6 @@ input[type='date']:focus, textarea:focus { border-color: var(--leaf); outline: 3
 .pip__track { margin-top: .35rem; }
 .pip__grass { height: 18px; }
 .pip__sun { top: 6px; right: 10px; width: 22px; height: 22px; }
+
+.pip__mound { display: none; }
+.pip__art > svg { margin-bottom: 0; }

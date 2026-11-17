@@ -81,7 +81,8 @@ function RunningView({ t, onGiveUp }) {
         ? <GrowingPlant type={session.plantType} progress={percent} size={220} />
         : <div className="break-art" aria-hidden="true">☕</div>}
       <p className="visually-hidden" role="status" aria-live="polite">{focus ? `${PLANTS[session.plantType].name}: ${STAGE_LABEL[stage]}` : 'Break in progress'}</p>
-      <p className="clock" aria-label={`${formatClock(t.remainingMs)} remaining`}>{formatClock(t.remainingMs)}</p>
+      <p className={`clock ${t.nearEnd ? 'is-near' : ''}`} aria-label={`${formatClock(t.remainingMs)} remaining`}>{formatClock(t.remainingMs)}</p>
+      {t.nearEnd && <p className="near-note" role="status">{focus ? 'Almost there. Your plant is nearly fully grown.' : 'Almost done. Your break is ending.'}</p>}
       <progress className="bar" max="1" value={percent} aria-label="Session progress" />
       {focus && <p className="muted small grow-note">🌱 Your plant grows while you focus</p>}
       <FormError>{t.error}</FormError>

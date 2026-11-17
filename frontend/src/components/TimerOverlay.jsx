@@ -21,7 +21,7 @@ const POP = 'M19 7h-8v6h8V7zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 1.98 2 1.98h18c1.1
 // For a timer that stays visible over other browser tabs and other apps, see PopOutTimer.
 export default function TimerOverlay() {
   const v = useTimerView();
-  const { t, session, result, running, waiting, breakDone, thanks, focus, paused, percent, label, any } = v;
+  const { t, session, result, running, waiting, breakDone, thanks, focus, paused, percent, label, any, nearEnd } = v;
   const { pathname } = useLocation();
   const onFocusTab = pathname === '/';
   const boxRef = useRef(null);
@@ -71,7 +71,7 @@ export default function TimerOverlay() {
   if (!visible) return null;
 
   return (
-    <aside ref={boxRef} className={`timer-overlay ${waiting ? 'is-done' : ''}`} aria-label="Timer">
+    <aside ref={boxRef} className={`timer-overlay ${waiting ? 'is-done' : ''} ${nearEnd ? 'is-near' : ''}`} aria-label="Timer">
       <p className="visually-hidden" role="status" aria-live="polite">{label}</p>
 
       <div className="timer-overlay__art" aria-hidden="true">
@@ -84,6 +84,7 @@ export default function TimerOverlay() {
       <div className="timer-overlay__info">
         <span className="timer-overlay__label">{label}</span>
         {running && <strong className="timer-overlay__time" role="timer">{formatClock(t.remainingMs)}</strong>}
+        {nearEnd && <span className="timer-overlay__hint">Almost there</span>}
         {waiting && <span className="timer-overlay__hint">Tap Collect to add it to your garden.</span>}
         {t.error && <span className="timer-overlay__error" role="alert">{t.error}</span>}
       </div>

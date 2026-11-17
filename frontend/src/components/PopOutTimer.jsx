@@ -17,13 +17,14 @@ const Icon = ({ d }) => <svg viewBox="0 0 24 24" width="22" height="22" aria-hid
 // The picture inside the pop-out window. It lives in its own React root, so it only gets plain values and functions.
 function PipView({ v }) {
   return (
-    <div className={`pip ${v.mode === 'done' ? 'is-done' : ''}`}>
+    <div className={`pip ${v.mode === 'done' ? 'is-done' : ''} ${v.near ? 'is-near' : ''}`}>
       <div className="pip__art" aria-hidden="true">
         {v.plantType ? <GrowingPlant type={v.plantType} progress={v.percent} size={64} title="" /> : <span className="pip__emoji">{v.emoji}</span>}
       </div>
       <div className="pip__info">
         <span className="pip__label">{v.label}</span>
         {v.mode === 'run' && <strong className="pip__time" role="timer">{v.time}</strong>}
+        {v.near && <span className="pip__label">Almost there</span>}
         {v.error && <span className="pip__error" role="alert">{v.error}</span>}
       </div>
       <div className="pip__actions">
@@ -41,7 +42,7 @@ function PipView({ v }) {
 
 export default function PopOutTimer() {
   const view = useTimerView();
-  const { t, session, running, waiting, breakDone, thanks, focus, paused, percent, label, any } = view;
+  const { t, session, running, waiting, breakDone, thanks, focus, paused, percent, label, any, nearEnd } = view;
   const winRef = useRef(null);
   const rootRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -108,6 +109,7 @@ export default function PopOutTimer() {
           plantType: running && focus ? session.plantType : waiting ? view.result.session.plantType : null,
           emoji: running ? '☕' : thanks ? '🎉' : '🌤',
           paused,
+          near: nearEnd,
           canPause: focus,
           busy: t.busy,
           error: t.error,

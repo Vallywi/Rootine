@@ -37,6 +37,35 @@ export function alertDone(session, settings) {
   }
 }
 
+// One gentle "almost there" tick shortly before a session ends.
+export function alertSoon(session, settings) {
+  if (settings.soundEnabled) {
+    try {
+      audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 520;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.08, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.55);
+    } catch { /* sound is optional */ }
+  }
+  if (settings.notificationsEnabled && notificationsSupported() && Notification.permission === 'granted') {
+    try {
+      new Notification('Almost there', {
+        body: session.kind === 'focus' ? 'Your plant is almost fully grown.' : 'Your break is almost over.',
+        icon: '/icons/icon-192.png',
+        tag: `rootine-soon-${session.id}`,
+      });
+    } catch { /* some browsers only allow notifications from a service worker */ }
+  }
+}
+
 export async function askNotificationPermission() {
   if (!notificationsSupported()) return 'unsupported';
   return Notification.requestPermission();

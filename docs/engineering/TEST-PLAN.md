@@ -240,3 +240,9 @@ Section 14 of the PRD has the formal acceptance criteria. Each criterion must po
 - Security checks T-S1 to T-S11 pass.
 - Accessibility checks in section 5 pass.
 - User testing finished and findings addressed or listed.
+
+## Addendum: new tests
+
+- backend/tests/friends.test.js (15 tests): codes, requests, accepting, privacy of profile data, leaderboard order and ties, week vs all time, sharing switch, photo rules (type, size, CSRF, who can load it), delete account.
+- Browser checks (isolated server): near-end warning and a single chime, drawer (open, tabs, Esc, outside tap, sign out), friend flow with two browser profiles, photo upload, badge, privacy switch, phone audit of the drawer and Friends page.
+- Not tested: a real phone, real Picture-in-Picture, Safari and Firefox.

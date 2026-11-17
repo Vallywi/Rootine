@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import * as api from './api.js';
 import { useAuth } from './AuthContext.jsx';
-import { alertDone } from './alerts.js';
+import { alertDone, alertSoon } from './alerts.js';
 
 const TimerContext = createContext(null);
 export const useTimer = () => useContext(TimerContext);
@@ -78,6 +78,17 @@ export function TimerProvider({ children }) {
     : session.status === 'active' ? Math.max(0, session.targetAt - (Date.now() + offset)) // the state value only triggers repaints
     : session.status === 'paused' ? session.remainingMs : 0;
 
+  // "Almost done": the last minute, or the last fifth of a short session.
+  const warnMs = session ? Math.min(60_000, session.plannedSeconds * 200) : 0;
+  const nearEnd = !!session && (session.status === 'active' || session.status === 'paused') && remainingMs > 0 && remainingMs <= warnMs;
+  const warnedFor = useRef(null);
+  useEffect(() => {
+    if (nearEnd && session.status === 'active' && warnedFor.current !== session.id) {
+      warnedFor.current = session.id;
+      alertSoon(session, settingsRef.current);
+    }
+  }, [nearEnd, session]);
+
   const complete = useCallback(async () => {
     if (completing.current || !session) return;
     completing.current = true;
@@ -99,7 +110,7 @@ export function TimerProvider({ children }) {
   }, [active, remainingMs, complete]);
 
   const value = {
-    session, remainingMs, serverOffset: offset,
+    session, remainingMs, nearEnd, serverOffset: offset,
     nextBreak: info.nextBreak, focusSinceLongBreak: info.focusSinceLongBreak,
     result, clearResult: () => setResult(null),
     busy, error, clearError: () => setError(''),

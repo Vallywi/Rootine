@@ -662,3 +662,15 @@ Approving the PRD should include either confirming or replacing unresolved assum
 |---|---|---|---|
 |  |  | ☐ Approved ☐ Changes needed |  |
 |  |  | ☐ Approved ☐ Changes needed |  |
+
+## Addendum: near-end warning, profile drawer, photos, friends
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| FR-40 | In the last minute of a session (or the last 20% of a session shorter than 5 minutes) the clock, the floating timer, and the pop-out window turn amber and say "Almost there". One soft chime and one notification (if enabled) play once per session. | P1 |
+| FR-41 | The name at the top right opens a side drawer with two tabs, Profile (photo, details, password, delete account) and Settings (timer, alerts, goal, theme, install, help), and a Sign out button. The /settings page still works. | P1 |
+| FR-42 | A user can add, replace, or remove a profile photo. The browser shrinks it to a 256 px JPEG. Only the user and accepted friends can load it. | P2 |
+| FR-43 | Every account has a friend code (XXXX-XXXX). A user adds a friend by code. The other person must accept (or add the sender's code back). Friends see only nickname, photo, and score. | P2 |
+| FR-44 | A leaderboard ranks the user and friends by completed focus minutes, This week or All time. A user can stop sharing their score. Up to 50 friends. | P2 |
+
+Notes: FR-32 (friends, P2) is now delivered as FR-43 and FR-44. Search by email is not offered, so nobody can find out which emails are registered. The "almost done" wording was interpreted from "may oras kapag malapit na matapos"; change the threshold in frontend/src/lib/TimerContext.jsx (warnMs) if a different rule is wanted.

@@ -26,7 +26,7 @@ export default function SettingsPage() {
   );
 }
 
-function TimerSettings() {
+export function TimerSettings() {
   const { settings, limits, saveSettings, sessionEnded } = useAuth();
   const { session } = useTimer();
   const locked = !!session && (session.status === 'active' || session.status === 'paused');
@@ -74,7 +74,7 @@ function TimerSettings() {
   );
 }
 
-function AlertSettings() {
+export function AlertSettings() {
   const { settings, saveSettings } = useAuth();
   const [msg, setMsg] = useState('');
   const supported = notificationsSupported();
@@ -109,7 +109,7 @@ function AlertSettings() {
   );
 }
 
-function LookSettings() {
+export function LookSettings() {
   const { settings, limits, saveSettings, sessionEnded } = useAuth();
   const [goal, setGoal] = useState(String(settings.dailyGoal));
   const [error, setError] = useState('');
@@ -145,7 +145,7 @@ function LookSettings() {
   );
 }
 
-function HelpCard() {
+export function HelpCard() {
   return (
     <div className="card">
       <h2>Need a hand?</h2>
@@ -155,7 +155,7 @@ function HelpCard() {
   );
 }
 
-function InstallCard() {
+export function InstallCard() {
   const [prompt, setPrompt] = useState(null);
   const [installed, setInstalled] = useState(window.matchMedia?.('(display-mode: standalone)').matches);
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -180,7 +180,7 @@ function InstallCard() {
   );
 }
 
-function AccountSettings() {
+export function AccountSettings({ compact = false }) {
   const { user, updateUser, logout, sessionEnded } = useAuth();
   const [profile, setProfile] = useState({
     displayName: user.displayName ?? '',
@@ -230,9 +230,9 @@ function AccountSettings() {
   };
 
   return (
-    <div className="card stack">
-      <h2>Account</h2>
-      <p className="muted small">Signed in as {user.email}</p>
+    <div className={compact ? 'stack' : 'card stack'}>
+      {!compact && <h2>Account</h2>}
+      {!compact && <p className="muted small">Signed in as {user.email}</p>}
 
       <form onSubmit={saveProfile} noValidate>
         <h3>Your details</h3>
@@ -274,7 +274,7 @@ function AccountSettings() {
       </form>
 
       <div className="row">
-        <button className="btn btn--ghost" onClick={logout}>Log out</button>
+        {!compact && <button className="btn btn--ghost" onClick={logout}>Log out</button>}
         <button className="btn btn--ghost btn--danger-text" onClick={() => { setDelPw(''); setDelErr(''); setDelOpen(true); }}>Delete account</button>
       </div>
 

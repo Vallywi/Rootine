@@ -183,3 +183,11 @@ CREATE UNIQUE INDEX one_open_session_per_user
   ON timer_sessions (user_id)
   WHERE status IN ('active', 'paused');
 ```
+
+## Addendum: friends and photos
+
+users gets: friend_code text (unique index users_friend_code_uq, 8 characters from ABCDEFGHJKLMNPQRSTUVWXYZ23456789), share_progress boolean default true, avatar bytea (JPEG, up to 150 KB), avatar_version int default 0.
+
+New table friendships: id, requester_id and addressee_id (both reference users, on delete cascade), status ('pending' or 'accepted'), created_at, responded_at. A unique index on LEAST(requester_id, addressee_id), GREATEST(requester_id, addressee_id) allows one row per pair. Row level security is enabled like the other tables.
+
+The upgrade is additive. Existing users get a friend code the next time the server starts or npm run db:init runs.

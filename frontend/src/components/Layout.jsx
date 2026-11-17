@@ -1,21 +1,47 @@
+import { useCallback, useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import * as api from '../lib/api.js';
+import Avatar from './Avatar.jsx';
+import AccountDrawer from './AccountDrawer.jsx';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Tour from './Tour.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
 import TimerOverlay from './TimerOverlay.jsx';
 import PopOutTimer from './PopOutTimer.jsx';
 
-// Settings is not here. It is the gear at the top right, next to the light/dark switch and the tour button.
+// Settings is not here. It lives in the side drawer that opens from the name at the top right.
 const links = [
   { to: '/', label: 'Focus', icon: '⏱', end: true },
   { to: '/tasks', label: 'Tasks', icon: '✓' },
   { to: '/garden', label: 'Garden', icon: '🌱' },
+  { to: '/friends', label: 'Friends', icon: '\uD83D\uDC6B', badge: true },
   { to: '/yard', label: 'Yard', icon: '🏡' },
 ];
 
 // Top bar on wide screens, bottom bar on phones.
 export default function Layout() {
   const { user, demo } = useAuth();
+  const [drawer, setDrawer] = useState(false);
+  const [requests, setRequests] = useState(0);
+
+  // The number of friend requests waiting for an answer, shown on the Friends tab.
+  const loadRequests = useCallback(async () => {
+    try { setRequests((await api.get('/friends')).incoming.length); } catch { /* the badge is optional */ }
+  }, []);
+  useEffect(() => {
+    loadRequests();
+    const id = setInterval(loadRequests, 60_000);
+    const onVisible = () => { if (document.visibilityState === 'visible') loadRequests(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('rootine:friends', loadRequests);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('rootine:friends', loadRequests); };
+  }, [loadRequests]);
+  // The tour is started from inside the drawer too, so close the drawer first.
+  useEffect(() => {
+    const close = () => setDrawer(false);
+    window.addEventListener('rootine:tour', close);
+    return () => window.removeEventListener('rootine:tour', close);
+  }, []);
   return (
     <div className="shell">
       <a className="skip-link" href="#main">Skip to content</a>
@@ -26,26 +52,29 @@ export default function Layout() {
         </span>
         <nav aria-label="Main" className="nav nav--top" data-tour="nav">
           {links.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className="nav__link">{l.label}</NavLink>
+            <NavLink key={l.to} to={l.to} end={l.end} className="nav__link">{l.label}{l.badge && requests > 0 && <span className="badge" aria-label={`${requests} new friend requests`}>{requests}</span>}</NavLink>
           ))}
         </nav>
         <span className="row topbar__right" data-tour="tools">
           <ThemeToggle />
           <button type="button" className="icon-btn" aria-label="Show the beginner tour" title="How Rootine works" onClick={() => window.dispatchEvent(new Event('rootine:tour'))}>?</button>
-          <NavLink to="/settings" className="icon-btn" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙️</span></NavLink>
-          <span className="topbar__user" title={user.email}>{user.displayName}</span>
+          <button type="button" className="profile-btn" data-tour="profile" onClick={() => setDrawer(true)} aria-haspopup="dialog" aria-label={`Open your profile and settings, ${user.displayName}`} title="Profile and settings">
+            <Avatar name={user.displayName} url={user.avatarUrl} size={32} />
+            <span className="profile-btn__name">{user.displayName}</span>
+          </button>
         </span>
       </header>
       <main id="main" className="main" tabIndex={-1}>
         <Outlet />
       </main>
+      <AccountDrawer open={drawer} onClose={() => setDrawer(false)} />
       <Tour />
       <TimerOverlay />
       <PopOutTimer />
       <nav aria-label="Main (mobile)" className="nav nav--bottom" data-tour="nav">
         {links.map((l) => (
           <NavLink key={l.to} to={l.to} end={l.end} className="nav__link">
-            <span aria-hidden="true" className="nav__icon">{l.icon}</span>
+            <span aria-hidden="true" className="nav__icon">{l.icon}{l.badge && requests > 0 && <span className="badge">{requests}</span>}</span>
             <span>{l.label}</span>
           </NavLink>
         ))}

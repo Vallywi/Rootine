@@ -30,5 +30,6 @@ export function useTimerView() {
   else if (thanks) label = 'Added to your garden!';
   else label = 'Break is over';
 
-  return { t, session, result, running, waiting, breakDone, thanks, focus, paused, percent, plantName, label, any: running || waiting || breakDone || thanks };
+  const nearEnd = running && !!t.nearEnd;
+  return { nearEnd, t, session, result, running, waiting, breakDone, thanks, focus, paused, percent, plantName, label, any: running || waiting || breakDone || thanks };
 }

@@ -6,7 +6,7 @@ export const useAuth = () => useContext(AuthContext);
 
 const DEFAULT_SETTINGS = {
   focusMinutes: 25, shortBreakMinutes: 5, longBreakMinutes: 15, longBreakInterval: 4,
-  soundEnabled: true, notificationsEnabled: false, dailyGoal: 4, theme: 'light',
+  soundEnabled: true, notificationsEnabled: false, dailyGoal: 4, theme: 'light', shareProgress: true,
 };
 
 export function AuthProvider({ children }) {

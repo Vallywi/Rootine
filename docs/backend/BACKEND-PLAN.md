@@ -278,3 +278,7 @@ Vercel does not run a long-lived Node server. Each `/api` request runs the Expre
 - `npm audit` shows no high or critical issues.
 - No secrets or personal data in the repository or logs.
 - Reviewed by at least one other team member.
+
+## Addendum: friends module
+
+routes/friends.js (friends, requests, leaderboard), routes/users.js (photo download), friendCode.js (generate, clean, backfill), and PUT/DELETE /auth/avatar in routes/auth.js. The leaderboard reuses computeStats from routes/garden.js so scores match the Garden page. Friends never receive email, full name, age, or gender.

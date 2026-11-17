@@ -19,8 +19,8 @@ const STEPS = [
   { id: 'collect', demo: 'collect', title: '6. Collect your plant 🧺', text: 'When the time is up, tap Collect plant to add it to your Garden. Then enjoy your break!' },
   { id: 'yard', demo: 'yard', title: '7. Decorate your yard 🏡', text: 'Collected plants can stand outside in your Yard. Drag them around to make your own little garden.' },
   { id: 'nav', target: 'nav', title: '8. Explore 🧭', text: 'Tasks is your to-do list. Garden shows your plants, streaks, and badges. Yard is where your plants stand outside.' },
-  { id: 'tools', target: 'tools', title: '9. Quick buttons ✨', text: 'At the top right: the sun or moon switches between light and dark, the ? shows this tour again, and the gear opens Settings for your goal, timer, and details.' },
-  { id: 'done', demo: 'done', title: 'You are ready! 🎉', text: 'Plant your first seed whenever you like. Need this tour again? Tap the ? button at the top, or open Settings.' },
+  { id: 'tools', target: 'tools', title: '9. Quick buttons ✨', text: 'At the top right: the sun or moon switches between light and dark, the ? shows this tour again, Tap your name to open a side panel with your photo, details, settings, and Sign out. Friends has your friend code and the leaderboard.' },
+  { id: 'done', demo: 'done', title: 'You are ready! 🎉', text: 'Plant your first seed whenever you like. Need this tour again? Tap the ? button at the top, or open the side panel from your name.' },
 ];
 
 const findTarget = (name) =>
@@ -83,7 +83,7 @@ export default function Tour() {
     return () => clearTimeout(id);
   }, [pathname, session, seen]);
 
-  // Replay from the ? button or from Settings.
+  // Replay from the ? button or from the side panel.
   useEffect(() => {
     const start = () => { setI(0); setOpen(true); if (window.location.pathname !== '/') navigate('/'); };
     window.addEventListener('rootine:tour', start);

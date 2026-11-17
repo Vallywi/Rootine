@@ -324,3 +324,22 @@ Put the plant back in the tray. `200`: `{ "plant": { "id": 12, "x": null, "y": n
 4. Changing settings never changes a running session (BR-12).
 5. A user can only read or change their own data (BR-9).
 6. Breaks never create plants (BR-4).
+
+## Addendum: friends, profile photo, share setting
+
+All routes need a login. Non-GET requests need the CSRF header.
+
+| Method and path | What it does |
+|-----------------|--------------|
+| PUT /api/auth/avatar | Body: raw image/jpeg, 200 B to 150 KB. Replaces the photo. Returns { avatarUrl }. 400 if it is not a JPEG, 413 if too big. |
+| DELETE /api/auth/avatar | Removes the photo. |
+| GET /api/users/:id/avatar | The photo. Only for yourself or an accepted friend (otherwise 404). Cache-Control: private, max-age=86400. Use ?v= from avatarUrl. |
+| GET /api/friends | { code, shareProgress, friends[], incoming[], outgoing[] }. People have id, displayName, avatarUrl only. |
+| POST /api/friends/requests | { code }. 201 pending, 200 accepted (they had already asked you), 404 unknown code, 409 duplicate or 50 friends, 400 own code or bad format. 15 per 15 minutes. |
+| POST /api/friends/requests/:id/accept | Addressee accepts. |
+| POST /api/friends/requests/:id/decline | Addressee declines (row deleted). |
+| DELETE /api/friends/requests/:id | Sender cancels. |
+| DELETE /api/friends/:userId | Removes a friend (either side). |
+| GET /api/friends/leaderboard?period=week or all&tzOffset=n | { period, rows[], hidden }. Row: id, displayName, avatarUrl, isMe, minutes, plants, streak, rank. Ties share a rank. Only friends with shareProgress true are listed. |
+
+Changed: user objects have avatarUrl (string or null). GET and PUT /api/settings have shareProgress (boolean, default true).

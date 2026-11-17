@@ -377,3 +377,10 @@ Rootine can be installed from Chrome or Edge like an app. It stays a website. Th
 - No console errors or warnings in a normal session.
 - Error, empty, and loading states exist for every data screen.
 - Reviewed by at least one other team member.
+
+## Addendum: drawer, photos, friends, near-end warning
+
+- components/AccountDrawer.jsx: native dialog styled as a right side drawer (Esc, backdrop click, focus trap). Tabs Profile and Settings, Sign out in the footer. It reuses the sections exported from pages/SettingsPage.jsx.
+- components/Avatar.jsx (picture or first letter, plus shrinkToJpeg) and PhotoEditor.jsx.
+- pages/FriendsPage.jsx: friend code, add form, requests, leaderboard, friends list, privacy switch. The Friends tab shows a badge with waiting requests.
+- TimerContext exposes nearEnd. alerts.js has alertSoon. The big clock, TimerOverlay, and PopOutTimer style .is-near.

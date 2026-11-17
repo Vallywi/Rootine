@@ -34,6 +34,26 @@ export async function api(method, path, body) {
   return data;
 }
 
+// Send a file as the raw request body (used for the profile photo).
+export async function upload(method, path, blob) {
+  let res;
+  try {
+    res = await fetch(`/api${path}`, {
+      method,
+      headers: { 'Content-Type': blob.type || 'application/octet-stream', 'X-Rootine-CSRF': csrfToken || 'pending' },
+      credentials: 'same-origin',
+      body: blob,
+    });
+  } catch {
+    throw new ApiError(0, 'Cannot reach Rootine. Check your connection and try again.');
+  }
+  let data = null;
+  try { data = await res.json(); } catch { /* empty or not JSON */ }
+  if (data?.csrfToken) setCsrfToken(data.csrfToken);
+  if (!res.ok) throw new ApiError(res.status, data?.error || 'Something went wrong. Please try again.', data);
+  return data;
+}
+
 export const get = (p) => api('GET', p);
 export const post = (p, b = {}) => api('POST', p, b);
 export const put = (p, b) => api('PUT', p, b);

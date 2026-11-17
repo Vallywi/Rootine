@@ -9,6 +9,7 @@ import TasksPage from './pages/TasksPage.jsx';
 import GardenPage from './pages/GardenPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import YardPage from './pages/YardPage.jsx';
+import FriendsPage from './pages/FriendsPage.jsx';
 import Plant from './components/Plant.jsx';
 import Backdrop from './components/Backdrop.jsx';
 import Landing from './pages/Landing.jsx';
@@ -44,6 +45,7 @@ function Gate() {
           <Route path="tasks" element={<TasksPage />} />
           <Route path="garden" element={<GardenPage />} />
           <Route path="yard" element={<YardPage />} />
+          <Route path="friends" element={<FriendsPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

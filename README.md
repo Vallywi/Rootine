@@ -77,6 +77,12 @@ Notes:
 - Any valid email is accepted at registration.
 - The server is the source of truth for the timer. The browser only shows the countdown.
 
+## Profile drawer, photos, and friends
+
+Tap your name at the top right to open the side drawer: photo, details, settings, and Sign out. Friends has your friend code, an add box, and a leaderboard (focus minutes, this week or all time). Friends only see your nickname, photo, and score. In the last minute of a session the timer turns amber and plays one soft chime.
+
+After pulling this version, restart the backend and run `npm run db:init` once. It only adds columns and a table.
+
 ## Not built yet
 
 Phase 6b extras from `docs/engineering/FULLSTACK-PLAN.md`: coins and shop, task categories, ambient sounds, export my data.

@@ -73,7 +73,7 @@ test('settings: defaults, update, limits, and unknown fields', async () => {
   const g = await c.get('/settings');
   assert.deepEqual(g.body.settings, {
     focusMinutes: 25, shortBreakMinutes: 5, longBreakMinutes: 15, longBreakInterval: 4,
-    soundEnabled: true, notificationsEnabled: false, dailyGoal: 4, theme: 'light',
+    soundEnabled: true, notificationsEnabled: false, dailyGoal: 4, theme: 'light', shareProgress: true,
   });
   const ok = await c.put('/settings', { focusMinutes: 30, soundEnabled: false });
   assert.equal(ok.body.settings.focusMinutes, 30);

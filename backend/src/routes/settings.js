@@ -15,6 +15,7 @@ const COLUMNS = {
   notificationsEnabled: 'notifications_enabled',
   dailyGoal: 'daily_goal',
   theme: 'theme',
+  shareProgress: 'share_progress',
 };
 
 const toDto = (u) => ({
@@ -26,10 +27,11 @@ const toDto = (u) => ({
   notificationsEnabled: u.notifications_enabled,
   dailyGoal: u.daily_goal,
   theme: u.theme,
+  shareProgress: u.share_progress,
 });
 
 const SELECT = `SELECT focus_minutes, short_break_minutes, long_break_minutes, long_break_interval,
-  sound_enabled, notifications_enabled, daily_goal, theme FROM users WHERE id = $1`;
+  sound_enabled, notifications_enabled, daily_goal, theme, share_progress FROM users WHERE id = $1`;
 
 export function settingsRoutes(ctx) {
   const router = Router();
@@ -51,6 +53,7 @@ export function settingsRoutes(ctx) {
       notificationsEnabled: z.boolean(),
       dailyGoal: range('Daily goal', L.dailyGoal),
       theme: z.enum(['light', 'dark'], { error: 'Theme must be light or dark.' }),
+      shareProgress: z.boolean(),
     })
     .partial()
     .strict();

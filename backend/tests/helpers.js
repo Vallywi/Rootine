@@ -37,6 +37,7 @@ export async function startServer({ rateLimit = false, demo = false } = {}) {
       return { status: res.status, body: json, headers: res.headers };
     };
     return {
+      base,
       state,
       get: (p, o) => call('GET', p, undefined, o),
       post: (p, b = {}, o) => call('POST', p, b, o),

@@ -36,14 +36,14 @@ export function loadSession(ctx) {
       if (typeof token === 'string' && token) {
         const hash = sha256(token);
         const rows = await ctx.db.query(
-          `SELECT s.token_hash, s.csrf_token, s.expires_at, u.id, u.email, u.display_name, u.full_name, u.age, u.gender
+          `SELECT s.token_hash, s.csrf_token, s.expires_at, u.id, u.email, u.display_name, u.full_name, u.age, u.gender, (u.avatar IS NOT NULL) AS has_avatar, u.avatar_version
              FROM auth_sessions s JOIN users u ON u.id = s.user_id
             WHERE s.token_hash = $1`,
           [hash],
         );
         const row = rows[0];
         if (row && row.expires_at > ctx.now()) {
-          req.user = { id: row.id, email: row.email, displayName: row.display_name, fullName: row.full_name, age: row.age, gender: row.gender };
+          req.user = { id: row.id, email: row.email, displayName: row.display_name, fullName: row.full_name, age: row.age, gender: row.gender, hasAvatar: row.has_avatar, avatarVersion: row.avatar_version };
           req.csrfToken = row.csrf_token;
           req.sessionHash = row.token_hash;
         } else if (row) {

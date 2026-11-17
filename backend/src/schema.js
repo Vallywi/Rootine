@@ -96,6 +96,26 @@ ALTER TABLE timer_sessions ADD COLUMN IF NOT EXISTS yard_y double precision;
 ALTER TABLE timer_sessions DROP CONSTRAINT IF EXISTS timer_sessions_yard_check;
 ALTER TABLE timer_sessions ADD CONSTRAINT timer_sessions_yard_check
   CHECK ((yard_x IS NULL) = (yard_y IS NULL) AND (yard_x IS NULL OR (yard_x BETWEEN 0 AND 100 AND yard_y BETWEEN 0 AND 100)));
+-- Friends and profile picture
+ALTER TABLE users ADD COLUMN IF NOT EXISTS friend_code text;
+CREATE UNIQUE INDEX IF NOT EXISTS users_friend_code_uq ON users (friend_code);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS share_progress boolean NOT NULL DEFAULT true;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar bytea;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_version integer NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS friendships (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  requester_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  addressee_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted')),
+  created_at bigint NOT NULL,
+  responded_at bigint,
+  CHECK (requester_id <> addressee_id)
+);
+-- One row per pair of people, whoever asked first.
+CREATE UNIQUE INDEX IF NOT EXISTS friendships_pair_uq ON friendships (LEAST(requester_id, addressee_id), GREATEST(requester_id, addressee_id));
+CREATE INDEX IF NOT EXISTS friendships_addressee_idx ON friendships (addressee_id);
+
 CREATE TABLE IF NOT EXISTS rate_limits (
   key text PRIMARY KEY,
   window_start bigint NOT NULL,
@@ -105,6 +125,6 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 
 // Supabase exposes tables through an automatic public API. Row Level Security with no
 // policies keeps that API from returning any rows. The backend role is not affected.
-export const RLS_SQL = ['users', 'auth_sessions', 'tasks', 'timer_sessions', 'rate_limits']
+export const RLS_SQL = ['users', 'auth_sessions', 'tasks', 'timer_sessions', 'friendships', 'rate_limits']
   .map((t) => `ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY;`)
   .join('\n');

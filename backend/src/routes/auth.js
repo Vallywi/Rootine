@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express, { Router } from 'express';
 import { z } from 'zod';
 import { HttpError, parse } from '../http.js';
 import { LIMITS, GENDERS, LOCK_AFTER_FAILURES, LOCK_MS } from '../config.js';
@@ -6,6 +6,7 @@ import { isUniqueViolation } from '../db.js';
 import { hashPassword, verifyPassword, dummyHash } from '../security.js';
 import { COOKIE_NAME, cookieOptions, createLoginSession, requireAuth } from '../auth.js';
 import { rateLimit } from '../rateLimit.js';
+import { ensureFriendCode } from '../friendCode.js';
 
 const email = z
   .string({ error: 'Enter your email address.' })
@@ -82,7 +83,7 @@ const profileSchema = z
 
 const deleteSchema = z.object({ password: z.string().min(1, 'Enter your password.').max(LIMITS.passwordMax) }).strict();
 
-const USER_COLUMNS = 'id, email, display_name, full_name, age, gender';
+const USER_COLUMNS = 'id, email, display_name, full_name, age, gender, (avatar IS NOT NULL) AS has_avatar, avatar_version';
 const userDto = (u) => ({
   id: u.id,
   email: u.email,
@@ -90,6 +91,8 @@ const userDto = (u) => ({
   fullName: u.fullName ?? u.full_name ?? null,
   age: u.age ?? null,
   gender: u.gender ?? null,
+  // The photo is served by GET /api/users/:id/avatar. ?v= changes when the photo changes, so browsers can keep it.
+  avatarUrl: (u.hasAvatar ?? u.has_avatar) ? `/api/users/${u.id}/avatar?v=${u.avatarVersion ?? u.avatar_version ?? 0}` : null,
 });
 
 export function authRoutes(ctx) {
@@ -119,6 +122,7 @@ export function authRoutes(ctx) {
       }
       throw err;
     }
+    await ensureFriendCode((sql, params) => db.query(sql, params), user.id);
     const csrfToken = await createLoginSession(ctx, res, user.id);
     res.status(201).json({ user: userDto(user), csrfToken });
   });
@@ -126,7 +130,7 @@ export function authRoutes(ctx) {
   router.post('/login', authLimit, async (req, res) => {
     const body = parse(loginSchema, req.body);
     const [user] = await db.query(
-      'SELECT id, email, display_name, full_name, age, gender, password_hash, failed_logins, locked_until FROM users WHERE lower(email) = $1',
+      'SELECT id, email, display_name, full_name, age, gender, (avatar IS NOT NULL) AS has_avatar, avatar_version, password_hash, failed_logins, locked_until FROM users WHERE lower(email) = $1',
       [body.email],
     );
     const now = ctx.now();
@@ -188,6 +192,24 @@ export function authRoutes(ctx) {
       ...keys.map((k) => body[k]),
     ]);
     res.json({ user: userDto(user) });
+  });
+
+  // Profile picture. The browser shrinks the photo to a small square JPEG first. The server checks it again.
+  const MAX_PHOTO = 150 * 1024;
+  router.put('/avatar', requireAuth, express.raw({ type: 'image/jpeg', limit: MAX_PHOTO }), async (req, res) => {
+    const photo = req.body;
+    const looksLikeJpeg = Buffer.isBuffer(photo) && photo.length > 200 && photo.length <= MAX_PHOTO && photo[0] === 0xff && photo[1] === 0xd8 && photo[2] === 0xff;
+    if (!looksLikeJpeg) throw new HttpError(400, 'Please choose a JPEG photo under 150 KB.');
+    const [row] = await db.query(
+      'UPDATE users SET avatar = $2, avatar_version = avatar_version + 1 WHERE id = $1 RETURNING id, avatar_version',
+      [req.user.id, photo],
+    );
+    res.json({ avatarUrl: `/api/users/${row.id}/avatar?v=${row.avatar_version}` });
+  });
+
+  router.delete('/avatar', requireAuth, async (req, res) => {
+    await db.query('UPDATE users SET avatar = NULL, avatar_version = avatar_version + 1 WHERE id = $1', [req.user.id]);
+    res.json({ avatarUrl: null });
   });
 
   router.delete('/account', requireAuth, async (req, res) => {

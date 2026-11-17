@@ -8,6 +8,8 @@ import { settingsRoutes } from './routes/settings.js';
 import { taskRoutes } from './routes/tasks.js';
 import { sessionRoutes } from './routes/sessions.js';
 import { gardenRoutes } from './routes/garden.js';
+import { friendRoutes } from './routes/friends.js';
+import { userRoutes } from './routes/users.js';
 
 // Builds the Express app without listening, so tests and Vercel can use it.
 // `now` can be replaced in tests with a fake clock.
@@ -33,6 +35,8 @@ export function createApp({ db, config, now = () => Date.now(), logger = console
   app.use('/api/tasks', taskRoutes(ctx));
   app.use('/api/sessions', sessionRoutes(ctx));
   app.use('/api/garden', gardenRoutes(ctx));
+  app.use('/api/friends', friendRoutes(ctx));
+  app.use('/api/users', userRoutes(ctx));
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
   app.use(errorHandler(logger));

@@ -1,4 +1,5 @@
 import { SCHEMA_SQL, RLS_SQL } from './schema.js';
+import { backfillFriendCodes } from './friendCode.js';
 
 // bigint columns hold millisecond timestamps. They fit safely in a JS number.
 function normalize(value) {
@@ -56,6 +57,7 @@ async function createPgDb(config) {
     async migrate() {
       await pool.query(SCHEMA_SQL);
       await pool.query(RLS_SQL);
+      await backfillFriendCodes(async (sql, params = []) => normalizeRows((await pool.query(sql, params)).rows));
     },
     async close() {
       await pool.end();
@@ -89,6 +91,7 @@ async function createPgliteDb(config) {
     },
     async migrate() {
       await enqueue(() => db.exec(SCHEMA_SQL));
+      await backfillFriendCodes((sql, params) => enqueue(async () => normalizeRows((await db.query(sql, params ?? [])).rows)));
     },
     async close() {
       await db.close();

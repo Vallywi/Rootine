@@ -19,6 +19,10 @@ const Icon = ({ d }) => <svg viewBox="0 0 24 24" width="22" height="22" aria-hid
 // A small scene: sky with a sun or moon and clouds, a card with the plant and the time, and a strip of grass with flowers.
 function PipView({ v }) {
   const pct = Math.round(Math.max(0, Math.min(1, v.percent)) * 100);
+  // "Focusing · Read chapter 4" is shown as a short badge plus the task name on its own line.
+  const parts = String(v.label).split(' \u00B7 ');
+  const main = parts[0];
+  const task = parts.slice(1).join(' \u00B7 ');
   return (
     <div className={`pip pip--${v.mode} ${v.mode === 'done' ? 'is-done' : ''} ${v.near ? 'is-near' : ''} ${v.paused ? 'is-paused' : ''}`}>
       <div className="pip__sky" aria-hidden="true">
@@ -33,8 +37,9 @@ function PipView({ v }) {
           {v.plantType ? <GrowingPlant type={v.plantType} progress={v.percent} size={72} title="" /> : <span className="pip__emoji">{v.emoji}</span>}
         </div>
         <div className="pip__info">
-          <span className="pip__label">{v.label}</span>
+          <span className="pip__label">{main}</span>
           {v.mode === 'run' && <strong className="pip__time" role="timer">{v.time}</strong>}
+          {v.mode === 'run' && task && <span className="pip__task" title={task}>{task}</span>}
           {v.mode === 'done' && v.coins > 0 && <span className="pip__coins"><span aria-hidden="true">{'\uD83E\uDE99'}</span> +{v.coins} coins when you collect</span>}
           {v.near && <span className="pip__soon">Almost there!</span>}
           {v.paused && <span className="pip__soon pip__soon--paused">Paused</span>}
@@ -84,7 +89,7 @@ export default function PopOutTimer() {
     if (!popOutSupported()) return;
     if (winRef.current) { try { winRef.current.focus(); } catch { /* ignore */ } return; }
     try {
-      const pip = await window.documentPictureInPicture.requestWindow({ width: 360, height: 190 });
+      const pip = await window.documentPictureInPicture.requestWindow({ width: 340, height: 168 });
       // The new window starts empty, so give it the same look as the app.
       for (const sheet of document.styleSheets) {
         if (sheet.href) {

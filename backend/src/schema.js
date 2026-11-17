@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS users (
   failed_logins integer NOT NULL DEFAULT 0,
   locked_until bigint NOT NULL DEFAULT 0
 );
+-- Profile details collected at registration. Added with ALTER so existing databases upgrade safely.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name text CHECK (char_length(full_name) BETWEEN 2 AND 100);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS age integer CHECK (age BETWEEN 5 AND 120);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS gender text CHECK (gender IN ('female', 'male', 'non_binary', 'prefer_not_to_say'));
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower_uq ON users (lower(email));
 
 CREATE TABLE IF NOT EXISTS auth_sessions (

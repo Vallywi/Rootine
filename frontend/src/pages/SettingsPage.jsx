@@ -170,9 +170,14 @@ function InstallCard() {
 
 function AccountSettings() {
   const { user, updateUser, logout, sessionEnded } = useAuth();
-  const [name, setName] = useState(user.displayName);
-  const [nameErr, setNameErr] = useState('');
-  const [nameMsg, setNameMsg] = useState('');
+  const [profile, setProfile] = useState({
+    displayName: user.displayName ?? '',
+    fullName: user.fullName ?? '',
+    age: user.age ?? '',
+    gender: user.gender ?? '',
+  });
+  const [profileFields, setProfileFields] = useState({});
+  const [profileMsg, setProfileMsg] = useState('');
   const [pw, setPw] = useState({ currentPassword: '', newPassword: '' });
   const [pwFields, setPwFields] = useState({});
   const [pwMsg, setPwMsg] = useState('');
@@ -181,11 +186,21 @@ function AccountSettings() {
   const [delErr, setDelErr] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const saveName = async (e) => {
+  const saveProfile = async (e) => {
     e.preventDefault();
-    setNameErr(''); setNameMsg('');
-    try { const d = await api.patch('/auth/profile', { displayName: name }); updateUser(d.user); setNameMsg('Saved.'); }
-    catch (err) { if (err.status === 401) sessionEnded(); setNameErr(err.fields?.displayName || err.message); }
+    setProfileFields({}); setProfileMsg('');
+    try {
+      const body = { displayName: profile.displayName.trim() };
+      if (profile.fullName.trim()) body.fullName = profile.fullName.trim();
+      if (profile.age !== '') body.age = Number(profile.age);
+      if (profile.gender) body.gender = profile.gender;
+      const d = await api.patch('/auth/profile', body);
+      updateUser(d.user);
+      setProfileMsg('Saved.');
+    } catch (err) {
+      if (err.status === 401) sessionEnded();
+      setProfileFields(Object.keys(err.fields || {}).length ? err.fields : { displayName: err.message });
+    }
   };
 
   const changePw = async (e) => {
@@ -207,12 +222,30 @@ function AccountSettings() {
       <h2>Account</h2>
       <p className="muted small">Signed in as {user.email}</p>
 
-      <form onSubmit={saveName} noValidate>
-        <Field label="Display name" error={nameErr}>
-          {(p) => <input {...p} maxLength={40} value={name} onChange={(e) => setName(e.target.value)} />}
+      <form onSubmit={saveProfile} noValidate>
+        <h3>Your details</h3>
+        <Field label="Name (nickname)" error={profileFields.displayName}>
+          {(p) => <input {...p} maxLength={40} value={profile.displayName} onChange={(e) => setProfile({ ...profile, displayName: e.target.value })} />}
         </Field>
-        {nameMsg && <p className="success" role="status">{nameMsg}</p>}
-        <button className="btn btn--small">Save name</button>
+        <Field label="Full name" error={profileFields.fullName}>
+          {(p) => <input {...p} autoComplete="name" maxLength={100} value={profile.fullName} onChange={(e) => setProfile({ ...profile, fullName: e.target.value })} />}
+        </Field>
+        <Field label="Age" error={profileFields.age}>
+          {(p) => <input {...p} type="number" inputMode="numeric" min="5" max="120" value={profile.age} onChange={(e) => setProfile({ ...profile, age: e.target.value })} />}
+        </Field>
+        <Field label="Gender" error={profileFields.gender}>
+          {(p) => (
+            <select {...p} value={profile.gender} onChange={(e) => setProfile({ ...profile, gender: e.target.value })}>
+              <option value="">Not set</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="non_binary">Non-binary</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+          )}
+        </Field>
+        {profileMsg && <p className="success" role="status">{profileMsg}</p>}
+        <button className="btn btn--small">Save details</button>
       </form>
 
       <form onSubmit={changePw} noValidate>

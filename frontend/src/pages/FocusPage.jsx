@@ -66,7 +66,7 @@ function RunningView({ t, onGiveUp }) {
     <div className="card focus">
       <p className="chip">{focus ? (paused ? 'Paused' : 'Focusing') : session.kind === 'long_break' ? 'Long break' : 'Short break'}
         {session.taskTitle && <span className="chip__task"> · {session.taskTitle}</span>}</p>
-      {focus ? <Plant type={session.plantType} stage={stage} size={200} /> : <div className="break-art" aria-hidden="true">☕</div>}
+      {focus ? <Plant type={session.plantType} stage={stage} size={200} fit="full" /> : <div className="break-art" aria-hidden="true">☕</div>}
       <p className="visually-hidden" role="status" aria-live="polite">{focus ? `${PLANTS[session.plantType].name}: ${STAGE_LABEL[stage]}` : 'Break in progress'}</p>
       <p className="clock" aria-label={`${formatClock(t.remainingMs)} remaining`}>{formatClock(t.remainingMs)}</p>
       <progress className="bar" max="1" value={Math.max(0, Math.min(1, percent))} aria-label="Session progress" />
@@ -90,12 +90,12 @@ function ResultView({ t, goal }) {
     <section className="stack">
       <div className="card focus" role="status">
         {focusDone && <>
-          <Plant type={s.plantType} stage="full" size={200} />
+          <Plant type={s.plantType} stage="full" size={200} fit="full" />
           <h1>Your {PLANTS[s.plantType].name.toLowerCase()} is fully grown!</h1>
           <p className="muted">It is now in your garden. Time for a break?</p>
         </>}
         {gaveUp && <>
-          <Plant type={s.plantType} stage="withered" size={200} />
+          <Plant type={s.plantType} stage="withered" size={200} fit="full" />
           <h1>Your plant withered</h1>
           <p className="muted">That is okay. A fresh seed is waiting whenever you are ready.</p>
         </>}
@@ -130,7 +130,7 @@ function StartView({ t, goal }) {
       <div className="card focus">
         <h1>Plant a seed</h1>
         <p className="muted">Focus for {settings.focusMinutes} minutes to grow it.</p>
-        <Plant type={plant} stage="seed" size={160} title={`${PLANTS[plant].name} seed`} />
+        <Plant type={plant} stage="seed" size={160} fit="full" title={`${PLANTS[plant].name} seed`} />
         <fieldset className="plant-picker">
           <legend>Choose a plant</legend>
           {Object.entries(PLANTS).map(([key, p]) => (

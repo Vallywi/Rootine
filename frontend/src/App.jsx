@@ -9,6 +9,8 @@ import TasksPage from './pages/TasksPage.jsx';
 import GardenPage from './pages/GardenPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import Plant from './components/Plant.jsx';
+import Backdrop from './components/Backdrop.jsx';
+import Landing from './pages/Landing.jsx';
 
 function Splash({ children }) {
   return (
@@ -32,6 +34,8 @@ function Gate() {
     );
   }
   return (
+    <>
+    <Backdrop variant={user ? 'soft' : 'full'} />
     <Routes>
       {user ? (
         <Route element={<TimerProvider><Layout /></TimerProvider>}>
@@ -43,12 +47,14 @@ function Gate() {
         </Route>
       ) : (
         <>
+          <Route index element={<Landing />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </>
       )}
     </Routes>
+    </>
   );
 }
 

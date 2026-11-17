@@ -290,10 +290,10 @@ Rootine uses a mobile-first layout. On phone viewports, primary Focus, Tasks, Ga
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-1 | A user can register with a valid email address, a password, and a matching confirm-password entry. Invalid and duplicate-account cases show a clear error without exposing sensitive account details. | P0 |
+| FR-1 | A user can register by giving a nickname, full name, age (5 to 120), gender (female, male, non-binary, or prefer not to say), a valid email address, a password, and a matching confirm-password entry. Invalid and duplicate-account cases show a clear error without exposing sensitive account details. Age and gender are shown only to the account owner and are deleted with the account (FR-39). | P0 |
 | FR-2 | A registered user can log in and explicitly log out. Protected personal screens require authentication. | P0 |
 | FR-3 | Removed by team decision. There is no password reset and no email verification. A new account is usable right after registration. | Removed |
-| FR-4 | A user can edit their display name (1 to 40 characters). Avatar upload stays P2. | P1 |
+| FR-4 | A user can edit their nickname, full name, age, and gender in Settings. Avatar upload stays P2. | P1 |
 | FR-5 | A visitor can try one non-persistent session without an account. Whether the result can be transferred after registration is unresolved. | P2 |
 
 ### 8.2 Focus timer and breaks
@@ -485,7 +485,7 @@ This model describes required product data without choosing a database or backen
 
 | Entity | Minimum data |
 |---|---|
-| **User** | id, email/auth reference, display name (optional), created timestamp |
+| **User** | id, email/auth reference, nickname (display name), full name, age, gender, created timestamp |
 | **Settings** | user id, focus duration, short-break duration, long-break duration, long-break interval, sound-enabled preference, browser-notification-enabled preference, notification permission status if needed, motion preference, theme (when implemented), updated timestamp |
 | **Plant catalog entry** | id, name, four stage assets, withered asset, availability, cost/rarity/unlock rule when rewards exist |
 | **Garden record** | id, user id, session id, plant id, outcome, created/completed timestamp |

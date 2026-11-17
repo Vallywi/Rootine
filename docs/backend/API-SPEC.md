@@ -56,7 +56,10 @@ All timestamps are milliseconds since 1970 (UTC numbers). Durations are seconds 
 
 | Field | Allowed |
 |---|---|
-| Display name | Set automatically from the part of the email before `@`, up to 40 characters |
+| Display name (nickname) | 1 to 40 characters |
+| Full name | 2 to 100 characters: letters, spaces, `.`, `'` and `-` |
+| Age | whole number, 5 to 120 |
+| Gender | `female`, `male`, `non_binary`, `prefer_not_to_say` |
 | Daily goal | 1 to 12 completed focus sessions per day |
 | Email | valid, up to 254 characters |
 | Password | 8 to 128 characters |
@@ -84,14 +87,23 @@ Public. Response `200`: `{ "ok": true }`
 Public. Returns the signed-in user, or `null`.
 
 ```json
-{ "user": { "id": 1, "email": "mia@example.com", "displayName": "Mia" }, "csrfToken": "..." }
+{ "user": { "id": 1, "email": "mia@example.com", "displayName": "Mia", "fullName": "Mia Santos Reyes", "age": 20, "gender": "female" }, "csrfToken": "..." }
 ```
 Signed out: `{ "user": null }`
 
 ### `POST /auth/register`
 ```json
-{ "email": "mia@gmail.com", "password": "growing-plants-1", "confirmPassword": "growing-plants-1" }
+{
+  "displayName": "Mia",
+  "fullName": "Mia Santos Reyes",
+  "age": 20,
+  "gender": "female",
+  "email": "mia@gmail.com",
+  "password": "growing-plants-1",
+  "confirmPassword": "growing-plants-1"
+}
 ```
+All seven fields are required and unknown fields are rejected. `gender` is one of `female`, `male`, `non_binary`, `prefer_not_to_say`. `age` is a whole number from 5 to 120. `fullName` is 2 to 100 characters: letters, spaces, and the characters `.`, `'` and `-` only (extra spaces are collapsed). `displayName` is the nickname, 1 to 40 characters.
 - `201`: `{ "user": {...}, "csrfToken": "..." }` and sets the cookie.
 - `400`: validation errors in `fields`. If `confirmPassword` differs from `password`: `fields.confirmPassword` = "Passwords do not match."
 - `409`: "We could not create an account with those details. Try logging in instead." (does not confirm the account exists)
@@ -116,9 +128,10 @@ Body `{}`. `200`: `{ "ok": true }`. Deletes the server-side session and clears t
 
 ### `PATCH /auth/profile` (signed in)
 ```json
-{ "displayName": "Mia" }
+{ "displayName": "Mia", "fullName": "Mia Reyes", "age": 21, "gender": "non_binary" }
 ```
-- `200`: `{ "user": { "id": 1, "email": "mia@gmail.com", "displayName": "Mia" } }`
+- Send any subset of `displayName`, `fullName`, `age`, `gender` (same rules as registration). An empty body or any other field (such as `email`) returns `400`.
+- `200`: `{ "user": { "id": 1, "email": "mia@gmail.com", "displayName": "Mia", "fullName": "Mia Reyes", "age": 21, "gender": "non_binary" } }`
 - `400`: display name empty, longer than 40 characters, or unknown field.
 
 ### `DELETE /auth/account` (signed in)

@@ -32,7 +32,9 @@ The backend should let tests set the current time, so a 25-minute session can be
 | T-A1 | Register with valid data | 201, cookie is `HttpOnly` and `SameSite`, no password data in the response |
 | T-A2 | Register with weak password or bad email | 400 with a message for each field |
 | T-A2b | Register with a confirm password that differs from the password | 400 with "Passwords do not match." on confirmPassword, no user saved |
-| T-A2c | Register successfully, then read the user row in the database | Row has email, password hash (never the password), display name, default settings, created time |
+| T-A2c | Register successfully, then read the user row in the database | Row has email, password hash (never the password), nickname, full name, age, gender, default settings, created time |
+| T-A2d | Register with a missing profile field, age 4 or 121 or 20.5, an unknown gender, a one-letter or numeric full name | 400 with a message on that field, no user saved |
+| T-A2e | Edit full name, age, and gender in Settings; send an empty update or an `email` field | 200 with new values; 400 for empty or unknown fields |
 | T-A3 | Register with an email already used | 409 with wording that does not confirm the account |
 | T-A4 | Login with wrong password versus unknown email | 401 with identical messages |
 | T-A5 | Five wrong passwords, then the correct one | 429 until the lock time passes, then 200 |
@@ -110,7 +112,10 @@ Run on a phone-width screen first, then desktop.
 
 | ID | Flow | Pass condition |
 |---|---|---|
-| F-1 | Open the app signed out | Redirected to login |
+| F-1 | Open the app signed out | The landing page opens with Log in and Get started buttons |
+| F-1a | Landing page on a phone (390 px) and a desktop (1280 px) | No horizontal scroll, readable text, easy-to-tap buttons, backgrounds do not cover text |
+| F-1b | Register step 1 with empty fields, then with age 200 | Every empty field shows a message, age shows its range message, Next does not continue |
+| F-1c | Finish step 2 and open Settings | The nickname shows in the top bar, and full name, age, and gender are filled in Settings |
 | F-2 | Register with a weak password | Inline error under the field |
 | F-3 | Register correctly | Lands on Focus screen |
 | F-4 | Add, edit, complete, and delete a task | Delete asks for confirmation. History stays. |

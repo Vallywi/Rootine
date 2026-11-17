@@ -53,8 +53,14 @@ function Head({ type, stage, cx, cy, s }) {
   return null;
 }
 
-export default function Plant({ type = 'sunflower', stage = 'full', size = 140, title }) {
+// Visible area per stage. Short plants are cropped so they do not float in empty space.
+// The pot is always at the bottom, so plants of different sizes stand on the same line.
+const VIEW = { seed: [98, 42], sprout: [84, 56], small: [54, 86], full: [34, 106], withered: [56, 84] };
+
+// fit="tight" (default) crops the empty space. fit="full" keeps one fixed box, so the layout does not jump while a plant grows.
+export default function Plant({ type = 'sunflower', stage = 'full', size = 140, title, fit = 'tight' }) {
   const wilt = stage === 'withered';
+  const view = fit === 'full' ? [0, 140] : VIEW[stage];
   const p = PLANTS[type] ?? PLANTS.sunflower;
   const stemColor = wilt ? WILT : LEAF;
   const label = title ?? `${p.name}, ${STAGE_LABEL[stage].toLowerCase()}`;
@@ -89,7 +95,7 @@ export default function Plant({ type = 'sunflower', stage = 'full', size = 140, 
   }
 
   return (
-    <svg className={`plant plant--${stage}`} width={size} height={size} viewBox="0 0 120 140" role="img" aria-label={label}>
+    <svg className={`plant plant--${stage}`} width={size} height={fit === 'full' ? size : Math.round((size * view[1]) / 120)} viewBox={`0 ${view[0]} 120 ${view[1]}`} role="img" aria-label={label}>
       <title>{label}</title>
       <g className="plant__sway">{plant}</g>
       {/* pot with a small face */}

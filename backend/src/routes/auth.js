@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { HttpError, parse } from '../http.js';
-import { LIMITS, LOCK_AFTER_FAILURES, LOCK_MS } from '../config.js';
+import { LIMITS, GENDERS, LOCK_AFTER_FAILURES, LOCK_MS } from '../config.js';
 import { isUniqueViolation } from '../db.js';
 import { hashPassword, verifyPassword, dummyHash } from '../security.js';
 import { COOKIE_NAME, cookieOptions, createLoginSession, requireAuth } from '../auth.js';
@@ -20,8 +20,37 @@ const newPassword = z
   .min(LIMITS.passwordMin, `Use at least ${LIMITS.passwordMin} characters.`)
   .max(LIMITS.passwordMax, `Use at most ${LIMITS.passwordMax} characters.`);
 
+// Profile details (collected at registration, editable in Settings).
+const displayName = z
+  .string({ error: 'Enter the name you want us to call you.' })
+  .trim()
+  .min(1, 'Enter the name you want us to call you.')
+  .max(LIMITS.displayName, `Use at most ${LIMITS.displayName} characters.`);
+
+// Letters (any language), spaces, and . ' - only. Extra spaces are collapsed.
+const NAME_PATTERN = /^[\p{L}\p{M}][\p{L}\p{M}\s.'\u2019-]*$/u;
+const fullName = z
+  .string({ error: 'Enter your full name.' })
+  .trim()
+  .min(LIMITS.fullName[0], 'Enter your full name.')
+  .max(LIMITS.fullName[1], `Use at most ${LIMITS.fullName[1]} characters.`)
+  .regex(NAME_PATTERN, "Use letters, spaces, and . ' - only.")
+  .transform((s) => s.replace(/\s+/g, ' '));
+
+const age = z
+  .number({ error: 'Enter your age as a whole number.' })
+  .int('Enter your age as a whole number.')
+  .min(LIMITS.age[0], `Age must be between ${LIMITS.age[0]} and ${LIMITS.age[1]}.`)
+  .max(LIMITS.age[1], `Age must be between ${LIMITS.age[0]} and ${LIMITS.age[1]}.`);
+
+const gender = z.enum(GENDERS, { error: 'Choose one of the options.' });
+
 const registerSchema = z
   .object({
+    displayName,
+    fullName,
+    age,
+    gender,
     email,
     password: newPassword,
     confirmPassword: z.string({ error: 'Confirm your password.' }).min(1, 'Confirm your password.'),
@@ -47,14 +76,21 @@ const changePasswordSchema = z
   .strict();
 
 const profileSchema = z
-  .object({
-    displayName: z.string().trim().min(1, 'Enter a name.').max(LIMITS.displayName, `Use at most ${LIMITS.displayName} characters.`),
-  })
+  .object({ displayName, fullName, age, gender })
+  .partial()
   .strict();
 
 const deleteSchema = z.object({ password: z.string().min(1, 'Enter your password.').max(LIMITS.passwordMax) }).strict();
 
-const userDto = (u) => ({ id: u.id, email: u.email, displayName: u.displayName ?? u.display_name });
+const USER_COLUMNS = 'id, email, display_name, full_name, age, gender';
+const userDto = (u) => ({
+  id: u.id,
+  email: u.email,
+  displayName: u.displayName ?? u.display_name,
+  fullName: u.fullName ?? u.full_name ?? null,
+  age: u.age ?? null,
+  gender: u.gender ?? null,
+});
 
 export function authRoutes(ctx) {
   const router = Router();
@@ -70,12 +106,12 @@ export function authRoutes(ctx) {
   router.post('/register', registerLimit, async (req, res) => {
     const body = parse(registerSchema, req.body);
     const hash = await hashPassword(body.password);
-    const displayName = (body.email.split('@')[0] || 'Friend').slice(0, LIMITS.displayName);
     let user;
     try {
       [user] = await db.query(
-        'INSERT INTO users (email, display_name, password_hash, created_at) VALUES ($1, $2, $3, $4) RETURNING id, email, display_name',
-        [body.email, displayName, hash, ctx.now()],
+        `INSERT INTO users (email, display_name, full_name, age, gender, password_hash, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${USER_COLUMNS}`,
+        [body.email, body.displayName, body.fullName, body.age, body.gender, hash, ctx.now()],
       );
     } catch (err) {
       if (isUniqueViolation(err)) {
@@ -90,7 +126,7 @@ export function authRoutes(ctx) {
   router.post('/login', authLimit, async (req, res) => {
     const body = parse(loginSchema, req.body);
     const [user] = await db.query(
-      'SELECT id, email, display_name, password_hash, failed_logins, locked_until FROM users WHERE lower(email) = $1',
+      'SELECT id, email, display_name, full_name, age, gender, password_hash, failed_logins, locked_until FROM users WHERE lower(email) = $1',
       [body.email],
     );
     const now = ctx.now();
@@ -143,9 +179,13 @@ export function authRoutes(ctx) {
 
   router.patch('/profile', requireAuth, async (req, res) => {
     const body = parse(profileSchema, req.body);
-    const [user] = await db.query('UPDATE users SET display_name = $2 WHERE id = $1 RETURNING id, email, display_name', [
+    const COLUMN = { displayName: 'display_name', fullName: 'full_name', age: 'age', gender: 'gender' };
+    const keys = Object.keys(body);
+    if (!keys.length) throw new HttpError(400, 'Nothing to update.');
+    const sets = keys.map((k, i) => `${COLUMN[k]} = $${i + 2}`);
+    const [user] = await db.query(`UPDATE users SET ${sets.join(', ')} WHERE id = $1 RETURNING ${USER_COLUMNS}`, [
       req.user.id,
-      body.displayName,
+      ...keys.map((k) => body[k]),
     ]);
     res.json({ user: userDto(user) });
   });

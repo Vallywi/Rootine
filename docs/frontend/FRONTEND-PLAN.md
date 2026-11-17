@@ -76,6 +76,7 @@ frontend/
 | Path | Screen | Access | PRD |
 |---|---|---|---|
 | `/login` | Log in | Guests only | FR-2 |
+| `/` (signed out) | Landing page: hero, how it works, plant stages, features, call to action | Guests only | PRD 4.1 |
 | `/register` | Create account | Guests only | FR-1 |
 | `/` | Focus (idle, running, break, result) | Signed in | FR-6 to 17 |
 | `/tasks` | Task list | Signed in | FR-24 to 26 |
@@ -112,7 +113,9 @@ Each screen needs these states built from the start: **loading, empty, error, su
 
 ### 6.1 Auth screens
 - Cute card with the mascot and a small plant at the top.
-- Fields: email and password (show/hide toggle). Register adds **Confirm password**, checked on the page before sending and again on the server. A mismatch shows "Passwords do not match." under that field.
+- Log in: email and password (show/hide toggle).
+- Register has two steps with a progress indicator. Step 1 "About you": nickname, full name, age, and gender (four chips). Step 2 "Your account": email, password, confirm password (checked on the page and again on the server; a mismatch shows "Passwords do not match."). A server error on a step 1 field sends the user back to step 1.
+- Look: pastel sky background with drifting clouds, floating leaves and sparkles, and rolling hills (`Backdrop` component, decorative and `aria-hidden`). It is quieter in the signed-in app. Motion stops when the user prefers reduced motion.
 - Inline errors under each field, plus one form-level error for general failures.
 - Register shows "At least 8 characters" as a hint before the user makes a mistake.
 - Submit buttons show a busy label and are disabled to prevent double submit.

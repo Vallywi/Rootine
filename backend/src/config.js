@@ -30,7 +30,11 @@ export const LIMITS = {
   longBreak: [10, 30],
   interval: [2, 6],
   dailyGoal: [1, 12],
+  fullName: [2, 100],
+  age: [5, 120],
 };
+
+export const GENDERS = ['female', 'male', 'non_binary', 'prefer_not_to_say'];
 
 export const PLANT_TYPES = ['sunflower', 'cactus', 'tulip', 'sakura'];
 

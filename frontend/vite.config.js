@@ -25,7 +25,7 @@ export default defineConfig({
       },
       workbox: {
         // Cache only the app files. Never answer an /api request from the cache or with index.html.
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [],
@@ -34,6 +34,7 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
-    proxy: { '/api': 'http://localhost:4000' },
+    // API_URL lets tests point the app at a different backend (default: the local one).
+    proxy: { '/api': process.env.API_URL || 'http://localhost:4000' },
   },
 });

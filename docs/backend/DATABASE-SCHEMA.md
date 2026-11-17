@@ -31,7 +31,10 @@ users 1 ───< auth_sessions
 |---|---|---|---|
 | id | bigint | primary key, generated always as identity | |
 | email | text | required, unique index on `lower(email)` | Login name |
-| display_name | text | required, up to 40 | Set at registration from the part of the email before `@` |
+| display_name | text | required, 1 to 40 | Nickname chosen at registration |
+| full_name | text | 2 to 100 | Full name. Nullable only so older rows can be upgraded. The app requires it at registration. |
+| age | integer | 5 to 120 | Same note as `full_name` |
+| gender | text | one of `female`, `male`, `non_binary`, `prefer_not_to_say` | Same note as `full_name` |
 | password_hash | text | required | `scrypt` format, never plain text |
 | created_at | bigint | required | Milliseconds since 1970 |
 | focus_minutes | integer | default 25, range 15 to 60 | Timer setting |

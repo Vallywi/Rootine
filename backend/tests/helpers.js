@@ -46,15 +46,21 @@ export async function startServer({ rateLimit = false } = {}) {
     };
   };
 
+  const profile = (email) => ({
+    displayName: email.split('@')[0].slice(0, 40),
+    fullName: 'Mia Santos Reyes',
+    age: 20,
+    gender: 'female',
+  });
   const register = async (email = 'mia@example.com', password = 'growing-plants-1') => {
     const c = newClient();
-    const r = await c.post('/auth/register', { email, password, confirmPassword: password });
+    const r = await c.post('/auth/register', { ...profile(email), email, password, confirmPassword: password });
     if (r.status !== 201) throw new Error(`register failed: ${r.status} ${JSON.stringify(r.body)}`);
     return c;
   };
 
   return {
-    db, clock, newClient, register,
+    db, clock, newClient, register, profile,
     minutes: (n) => n * 60_000,
     async close() {
       await new Promise((r) => server.close(r));

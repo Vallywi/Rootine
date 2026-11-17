@@ -54,8 +54,7 @@ export function AuthProvider({ children }) {
     limits,
     retry: boot,
     login: async (email, password) => enter(await api.post('/auth/login', { email, password })),
-    register: async (email, password, confirmPassword) =>
-      enter(await api.post('/auth/register', { email, password, confirmPassword })),
+    register: async (details) => enter(await api.post('/auth/register', details)),
     logout: async () => {
       try { await api.post('/auth/logout'); } catch { /* the cookie is cleared by the next load anyway */ }
       api.setCsrfToken('');

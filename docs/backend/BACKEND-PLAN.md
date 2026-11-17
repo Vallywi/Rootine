@@ -86,10 +86,10 @@ Every request passes through these steps in order:
 ### 5.1 Authentication (FR-1 to FR-3)
 
 **Register**
-- Registration form has three fields: email (Gmail or any valid email), password, and confirm password.
-- Validate: valid email (lowercased, trimmed), password 8 to 128 characters, password not equal to email, and confirmPassword identical to password (checked again on the server, never only in the browser). The confirm password is not stored. **[TO CONFIRM]** accept only @gmail.com addresses, or any valid email.
-- Display name is set automatically from the part of the email before @.
-- Save the new user row (email, password hash, display name, default settings, created time) in the database.
+- The registration form is two steps. Step 1 "About you": nickname, full name, age, and gender. Step 2 "Your account": email (any valid email), password, and confirm password. The server requires all seven fields.
+- Validate: valid email (lowercased, trimmed), password 8 to 128 characters, password not equal to email, and `confirmPassword` identical to `password` (checked again on the server, never only in the browser). The confirm password is not stored. Also validate nickname (1 to 40), full name (2 to 100; letters, spaces, `.`, `'` and `-`), age (whole number 5 to 120), and gender (one of four values).
+- Age and gender are personal data. They are shown only to the signed-in user, are never written to logs, and are deleted with the account.
+- Save the new user row (email, password hash, nickname, full name, age, gender, default settings, created time) in the database.
 - Hash with `scrypt` and a unique salt.
 - Duplicate email returns a message that does not confirm the account exists.
 - On success, create a login session and return the user and CSRF token.

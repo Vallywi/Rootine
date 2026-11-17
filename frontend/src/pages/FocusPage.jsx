@@ -7,6 +7,7 @@ import Plant, { PLANTS, STAGE_LABEL, stageFor } from '../components/Plant.jsx';
 import GrowingPlant from '../components/GrowingPlant.jsx';
 import Confetti from '../components/Confetti.jsx';
 import PresetPicker from '../components/PresetPicker.jsx';
+import { popOutSupported, requestPopOut } from '../components/PopOutTimer.jsx';
 import { ConfirmDialog, FormError, GoalRing, formatClock } from '../components/ui.jsx';
 
 export default function FocusPage() {
@@ -89,6 +90,7 @@ function RunningView({ t, onGiveUp }) {
           ? <button className="btn" onClick={t.resume} disabled={t.busy}>Resume</button>
           : <button className="btn btn--ghost" onClick={t.pause} disabled={t.busy}>Pause</button>)}
         <button className="btn btn--ghost btn--danger-text" onClick={onGiveUp} disabled={t.busy}>{focus ? 'Give up' : 'Skip break'}</button>
+        {popOutSupported() && <button type="button" className="btn btn--ghost" onClick={requestPopOut} title="Keep the timer on top of other tabs and apps">Pop out timer</button>}
       </div>
     </div>
   );

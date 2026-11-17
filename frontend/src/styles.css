@@ -703,3 +703,17 @@ button, a, label, select, input, summary { touch-action: manipulation; }
 .timer-overlay.is-done { grid-template-columns: auto 1fr; }
 .timer-overlay.is-done .timer-overlay__actions { grid-column: 1 / -1; justify-content: flex-end; margin-top: .25rem; }
 .timer-overlay.is-done .timer-overlay__label { white-space: normal; overflow: visible; font-size: .95rem; color: var(--text); }
+
+/* ====================== pop-out timer window (Picture-in-Picture) ====================== */
+.pip-body { margin: 0; background: var(--bg); overflow: hidden; }
+.pip { box-sizing: border-box; min-height: 100vh; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .15rem .7rem; padding: .7rem .9rem .9rem; background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom)); color: var(--text); }
+.pip.is-done { background: color-mix(in srgb, var(--butter) 45%, var(--surface)); }
+.pip__art { width: 64px; height: 64px; display: grid; place-items: end center; }
+.pip__emoji { font-size: 2.2rem; line-height: 1; align-self: center; }
+.pip__info { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.pip__label { font-size: .85rem; font-weight: 800; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pip.is-done .pip__label { white-space: normal; color: var(--text); font-size: .95rem; }
+.pip__time { font-size: 2rem; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.pip__error { color: var(--danger); font-size: .78rem; font-weight: 700; }
+.pip__actions { display: flex; gap: .35rem; align-items: center; }
+.pip__bar { grid-column: 1 / -1; height: 8px; margin-top: .3rem; max-width: none; }

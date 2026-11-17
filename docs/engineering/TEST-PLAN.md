@@ -162,6 +162,12 @@ Run on a phone-width screen first, then desktop.
 | F-1x | Let the session finish while on another tab | The floating card says the plant is fully grown with a Collect button. Collect works, then "Added to your garden!" appears and the card goes away. |
 | F-1y | Scroll to the bottom of every tab while the floating timer is showing, on a small phone | The last item is fully visible above the floating timer and the tab bar |
 | F-1z | Run the phone audit at 320, 360, 390, 412, 768, and 844x390 | No sideways scrolling, no targets under 44 px, no text under 12 px, no form fields under 16 px, no popup off screen, and nothing hidden behind a bar |
+| F-1aa | Start a session in Chrome or Edge on a computer and press Pop out timer. Then switch to another browser tab, and to another app. | A small timer window stays on top with the plant and the time counting down |
+| F-1ab | Press Pause, then Resume, in the pop-out window | The session pauses and resumes in the app, and the app shows the same state |
+| F-1ac | Move between Tasks, Garden, Yard, and Settings while the pop-out window is open | It stays open and keeps counting |
+| F-1ad | Let the time run out while the pop-out window is open | It says the plant is fully grown with a Collect button. Collect works, then it says "Added to your garden!" and closes by itself. |
+| F-1ae | Open the app in Safari or Firefox, and on a phone | No Pop out button is shown. The floating card and the tab title still work. |
+| F-1af | On Focus, scroll the big timer out of view | The floating card appears, and it hides again when the big timer is back in view |
 | F-2 | Register with a weak password | Inline error under the field |
 | F-3 | Register correctly | Lands on Focus screen |
 | F-4 | Add, edit, complete, and delete a task | Delete asks for confirmation. History stays. |

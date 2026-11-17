@@ -196,12 +196,19 @@ Rules the screen must follow:
 - The settings response says `demo: true`. Then the Focus screen shows a notice, the top bar shows a DEMO badge, a **Demo 1 / 1** rhythm appears first, Custom accepts 1 minute, and the trees are not locked.
 
 ### 6.11 Floating timer (FR-49)
-- `TimerOverlay` lives in the layout, so it appears on Tasks, Garden, Yard, and Settings. It is hidden on Focus. It reads the same timer state as the Focus screen, so there is one source of truth.
+- `TimerOverlay` lives in the layout, so it appears on Tasks, Garden, Yard, and Settings. On Focus it appears only when the big timer has been scrolled out of view (it checks `.clock` against the screen). It reads the same timer state as the Focus screen (`useTimerView`), so there is one source of truth.
 - Running: mini growing plant (or a cup for breaks), a label ("Focusing", "Paused", "Short break", with the task name), the time, a progress bar, **Pause or Resume** (focus only), and **Open** (back to Focus).
 - Finished while the user was elsewhere: a yellow card "Your pine tree is fully grown!" with **Collect**, **Open**, and **Dismiss**. After collecting it flashes "Added to your garden!" for a few seconds. A finished break shows "Break is over". Dismissing a plant card leaves the plant waiting to be collected.
 - Placement: above the tab bar and centered on phones, in the bottom right corner on wide screens. It measures its own height and tells the page (`--timer-overlay-h`), so the page always leaves exactly enough room and never hides its last item.
 - Accessibility: a labelled region, a live status line for state changes, a `role="timer"` for the time (not announced every second), and 44 px buttons.
 - The page title (`12:34 Â· Rootine`) is set here, so it works on every tab.
+
+### 6.11a Pop-out timer (FR-51)
+- `PopOutTimer` (mounted once in the layout) opens a Document Picture-in-Picture window when the button is pressed (`Pop out timer` on the Focus timer, or the pop-out icon in the floating card). A real user action is required, so the browser allows it.
+- The new window starts empty, so the stylesheets are copied into it and a separate small React root draws the timer (`PipView`). Plain values and functions are passed in on every change, so Pause, Resume, and Collect pressed in that window act on the app, and the time stays in step.
+- It stays open across tabs. When there is nothing left to show it closes by itself after a moment. Closing it by hand is fine.
+- Feature check: `'documentPictureInPicture' in window`. Without it the buttons are not shown. Safari and Firefox do not have this yet, so there the time is only in the tab title and the floating card.
+- A failure to open (the user dismissed the prompt) is logged as a console warning and nothing else happens.
 
 ### 6.12 Phone checklist (FR-50)
 - Checked at 320x568, 360x740, 390x844, 412x915, 768x1024, and 844x390 (landscape). The audit looks for sideways scrolling, targets under 44 px, text under 12 px, form fields under 16 px, anything sticking out past the screen, popups that do not fit, and content hidden behind the bars.

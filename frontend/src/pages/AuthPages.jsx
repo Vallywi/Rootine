@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { Field, FormError } from '../components/ui.jsx';
 import GrowingPlant from '../components/GrowingPlant.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 
 export const GENDER_OPTIONS = [
   { value: 'female', label: 'Female', emoji: '🌸' },
@@ -18,6 +19,7 @@ function PasswordInput({ show, ...props }) {
 function AuthCard({ title, subtitle, children, footer, growth = 1 }) {
   return (
     <div className="auth">
+      <ThemeToggle className="auth__theme" />
       <Link to="/" className="auth__home brand"><span aria-hidden="true">🌿</span> Rootine</Link>
       <div className="card auth__card">
         <div className="auth__mascot"><GrowingPlant type="sunflower" progress={growth} size={104} title="" /></div>

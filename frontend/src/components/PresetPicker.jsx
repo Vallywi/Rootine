@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/AuthContext.jsx';
-import { PRESETS, presetFor } from '../lib/presets.js';
+import { presetFor, presetList } from '../lib/presets.js';
 
 // Choose a focus rhythm. Picking one saves it to the account, so it is used for the timer and for the breaks.
 export default function PresetPicker() {
-  const { settings, limits, saveSettings, sessionEnded } = useAuth();
-  const saved = presetFor(settings);
+  const { settings, limits, saveSettings, sessionEnded, demo } = useAuth();
+  const PRESETS = presetList(demo);
+  const saved = presetFor(settings, demo);
   const [mode, setMode] = useState(saved);
   const [custom, setCustom] = useState({ focus: String(settings.focusMinutes), rest: String(settings.shortBreakMinutes) });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   // Follow the saved settings (for example after they change in Settings).
-  useEffect(() => { setMode(presetFor(settings)); }, [settings.focusMinutes, settings.shortBreakMinutes]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setMode(presetFor(settings, demo)); }, [settings.focusMinutes, settings.shortBreakMinutes, demo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const focusRange = limits?.focus ?? [15, 90];
   const restRange = limits?.shortBreak ?? [3, 20];
@@ -62,7 +63,7 @@ export default function PresetPicker() {
 
       <p className="preset__best" key={mode} aria-live="polite">
         {active
-          ? <><strong>{active.emoji} {active.name}:</strong> {active.focus} minutes of work, then a {active.rest} minute break. Best for {active.best}.</>
+          ? <><strong>{active.emoji} {active.name}:</strong> {active.focus} minute{active.focus === 1 ? '' : 's'} of work, then a {active.rest} minute break. Best for {active.best}.</>
           : <><strong>✏️ Custom:</strong> choose your own lengths.</>}
       </p>
 

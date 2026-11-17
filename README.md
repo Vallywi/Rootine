@@ -30,6 +30,10 @@ With no `DATABASE_URL`, the backend uses a local PostgreSQL database stored in `
 
 To test on a phone on the same Wi-Fi, start the frontend with `npm run dev:frontend -- --host` and open `http://<your-computer-ip>:5173`. Login works. Browser notifications and "Install" need HTTPS, so test those on the Vercel URL.
 
+### Demo mode (development only)
+
+Growing a plant normally takes 15 minutes or more, and a tree takes 40 to 90. To try everything quickly, set `DEMO_MODE=1` in `backend/.env` and restart the backend. You get a **Demo 1 / 1** rhythm (a 1 minute session), every tree is unlocked, and a **DEMO** badge shows in the top bar. Set it back to `0` (or remove the line) to return to normal. It is ignored when `NODE_ENV=production`, so it can never be on in Vercel.
+
 ### Tests
 
 ```bash

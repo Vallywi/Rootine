@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at bigint NOT NULL,
   focus_minutes integer NOT NULL DEFAULT 25,
   short_break_minutes integer NOT NULL DEFAULT 5,
-  long_break_minutes integer NOT NULL DEFAULT 15 CHECK (long_break_minutes BETWEEN 10 AND 30),
+  long_break_minutes integer NOT NULL DEFAULT 15,
   long_break_interval integer NOT NULL DEFAULT 4 CHECK (long_break_interval BETWEEN 2 AND 6),
   sound_enabled boolean NOT NULL DEFAULT true,
   notifications_enabled boolean NOT NULL DEFAULT false,
@@ -28,12 +28,14 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS age integer CHECK (age BETWEEN 5 AND 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS gender text CHECK (gender IN ('female', 'male', 'non_binary', 'prefer_not_to_say'));
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower_uq ON users (lower(email));
 
--- Timer lengths: focus 15 to 90 and short break 3 to 20 minutes (the six presets need this range).
+-- Timer lengths: the database allows focus 1 to 90 and short break 1 to 20 minutes. The app only allows 15 to 90 and 3 to 20 (the six presets need that range), and 1 minute only in demo mode.
 -- Dropped and added again by name, so older databases with the narrower limits are upgraded.
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_focus_minutes_check;
-ALTER TABLE users ADD CONSTRAINT users_focus_minutes_check CHECK (focus_minutes BETWEEN 15 AND 90);
+ALTER TABLE users ADD CONSTRAINT users_focus_minutes_check CHECK (focus_minutes BETWEEN 1 AND 90);
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_long_break_minutes_check;
+ALTER TABLE users ADD CONSTRAINT users_long_break_minutes_check CHECK (long_break_minutes BETWEEN 1 AND 30);
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_short_break_minutes_check;
-ALTER TABLE users ADD CONSTRAINT users_short_break_minutes_check CHECK (short_break_minutes BETWEEN 3 AND 20);
+ALTER TABLE users ADD CONSTRAINT users_short_break_minutes_check CHECK (short_break_minutes BETWEEN 1 AND 20);
 
 CREATE TABLE IF NOT EXISTS auth_sessions (
   token_hash text PRIMARY KEY,

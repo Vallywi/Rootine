@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { HttpError, notFound, parse, parseId } from '../http.js';
-import { COMPLETE_ALLOWANCE_MS, LIMITS, PLANT_TYPES, plantInfo } from '../config.js';
+import { COMPLETE_ALLOWANCE_MS, PLANT_TYPES, limitsFor, plantInfo } from '../config.js';
 import { isUniqueViolation } from '../db.js';
 import { requireAuth } from '../auth.js';
 
-const startSchema = z
+const makeStartSchema = (LIMITS) => z
   .object({
     kind: z.enum(['focus', 'break'], { error: 'Choose focus or break.' }),
     plantType: z.enum(PLANT_TYPES, { error: 'Choose one of the available plants.' }).optional(),
@@ -45,6 +45,8 @@ export function sessionDto(row, now) {
 export function sessionRoutes(ctx) {
   const router = Router();
   const { db } = ctx;
+  const L = limitsFor(ctx.config);
+  const startSchema = makeStartSchema(L);
   router.use(requireAuth);
 
   const getOpen = async (userId) =>
@@ -117,19 +119,21 @@ export function sessionRoutes(ctx) {
         taskId = task.id;
         taskTitle = task.title; // copied, so history survives task deletion (BR-11)
       }
-      const minutes = input.minutes ?? u.focus_minutes;
+      const minutes = input.minutes ?? Math.max(u.focus_minutes, L.focus[0]);
       const info = plantInfo(input.plantType);
-      if (minutes < info.minMinutes) {
+      // In demo mode (development only) trees are unlocked, so they can be tried with a 1 minute session.
+      const needed = ctx.config.demo ? 1 : info.minMinutes;
+      if (minutes < needed) {
         // Trees take longer to grow. Say which rhythm unlocks them.
         throw new HttpError(400, 'Please check the highlighted fields.', {
-          fields: { plantType: `${info.name} needs a focus session of at least ${info.minMinutes} minutes. Choose a longer rhythm.` },
+          fields: { plantType: `${info.name} needs a focus session of at least ${needed} minutes. Choose a longer rhythm.` },
         });
       }
       const seconds = minutes * 60; // copied duration (BR-12)
       values = ['focus', input.plantType, taskId, taskTitle, seconds];
     } else {
       const long = u.focus_since_long_break >= u.long_break_interval;
-      values = [long ? 'long_break' : 'short_break', null, null, null, (long ? u.long_break_minutes : u.short_break_minutes) * 60];
+      values = [long ? 'long_break' : 'short_break', null, null, null, (long ? Math.max(u.long_break_minutes, L.longBreak[0]) : Math.max(u.short_break_minutes, L.shortBreak[0])) * 60];
     }
 
     let created;

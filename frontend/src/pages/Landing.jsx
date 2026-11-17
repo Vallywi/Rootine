@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Plant, { PLANTS } from '../components/Plant.jsx';
 import GrowingPlant from '../components/GrowingPlant.jsx';
 import Reveal from '../components/Reveal.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 import { useGrowLoop } from '../lib/useGrowLoop.js';
 
 const STEPS = [
@@ -34,6 +35,7 @@ export default function Landing() {
       <header className="landing__nav">
         <Link to="/" className="brand"><span aria-hidden="true">🌿</span> Rootine</Link>
         <nav aria-label="Account" className="row">
+          <ThemeToggle />
           <Link to="/login" className="btn btn--ghost btn--small">Log in</Link>
           <Link to="/register" className="btn btn--small">Get started</Link>
         </nav>

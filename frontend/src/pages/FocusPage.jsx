@@ -157,7 +157,7 @@ function ResultView({ t, goal }) {
 }
 
 function StartView({ t, goal, pending, note, onCollectAll }) {
-  const { settings } = useAuth();
+  const { settings, demo } = useAuth();
   const [plant, setPlant] = useState('sunflower');
   const [taskId, setTaskId] = useState('');
   const [tasks, setTasks] = useState([]);
@@ -167,11 +167,16 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
   const untilLong = Math.max(0, settings.longBreakInterval - t.focusSinceLongBreak);
   // A tree needs a longer focus. If the rhythm gets shorter, go back to a plant that is still allowed.
   useEffect(() => {
-    if (settings.focusMinutes < PLANTS[plant].minMinutes) setPlant('sunflower');
-  }, [settings.focusMinutes, plant]);
+    if (!demo && settings.focusMinutes < PLANTS[plant].minMinutes) setPlant('sunflower');
+  }, [settings.focusMinutes, plant, demo]);
 
   return (
     <section className="stack">
+      {demo && (
+        <p className="notice" role="status">
+          ⚡ Demo mode is on (development only). Sessions can be 1 minute long and every tree is unlocked, so you can try growing, collecting, and the yard right away.
+        </p>
+      )}
       {pending > 0 && (
         <div className="card collect-banner">
           <span className="collect-banner__icon" aria-hidden="true">🧺</span>
@@ -185,7 +190,7 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
       {note && <p className="success center" role="status">{note}</p>}
       <div className="card focus">
         <h1>Plant a seed</h1>
-        <p className="muted">Focus for {settings.focusMinutes} minutes to grow it, then rest for {settings.shortBreakMinutes}.</p>
+        <p className="muted">Focus for {settings.focusMinutes} minute{settings.focusMinutes === 1 ? '' : 's'} to grow it, then rest for {settings.shortBreakMinutes}.</p>
         <Plant type={plant} stage="seed" size={200} title={`${PLANTS[plant].name} seed`} />
         <PresetPicker />
         <fieldset className="plant-picker" data-tour="plants">
@@ -199,7 +204,7 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
               {group.note && <p className="plant-group__note">{group.note}</p>}
               <div className="plant-group__grid">
                 {group.items.map((p) => {
-                  const locked = settings.focusMinutes < p.minMinutes;
+                  const locked = !demo && settings.focusMinutes < p.minMinutes;
                   return (
                     <label key={p.id} className={`plant-option ${plant === p.id ? 'is-selected' : ''} ${locked ? 'is-locked' : ''}`}>
                       <input type="radio" name="plant" value={p.id} checked={plant === p.id} disabled={locked} onChange={() => setPlant(p.id)} />

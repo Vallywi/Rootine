@@ -61,6 +61,7 @@ All timestamps are milliseconds since 1970 (UTC numbers). Durations are seconds 
 | Age | whole number, 5 to 120 |
 | Gender | `female`, `male`, `non_binary`, `prefer_not_to_say` |
 | Daily goal | 1 to 12 completed focus sessions per day |
+| Demo mode (development only) | Focus, short break, and long break can be 1 minute, and every tree is unlocked. Turned on with `DEMO_MODE=1`. It is ignored when `NODE_ENV` is `production`. |
 | Email | valid, up to 254 characters |
 | Password | 8 to 128 characters |
 | Task title | 1 to 120 characters |
@@ -165,6 +166,8 @@ Body `{}`. `200`: `{ "ok": true }`. Deletes the server-side session and clears t
   }
 }
 ```
+
+`GET /settings` also returns `"demo": false`. In demo mode (development only, see below) it is `true` and `limits.focus`, `limits.shortBreak`, and `limits.longBreak` start at 1. If demo mode was on before and is off now, a saved timer below the normal minimum is raised to the minimum on the next `GET /settings`.
 
 ### `PUT /settings`
 Send any subset of the fields above. Unknown fields return `400`.

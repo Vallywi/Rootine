@@ -3,8 +3,8 @@ import { createDb } from '../src/db.js';
 import { createApp } from '../src/app.js';
 
 // Starts the real app on a random port with an in-memory PostgreSQL (PGlite) and a fake clock.
-export async function startServer({ rateLimit = false } = {}) {
-  const config = { ...loadConfig({}), pgliteDir: 'memory', rateLimit };
+export async function startServer({ rateLimit = false, demo = false } = {}) {
+  const config = { ...loadConfig(demo ? { DEMO_MODE: '1' } : {}), pgliteDir: 'memory', rateLimit };
   const db = await createDb(config);
   await db.migrate();
   const clock = { t: Date.UTC(2025, 0, 6, 8, 0, 0) }; // a Monday morning

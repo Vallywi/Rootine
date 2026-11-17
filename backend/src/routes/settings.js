@@ -1,27 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { HttpError, parse } from '../http.js';
-import { LIMITS } from '../config.js';
+import { limitsFor } from '../config.js';
 import { requireAuth } from '../auth.js';
 
-const range = (name, [min, max]) =>
-  z.number({ error: `${name} must be a whole number.` }).int(`${name} must be a whole number.`).min(min, `${name} must be between ${min} and ${max}.`).max(max, `${name} must be between ${min} and ${max}.`);
-
 const TIMING_FIELDS = ['focusMinutes', 'shortBreakMinutes', 'longBreakMinutes', 'longBreakInterval'];
-
-const settingsSchema = z
-  .object({
-    focusMinutes: range('Focus length', LIMITS.focus),
-    shortBreakMinutes: range('Short break', LIMITS.shortBreak),
-    longBreakMinutes: range('Long break', LIMITS.longBreak),
-    longBreakInterval: range('Long-break interval', LIMITS.interval),
-    soundEnabled: z.boolean(),
-    notificationsEnabled: z.boolean(),
-    dailyGoal: range('Daily goal', LIMITS.dailyGoal),
-    theme: z.enum(['light', 'dark'], { error: 'Theme must be light or dark.' }),
-  })
-  .partial()
-  .strict();
 
 const COLUMNS = {
   focusMinutes: 'focus_minutes',
@@ -51,13 +34,41 @@ const SELECT = `SELECT focus_minutes, short_break_minutes, long_break_minutes, l
 export function settingsRoutes(ctx) {
   const router = Router();
   const { db } = ctx;
+  // Normal limits, or the shorter ones when demo mode is on (development only, see config.js).
+  const L = limitsFor(ctx.config);
   router.use(requireAuth);
 
+  const range = (name, [min, max]) =>
+    z.number({ error: `${name} must be a whole number.` }).int(`${name} must be a whole number.`).min(min, `${name} must be between ${min} and ${max}.`).max(max, `${name} must be between ${min} and ${max}.`);
+
+  const settingsSchema = z
+    .object({
+      focusMinutes: range('Focus length', L.focus),
+      shortBreakMinutes: range('Short break', L.shortBreak),
+      longBreakMinutes: range('Long break', L.longBreak),
+      longBreakInterval: range('Long-break interval', L.interval),
+      soundEnabled: z.boolean(),
+      notificationsEnabled: z.boolean(),
+      dailyGoal: range('Daily goal', L.dailyGoal),
+      theme: z.enum(['light', 'dark'], { error: 'Theme must be light or dark.' }),
+    })
+    .partial()
+    .strict();
+
   router.get('/', async (req, res) => {
-    const [row] = await db.query(SELECT, [req.user.id]);
+    let [row] = await db.query(SELECT, [req.user.id]);
+    // If demo mode was on before and is off now, a saved 1 minute timer would be too short. Raise it to the normal minimum.
+    if (row.focus_minutes < L.focus[0] || row.short_break_minutes < L.shortBreak[0] || row.long_break_minutes < L.longBreak[0]) {
+      await db.query(
+        'UPDATE users SET focus_minutes = GREATEST(focus_minutes, $2), short_break_minutes = GREATEST(short_break_minutes, $3), long_break_minutes = GREATEST(long_break_minutes, $4) WHERE id = $1',
+        [req.user.id, L.focus[0], L.shortBreak[0], L.longBreak[0]],
+      );
+      [row] = await db.query(SELECT, [req.user.id]);
+    }
     res.json({
       settings: toDto(row),
-      limits: { focus: LIMITS.focus, shortBreak: LIMITS.shortBreak, longBreak: LIMITS.longBreak, interval: LIMITS.interval, dailyGoal: LIMITS.dailyGoal },
+      limits: { focus: L.focus, shortBreak: L.shortBreak, longBreak: L.longBreak, interval: L.interval, dailyGoal: L.dailyGoal },
+      demo: !!ctx.config.demo,
     });
   });
 

@@ -186,6 +186,15 @@ Rules the screen must follow:
 ### 6.8 Landing footer (FR-46)
 - Four blocks (brand with a short description and little plants, Explore, Get started, Good to know) in one rounded card, then the year and a Back to top button. Links to sections use smooth scrolling, which stops with reduced motion.
 
+### 6.9 Top bar tools (FR-47)
+- Right side of the top bar, in this order: light/dark switch (sun or moon), the **?** tour button, the **Settings** gear, and the user name. The gear is highlighted on the Settings page. All three are round 44 px buttons with accessible names ("Switch to dark mode", "Show the beginner tour", "Settings").
+- The tab bar (bottom on phones, top on desktop) has four tabs: Focus, Tasks, Garden, Yard.
+- `ThemeToggle` is also in the landing page top bar and in the corner of the login and register pages. Signed in, it saves to the account. Signed out, it is remembered in the browser (`localStorage`) and is replaced by the account choice after login.
+- The tour has a step that points at these buttons.
+
+### 6.10 Demo mode (FR-48)
+- The settings response says `demo: true`. Then the Focus screen shows a notice, the top bar shows a DEMO badge, a **Demo 1 / 1** rhythm appears first, Custom accepts 1 minute, and the trees are not locked.
+
 ## 7. Timer behavior in the browser
 
 1. The backend sends `targetAt` and `serverNow` with every session response.

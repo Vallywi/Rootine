@@ -126,6 +126,7 @@ Every request passes through these steps in order:
 ### 5.2 Settings (FR-12, FR-35, FR-36)
 
 - Fields and limits: focus 15 to 90, short break 3 to 20, long break 10 to 30, long-break interval 2 to 6, sound on or off, notifications on or off, daily goal 1 to 12, theme `light` or `dark`.
+- **Demo mode (FR-48):** `limitsFor(config)` returns the normal limits, or limits that start at 1 minute when `config.demo` is true. The settings and session routes use it, so the same code path is tested. Trees skip their minimum in demo mode. The database `CHECK`s allow 1 minute, but the app refuses it unless demo mode is on. Leaving demo mode raises a saved 1 minute timer back to the minimum, and starting a session never uses a value below the minimum.
 - Reject unknown fields and non-integer numbers.
 - While the user has an active or paused session, reject changes to the four timing values with 409. Sound, notification, daily goal, and theme may still change.
 
@@ -205,6 +206,7 @@ All responses that include a session also return `serverNow`, so the frontend ca
 | DATABASE_URL | Supabase PostgreSQL connection string (use the pooler URL). **Secret.** | none, required |
 | DATABASE_SSL | Use TLS to the database | on |
 | `TRUST_PROXY` | Set to 1 behind a hosting proxy | off |
+| `DEMO_MODE` | `1` turns on demo mode: focus and breaks can be 1 minute and trees are unlocked. Development only. It is ignored (and a warning is logged) when `NODE_ENV` is `production`. | 0 |
 
 The only secret for the MVP is `DATABASE_URL`, which contains the database password. It lives in `.env` (ignored by Git) and in the host's environment settings. Sessions still use random tokens stored in the database.
 

@@ -13,6 +13,7 @@ import { gardenRoutes } from './routes/garden.js';
 // `now` can be replaced in tests with a fake clock.
 export function createApp({ db, config, now = () => Date.now(), logger = console }) {
   const ctx = { db, config, now, logger };
+  if (config.demoIgnored) logger.warn('[config] DEMO_MODE is ignored in production.');
   const app = express();
   app.disable('x-powered-by');
   if (config.trustProxy) app.set('trust proxy', 1);

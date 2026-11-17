@@ -13,11 +13,13 @@ export function AuthProvider({ children }) {
   const [state, setState] = useState({ status: 'loading', user: null }); // loading | ready | offline
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [limits, setLimits] = useState(null);
+  const [demo, setDemo] = useState(false); // development only: 1 minute sessions and unlocked trees
 
   const loadSettings = useCallback(async () => {
     const data = await api.get('/settings');
     setSettings(data.settings);
     setLimits(data.limits);
+    setDemo(!!data.demo);
     return data.settings;
   }, []);
 
@@ -27,6 +29,13 @@ export function AuthProvider({ children }) {
       const me = await api.get('/auth/me');
       api.setCsrfToken(me.csrfToken);
       if (me.user) await loadSettings();
+      else {
+        // Signed out: use the light/dark choice remembered in this browser.
+        try {
+          const stored = localStorage.getItem('rootine.theme');
+          if (stored === 'dark' || stored === 'light') setSettings((s) => ({ ...s, theme: stored }));
+        } catch { /* storage may be blocked */ }
+      }
       setState({ status: 'ready', user: me.user });
     } catch (err) {
       if (err.status === 0) setState({ status: 'offline', user: null });
@@ -53,12 +62,23 @@ export function AuthProvider({ children }) {
     settings,
     limits,
     retry: boot,
+    demo,
+    // One tap light/dark. Saved to the account when signed in, otherwise remembered in this browser.
+    toggleTheme: async () => {
+      const next = settings.theme === 'dark' ? 'light' : 'dark';
+      if (state.user) {
+        try { setSettings((await api.put('/settings', { theme: next })).settings); } catch { /* keep the current theme */ }
+      } else {
+        setSettings((s) => ({ ...s, theme: next }));
+        try { localStorage.setItem('rootine.theme', next); } catch { /* ignore */ }
+      }
+    },
     login: async (email, password) => enter(await api.post('/auth/login', { email, password })),
     register: async (details) => enter(await api.post('/auth/register', details)),
     logout: async () => {
       try { await api.post('/auth/logout'); } catch { /* the cookie is cleared by the next load anyway */ }
       api.setCsrfToken('');
-      setSettings(DEFAULT_SETTINGS);
+      setSettings((s) => ({ ...DEFAULT_SETTINGS, theme: s.theme })); // keep the look the user was seeing
       setState({ status: 'ready', user: null });
     },
     // Called when any request answers 401 (session ended).

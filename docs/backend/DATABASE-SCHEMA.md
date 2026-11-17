@@ -37,8 +37,8 @@ users 1 ───< auth_sessions
 | gender | text | one of `female`, `male`, `non_binary`, `prefer_not_to_say` | Same note as `full_name` |
 | password_hash | text | required | `scrypt` format, never plain text |
 | created_at | bigint | required | Milliseconds since 1970 |
-| focus_minutes | integer | default 25, range 15 to 90 | Timer setting |
-| short_break_minutes | integer | default 5, range 3 to 20 | Timer setting |
+| focus_minutes | integer | default 25, range 15 to 90 in the app (the database allows 1 to 90, and 1 is used only in demo mode) | Timer setting |
+| short_break_minutes | integer | default 5, range 3 to 20 in the app (the database allows 1 to 20) | Timer setting |
 | long_break_minutes | integer | default 15, range 10 to 30 | Timer setting |
 | long_break_interval | integer | default 4, range 2 to 6 | Timer setting |
 | sound_enabled | boolean | default true | Alert preference |

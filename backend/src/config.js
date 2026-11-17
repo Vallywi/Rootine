@@ -13,6 +13,10 @@ export function loadConfig(env = process.env) {
     // Create tables on start. On Vercel run `npm run db:init` once instead.
     autoMigrate: env.AUTO_MIGRATE ? env.AUTO_MIGRATE === '1' : !env.DATABASE_URL,
     rateLimit: env.RATE_LIMIT !== 'off',
+    // Demo mode (development only): focus and breaks can be as short as 1 minute, and trees are unlocked,
+    // so you can see growing, collecting, and the yard without waiting. It is never honored in production.
+    demo: env.DEMO_MODE === '1' && nodeEnv !== 'production',
+    demoIgnored: env.DEMO_MODE === '1' && nodeEnv === 'production',
   };
 }
 
@@ -35,6 +39,12 @@ export const LIMITS = {
 };
 
 export const GENDERS = ['female', 'male', 'non_binary', 'prefer_not_to_say'];
+
+// Limits for this app. Demo mode lowers the shortest focus and break lengths to 1 minute.
+export function limitsFor(config) {
+  if (!config.demo) return LIMITS;
+  return { ...LIMITS, focus: [1, LIMITS.focus[1]], shortBreak: [1, LIMITS.shortBreak[1]], longBreak: [1, LIMITS.longBreak[1]] };
+}
 
 // Plants come from the shared catalog (shared/plants.js). Trees need a minimum focus length.
 export { PLANT_IDS as PLANT_TYPES, plantInfo, YARD_LIMIT } from '../../shared/plants.js';

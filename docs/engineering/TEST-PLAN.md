@@ -65,6 +65,10 @@ The backend should let tests set the current time, so a 25-minute session can be
 | T-Y5 | Put 60 plants outside, then place one more, then move or remove an existing one | 409 for the 61st, 200 for moving, and room again after removing |
 | T-Y6 | Set only one of `yard_x` or `yard_y`, or a value above 100, directly in the database | The database refuses it |
 | T-Y7 | Upgrade an old database (4 plants, no yard columns) twice | New plants are accepted, old plants keep their collected state, and the yard columns exist |
+| T-D1 | Read the config with `DEMO_MODE=1` in development, in production, and without it | Demo is on only in development. In production it is off and reported as ignored. |
+| T-D2 | Normal mode: save a 1 minute focus or break, start a 1 minute session, start Pine with 15 minutes | 400 each time, and `GET /settings` says `demo: false` |
+| T-D3 | Demo mode: save 1/1/1, start a Pine Tree, finish it after 61 seconds, collect it, place it in the yard, start a break | Everything works, the session lasts 60 seconds, and the break lasts 60 seconds. A 0 minute timer is still refused. |
+| T-D4 | Save 1 minute timers in demo mode, then run the same database without demo mode | `GET /settings` raises them to 15 and 3, and a new session lasts 15 minutes |
 
 ### Security
 
@@ -149,6 +153,10 @@ Run on a phone-width screen first, then desktop.
 | F-1o | Open the Yard with collected plants | Plants can be placed, dragged, moved with arrow keys, put back with Delete or the button, and are still there after a reload |
 | F-1p | Open the Yard on a phone, and with dark mode on | The scene fits the screen, dragging with a finger does not scroll the page, and the night yard shows stars and fireflies |
 | F-1q | Scroll to the bottom of the landing page on a phone and on a desktop | The footer is complete and readable, its links jump to sections, and there is no horizontal scroll |
+| F-1r | Look at the top right on a phone and on a desktop | Light/dark switch, ?, and the Settings gear are all in view. Settings is not in the tab bar, which has four tabs. |
+| F-1s | Tap the light/dark switch in the app, on the landing page, and on the login page, then reload | The look changes at once and is kept. In the app it is also saved to the account. |
+| F-1t | Run with `DEMO_MODE=1` | DEMO badge, a notice, and a Demo 1 / 1 rhythm. Trees are unlocked. A 1 minute Golden Ginkgo can be grown, collected, and placed in the yard. |
+| F-1u | Run a production build with `DEMO_MODE=1` set | No DEMO badge, no Demo rhythm, and no 1 minute sessions |
 | F-2 | Register with a weak password | Inline error under the field |
 | F-3 | Register correctly | Lands on Focus screen |
 | F-4 | Add, edit, complete, and delete a task | Delete asks for confirmation. History stays. |

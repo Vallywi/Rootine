@@ -9,8 +9,12 @@ export const PRESETS = [
   { id: 'ultradian', name: 'Ultradian Rhythm', emoji: '🌙', focus: 90, rest: 20, best: 'creative flow. It matches the body’s natural 90-minute rest-activity cycle' },
 ];
 
+// Only shown when the server runs in demo mode (development only).
+export const DEMO_PRESET = { id: 'demo', name: 'Demo', emoji: '⚡', focus: 1, rest: 1, tag: 'Testing only', best: 'testing only. It is a 1 minute session, so you can see growing, collecting, and the yard right away' };
+export const presetList = (demo) => (demo ? [DEMO_PRESET, ...PRESETS] : PRESETS);
+
 // The preset that matches the saved settings, or "custom".
-export function presetFor(settings) {
-  const hit = PRESETS.find((p) => p.focus === settings.focusMinutes && p.rest === settings.shortBreakMinutes);
+export function presetFor(settings, demo = false) {
+  const hit = presetList(demo).find((p) => p.focus === settings.focusMinutes && p.rest === settings.shortBreakMinutes);
   return hit ? hit.id : 'custom';
 }

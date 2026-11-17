@@ -36,7 +36,14 @@ test('coin rule: longer sessions pay more per minute', () => {
 test('the catalog is sane: unique ids, free starter hut, prices for the rest', () => {
   assert.equal(new Set(SHOP_ITEMS.map((i) => i.id)).size, SHOP_ITEMS.length);
   assert.deepEqual(SHOP_ITEMS.filter((i) => i.price === 0).map((i) => i.id), ['hut']);
-  for (const cat of ['house', 'fence', 'decor']) assert.ok(SHOP_ITEMS.some((i) => i.category === cat));
+  for (const cat of ['house', 'fence', 'decor', 'pet']) assert.ok(SHOP_ITEMS.some((i) => i.category === cat), cat);
+  assert.ok(SHOP_ITEMS.filter((i) => i.category === 'house').length >= 8);
+  assert.ok(SHOP_ITEMS.filter((i) => i.category === 'fence').length >= 7);
+  assert.ok(SHOP_ITEMS.filter((i) => i.category === 'decor').length >= 15);
+  assert.ok(SHOP_ITEMS.filter((i) => i.category === 'pet').length >= 8);
+  // affordable: a first plant of 25 minutes (30 coins) or two buys a small item, and nothing costs more than about 17 of those
+  assert.ok(SHOP_ITEMS.every((i) => i.price <= 500));
+  assert.ok(SHOP_ITEMS.filter((i) => i.price > 0).some((i) => i.price <= 30));
 });
 
 test('coins come from collected plants, and the server agrees with the rule', async () => {
@@ -68,9 +75,9 @@ test('buying: not enough coins is refused, enough coins works once, and the bala
   await grow(c, 50); // 75 coins
   const ok = await c.post('/shop/buy', { itemId: 'mailbox' }); // 40
   assert.equal(ok.status, 201);
-  assert.equal(ok.body.coins.balance, 35);
+  assert.equal(ok.body.coins.balance, 55);
   assert.equal((await c.post('/shop/buy', { itemId: 'mailbox' })).status, 409); // already own it
-  assert.equal((await coins(c)).balance, 35);
+  assert.equal((await coins(c)).balance, 55);
   assert.equal((await c.post('/shop/buy', { itemId: 'castle' })).status, 409);
   assert.equal((await c.post('/shop/buy', { itemId: 'nope' })).status, 404);
   assert.equal((await c.post('/shop/buy', { itemId: 'hut' })).status, 409);
@@ -80,10 +87,10 @@ test('buying: not enough coins is refused, enough coins works once, and the bala
 test('a new house or fence is put up right away, and can be switched back', async () => {
   const c = await user();
   for (let i = 0; i < 5; i += 1) await grow(c, 50); // 375 coins
-  assert.equal((await c.post('/shop/buy', { itemId: 'cottage' })).status, 201); // 150
-  assert.equal((await c.post('/shop/buy', { itemId: 'picket' })).status, 201); // 80
+  assert.equal((await c.post('/shop/buy', { itemId: 'cottage' })).status, 201); // 80
+  assert.equal((await c.post('/shop/buy', { itemId: 'picket' })).status, 201); // 45
   let shop = (await c.get('/shop')).body;
-  assert.deepEqual([shop.house, shop.fence, shop.coins.balance], ['cottage', 'picket', 145]);
+  assert.deepEqual([shop.house, shop.fence, shop.coins.balance], ['cottage', 'picket', 250]);
   assert.equal((await c.post('/shop/equip', { category: 'house', itemId: 'hut' })).status, 200);
   assert.equal((await c.post('/shop/equip', { category: 'fence', itemId: null })).status, 200);
   shop = (await c.get('/shop')).body;
@@ -121,8 +128,8 @@ test('coins and purchases are private to each account', async () => {
 
 test('two purchases at the same moment cannot spend the same coins twice', async () => {
   const c = await user();
-  await grow(c, 50); // 75 coins
-  const results = await Promise.all([c.post('/shop/buy', { itemId: 'bench' }), c.post('/shop/buy', { itemId: 'lamp' }), c.post('/shop/buy', { itemId: 'mailbox' })]); // 60, 50, 40
+  await grow(c, 25); // 30 coins
+  const results = await Promise.all([c.post('/shop/buy', { itemId: 'bench' }), c.post('/shop/buy', { itemId: 'lamp' }), c.post('/shop/buy', { itemId: 'mailbox' })]); // 30, 25, 20
   const bought = results.filter((r) => r.status === 201).length;
   const balance = (await coins(c)).balance;
   assert.ok(balance >= 0, `balance never goes below zero (${balance})`);
@@ -152,4 +159,31 @@ test('plants can be named when collected, renamed later, and cleared', async () 
   // collecting with a bad name is refused
   const again = await grow(c, 15, { collect: false });
   assert.equal((await c.post(`/sessions/${again}/collect`, { name: 'y'.repeat(31) })).status, 400);
+});
+
+test('pets: bought in the shop, live in the yard, and are not placed or equipped', async () => {
+  const c = await user();
+  await grow(c, 50); // 75 coins
+  assert.equal((await c.post('/shop/buy', { itemId: 'dog' })).status, 201); // 60
+  assert.equal((await c.post('/shop/buy', { itemId: 'dog' })).status, 409); // one of each
+  const shop = (await c.get('/shop')).body;
+  const dog = shop.items.find((i) => i.id === 'dog');
+  assert.deepEqual([dog.category, dog.owned, dog.equipped, dog.x], ['pet', true, false, null]);
+  assert.equal(shop.coins.balance, 15);
+  assert.equal((await c.post('/shop/buy', { itemId: 'sheep' })).status, 409); // too expensive now
+  assert.equal((await c.post('/shop/equip', { category: 'house', itemId: 'dog' })).status, 404);
+  assert.equal((await c.put('/shop/items/dog/position', { x: 10, y: 50 })).status, 404);
+  assert.equal(shop.items.find((i) => i.id === 'cat').owned, false);
+});
+
+test('the new houses, fences, and decorations can be bought and used', async () => {
+  const c = await user();
+  for (let i = 0; i < 14; i += 1) await grow(c, 50); // 1050 coins
+  for (const id of ['tent', 'barn', 'mushroom']) assert.equal((await c.post('/shop/buy', { itemId: id })).status, 201, id);
+  assert.equal((await c.get('/shop')).body.house, 'mushroom');
+  for (const id of ['bamboo', 'iron', 'candy']) assert.equal((await c.post('/shop/buy', { itemId: id })).status, 201, id);
+  assert.equal((await c.get('/shop')).body.fence, 'candy');
+  assert.equal((await c.post('/shop/equip', { category: 'fence', itemId: 'bamboo' })).status, 200);
+  for (const id of ['gnome', 'fountain', 'campfire', 'greenhouse']) assert.equal((await c.post('/shop/buy', { itemId: id })).status, 201, id);
+  assert.equal((await c.put('/shop/items/fountain/position', { x: 40, y: 70 })).status, 200);
 });

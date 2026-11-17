@@ -950,3 +950,32 @@ input[type='date']:focus, textarea:focus { border-color: var(--leaf); outline: 3
   .profile-btn { padding: 0 .3rem; max-width: none; }
 }
 .name-field input { min-height: 48px; }
+
+
+/* ---------- Pets walking around the yard ---------- */
+.yard__pet { position: absolute; width: 13%; transform: translate(-50%, -100%); padding: 0; background: none; border: 0; cursor: pointer; transition-property: left, top; transition-timing-function: linear; -webkit-tap-highlight-color: transparent; }
+@media (min-width: 640px) { .yard__pet { width: 9%; } }
+.yard__pet-flip { display: block; transition: transform .2s ease; }
+.yard__pet-art { display: block; width: 100%; height: auto; transform-origin: 50% 100%; }
+.yard__pet.is-walking .yard__pet-art { animation: pet-hop .42s ease-in-out infinite; }
+.yard__pet:not(.is-walking) .yard__pet-art { animation: pet-breathe 3s ease-in-out infinite; }
+.yard__pet:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 12px; }
+.pet-tail { transform-box: fill-box; transform-origin: 90% 80%; animation: pet-wag .7s ease-in-out infinite alternate; }
+.pet-wing { transform-box: fill-box; transform-origin: 20% 20%; animation: pet-wag 1.1s ease-in-out infinite alternate; }
+.yard__pet-heart { position: absolute; left: 50%; top: 0; font-size: 1.1rem; animation: pet-heart 1.2s ease-out forwards; pointer-events: none; }
+[data-theme='dark'] .yard__pet-art { filter: brightness(.85); }
+@keyframes pet-hop { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-9%) scale(.97, 1.04); } }
+@keyframes pet-breathe { 50% { transform: scale(1.02, .98); } }
+@keyframes pet-wag { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+@keyframes pet-heart { 0% { opacity: 0; transform: translate(-50%, 0) scale(.5); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -40px) scale(1.2); } }
+.decor-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flame .5s ease-in-out infinite alternate; }
+.decor-drop { animation: twinkle 1.2s ease-in-out infinite; }
+@keyframes flame { from { transform: scale(1, .94) skewX(-2deg); } to { transform: scale(.96, 1.06) skewX(2deg); } }
+@media (prefers-reduced-motion: reduce) { .yard__pet.is-walking .yard__pet-art, .yard__pet:not(.is-walking) .yard__pet-art, .pet-tail, .pet-wing, .decor-flame, .decor-drop, .yard__pet-heart { animation: none; } .yard__pet { transition: none; } }
+
+.coins-info > summary { display: flex; align-items: center; justify-content: space-between; min-height: 44px; cursor: pointer; list-style: none; }
+.coins-info > summary::-webkit-details-marker { display: none; }
+.coins-info > summary h2 { margin: 0; }
+.coins-info > summary::after { content: '\25BE'; font-size: 1.2rem; transition: transform .2s; }
+.coins-info[open] > summary::after { transform: rotate(180deg); }
+.coins-info[open] > summary { margin-bottom: .5rem; }

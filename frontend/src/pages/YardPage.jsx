@@ -6,9 +6,10 @@ import Plant, { PLANTS } from '../components/Plant.jsx';
 import { FormError, formatDate } from '../components/ui.jsx';
 import { YARD_LIMIT } from '../../../shared/plants.js';
 import { DecorArt, FenceArt, HouseArt } from '../components/YardArt.jsx';
+import YardPets from '../components/YardPets.jsx';
 
 // Big decorations get a bigger spot, like trees do.
-const BIG_DECOR = new Set(['pond', 'bench', 'swing', 'windmill']);
+const BIG_DECOR = new Set(['pond', 'bench', 'swing', 'windmill', 'greenhouse', 'fountain', 'picnic', 'haystack', 'well']);
 
 // Plants stand on the grass only (below the fence). Positions are percentages of the yard.
 const X_RANGE = [5, 95];
@@ -64,6 +65,7 @@ export default function YardPage() {
   const decor = (data?.shop?.items ?? []).filter((i) => i.category === 'decor' && i.owned)
     .map((i) => ({ id: `d:${i.id}`, decor: true, itemId: i.id, label: i.name, x: i.x, y: i.y }));
   const everything = [...(data?.plants ?? []), ...decor];
+  const pets = (data?.shop?.items ?? []).filter((i) => i.category === 'pet' && i.owned);
 
   const applyServer = (plant) => {
     if (typeof plant.id === 'string') {
@@ -191,7 +193,7 @@ export default function YardPage() {
       </div>
       <div className="card yard__shopbar">
         <span className="coin-pill" title="Your coins"><span aria-hidden="true">{'\uD83E\uDE99'}</span> <strong>{data.shop.coins.balance}</strong> coins</span>
-        <span className="muted small grow">Earn more by finishing focus sessions. Longer sessions pay more.</span>
+        <span className="muted small grow">{pets.length ? `${pets.length} ${pets.length === 1 ? 'pet lives' : 'pets live'} in your yard. Tap one to say hello. ` : ''}Earn more coins by finishing focus sessions. Longer sessions pay more.</span>
         <Link to="/shop" className="btn btn--small">Open the shop</Link>
       </div>
       <p className="muted">Put your collected plants outside and arrange them however you like. Drag a plant to move it, or select it and use the arrow keys.</p>
@@ -238,6 +240,7 @@ export default function YardPage() {
             </button>
           );
         })}
+        <YardPets pets={pets} />
         {placed.length === 0 && <p className="yard__empty">{everything.length ? 'Your yard is empty. Place a plant from the tray below.' : 'Collect a plant to start decorating your yard.'}</p>}
       </div>
 

@@ -379,3 +379,5 @@ Plants in GET /api/garden and sessions carry name (or plantName). The coin rule 
 | POST /api/sessions/:id/collect | Now accepts an optional { name }. |
 
 Plants in GET /api/garden and sessions carry name (or plantName). The coin rule is in shared/shop.js.
+
+Shop categories are house, fence, decor, and pet. Pets are bought like other items, are owned once, and live in the yard (no placing, no equipping). The catalog and prices are in shared/shop.js.

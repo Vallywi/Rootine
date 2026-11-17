@@ -404,3 +404,5 @@ pages/TasksPage.jsx has the detail fields, status filter chips, sort menu, and d
 - pages/YardPage.jsx: shows the house and fence, and treats owned decorations like plants (drag, arrow keys, put back).
 - components/PlantName.jsx: name with a rename button. The finished screen has an optional name box.
 - components/PopOutTimer.jsx: the new scene (styles at the end of styles.css, classes pip__*).
+
+- components/YardPets.jsx: the pet pictures and the walking (each pet picks a new spot every few seconds, faces the way it goes, and rests in between).

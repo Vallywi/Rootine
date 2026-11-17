@@ -6,7 +6,7 @@ import { ItemArt } from '../components/YardArt.jsx';
 import { FormError } from '../components/ui.jsx';
 import { COIN_TIERS, coinsForMinutes } from '../../../shared/shop.js';
 
-const TABS = [['house', 'Houses'], ['fence', 'Fences'], ['decor', 'Decorations']];
+const TABS = [['house', 'Houses'], ['fence', 'Fences'], ['decor', 'Decorations'], ['pet', 'Pets']];
 const COIN = '\uD83E\uDE99';
 
 export default function ShopPage() {
@@ -41,8 +41,8 @@ export default function ShopPage() {
         <p className="coin-pill coin-pill--big" role="status" aria-label={`You have ${balance} coins`}><span aria-hidden="true">{COIN}</span> <strong>{balance}</strong> coins</p>
       </div>
 
-      <div className="card stack stack--tight">
-        <h2>How coins work</h2>
+      <details className="card stack stack--tight coins-info">
+        <summary><h2>How coins work</h2></summary>
         <p className="muted">Every plant you collect earns coins. The longer you focus, the more each minute is worth.</p>
         <ul className="coin-tiers">
           {[...COIN_TIERS].reverse().map((t, i, arr) => {
@@ -54,7 +54,7 @@ export default function ShopPage() {
         </ul>
         <p className="muted small">Examples: 25 minutes = {coinsForMinutes(25)} coins, 50 minutes = {coinsForMinutes(50)}, 90 minutes = {coinsForMinutes(90)}.</p>
         <p className="muted small">You have earned {shop.coins.earned} coins in total and spent {shop.coins.spent}.</p>
-      </div>
+      </details>
 
       <div className="chips" role="tablist" aria-label="Shop sections">
         {TABS.map(([k, label]) => (
@@ -86,13 +86,14 @@ export default function ShopPage() {
               {item.price > 0 && !item.owned && <span className="shop__price"><span aria-hidden="true">{COIN}</span> {item.price}</span>}
               {!item.owned && (
                 <button type="button" className="btn btn--small" disabled={!!busy || short > 0}
-                  onClick={() => act(item.id, () => api.post('/shop/buy', { itemId: item.id }), item.category === 'decor' ? `${item.name} bought! Place it from your yard.` : `${item.name} bought and put up in your yard!`)}>
+                  onClick={() => act(item.id, () => api.post('/shop/buy', { itemId: item.id }), item.category === 'decor' ? `${item.name} bought! Place it from your yard.` : item.category === 'pet' ? `${item.name} bought! It is now walking around your yard.` : `${item.name} bought and put up in your yard!`)}>
                   {short > 0 ? `Need ${short} more` : 'Buy'}
                 </button>
               )}
               {item.owned && (item.category === 'house' || item.category === 'fence') && (item.equipped
                 ? <span className="tag tag--status-done">In use</span>
                 : <button type="button" className="btn btn--small btn--ghost" disabled={!!busy} onClick={() => act(item.id, () => api.post('/shop/equip', { category: item.category, itemId: item.id }), `${item.name} is now in your yard.`)}>Use this</button>)}
+              {item.owned && item.category === 'pet' && <span className="tag tag--status-done">Living in your yard</span>}
               {item.owned && item.category === 'decor' && <Link to="/yard" className="btn btn--small btn--ghost">{item.x != null ? 'Move it in the yard' : 'Place it in the yard'}</Link>}
             </li>
           );

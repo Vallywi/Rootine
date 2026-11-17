@@ -1,3 +1,4 @@
+import { PetArt } from './YardPets.jsx';
 // Pictures for the shop: houses, fences, and decorations. All drawn with simple shapes so they stay crisp at any size.
 
 const Face = ({ x, y, s = 1 }) => (
@@ -277,5 +278,178 @@ export function ItemArt({ item }) {
       {[0, 1, 2].map((i) => <svg key={i} x={i * 40} y="0" width="40" height="60" viewBox="0 0 40 60" preserveAspectRatio="none">{FENCES[item.id]}</svg>)}
     </svg>
   );
+  if (item.category === 'pet') return <PetArt id={item.id} />;
   return <DecorArt id={item.id} />;
 }
+
+// ======================= more pictures (added later) =======================
+
+Object.assign(HOUSES, {
+  tent: (
+    <>
+      <ellipse cx="100" cy="164" rx="76" ry="5" fill="rgba(0,0,0,.14)" />
+      <path d="M26 163 L100 46 L174 163Z" fill="#f6b04a" stroke="#c9822a" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M100 46 L62 163 M100 46 L138 163" stroke="#e8893a" strokeWidth="14" opacity=".55" />
+      <path d="M100 46 L76 163 H124Z" fill="#6b4a33" stroke="#4e3b2b" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M100 46 L100 163" stroke="#4e3b2b" strokeWidth="1.5" />
+      <path d="M100 46 V24 L116 30 L100 36" fill="#ee6c8a" stroke="#c0445f" strokeWidth="1.5" />
+      <path d="M30 163 L12 168 M170 163 L188 168" stroke="#a9724c" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="12" cy="168" r="2.5" fill="#7a4f2f" /><circle cx="188" cy="168" r="2.5" fill="#7a4f2f" />
+      <circle cx="58" cy="142" r="3" fill="#fff" opacity=".8" /><circle cx="142" cy="142" r="3" fill="#fff" opacity=".8" /><circle cx="100" cy="90" r="0" />
+    </>
+  ),
+  barn: (
+    <>
+      <ellipse cx="100" cy="164" rx="82" ry="5" fill="rgba(0,0,0,.14)" />
+      <rect x="32" y="84" width="136" height="79" fill="#d9534f" stroke="#9b2f2c" strokeWidth="2.5" />
+      {[48, 64, 80, 120, 136, 152].map((x) => <path key={x} d={`M${x} 86 V162`} stroke="#b8403d" strokeWidth="2" />)}
+      <path d="M20 90 L44 44 H156 L180 90Z" fill="#8a3f3d" stroke="#5e2927" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M44 44 L100 28 L156 44" fill="none" stroke="#5e2927" strokeWidth="2.5" strokeLinejoin="round" />
+      <rect x="82" y="104" width="36" height="59" rx="2" fill="#f6efe0" stroke="#9b2f2c" strokeWidth="3" />
+      <path d="M82 104 L118 163 M118 104 L82 163" stroke="#d9534f" strokeWidth="3" />
+      <rect x="86" y="56" width="28" height="22" rx="2" fill="#ffe28a" stroke="#f6efe0" strokeWidth="3" />
+      <path d="M100 56 V78 M86 67 H114" stroke="#f6efe0" strokeWidth="2" />
+      <rect x="44" y="112" width="22" height="22" rx="2" fill="#bfe6f4" stroke="#f6efe0" strokeWidth="3" /><rect x="134" y="112" width="22" height="22" rx="2" fill="#bfe6f4" stroke="#f6efe0" strokeWidth="3" />
+    </>
+  ),
+  mushroom: (
+    <>
+      <ellipse cx="100" cy="164" rx="60" ry="5" fill="rgba(0,0,0,.14)" />
+      <path d="M66 163 Q62 118 72 96 H128 Q138 118 134 163Z" fill="#fff1d6" stroke="#d9c39a" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M20 100 Q20 22 100 22 Q180 22 180 100 Q180 112 168 112 H32 Q20 112 20 100Z" fill="#e0614e" stroke="#a8412f" strokeWidth="3" strokeLinejoin="round" />
+      {[[56, 62, 11], [100, 44, 9], [140, 64, 12], [80, 90, 7], [124, 92, 7], [36, 94, 6], [166, 94, 6]].map(([cx, cy, r], i) => <circle key={i} cx={cx} cy={cy} r={r} fill="#fff" opacity=".92" />)}
+      <path d="M86 163 V134 Q100 116 114 134 V163Z" fill="#8a5d36" stroke="#5e3d22" strokeWidth="2" />
+      <circle cx="108" cy="148" r="2" fill="#f6d26b" />
+      <circle cx="82" cy="128" r="8" fill="#bfe6f4" stroke="#8a5d36" strokeWidth="2.5" /><circle cx="118" cy="128" r="0" />
+      <Face x={100} y={120} s={0} />
+    </>
+  ),
+});
+
+Object.assign(FENCES, {
+  bamboo: (
+    <>
+      <rect x="0" y="18" width="40" height="5" fill="#b08f55" /><rect x="0" y="40" width="40" height="5" fill="#b08f55" />
+      {[4, 14, 24, 34].map((x) => (
+        <g key={x}>
+          <rect x={x} y="6" width="7" height="54" rx="3" fill="#a8c76a" stroke="#6f8f3a" strokeWidth="1.3" />
+          <rect x={x - 1} y="22" width="9" height="3" rx="1" fill="#6f8f3a" /><rect x={x - 1} y="42" width="9" height="3" rx="1" fill="#6f8f3a" />
+        </g>
+      ))}
+    </>
+  ),
+  iron: (
+    <>
+      <rect x="0" y="16" width="40" height="3" fill="#3f4650" /><rect x="0" y="44" width="40" height="3" fill="#3f4650" />
+      {[5, 15, 25, 35].map((x) => (
+        <g key={x}>
+          <rect x={x - 1.3} y="10" width="2.6" height="50" fill="#4f5b66" />
+          <path d={`M${x} 2 L${x + 3.4} 10 H${x - 3.4}Z`} fill="#4f5b66" />
+        </g>
+      ))}
+      <circle cx="20" cy="31" r="4" fill="none" stroke="#3f4650" strokeWidth="2" />
+    </>
+  ),
+  candy: (
+    <>
+      <rect x="0" y="18" width="40" height="6" rx="3" fill="#f7a8b8" stroke="#d97a90" strokeWidth="1" /><rect x="0" y="40" width="40" height="6" rx="3" fill="#f7a8b8" stroke="#d97a90" strokeWidth="1" />
+      {[6, 26].map((x) => (
+        <g key={x}>
+          <rect x={x} y="8" width="9" height="52" rx="4" fill="#fff" stroke="#d94a64" strokeWidth="1.3" />
+          {[14, 26, 38, 50].map((y) => <path key={y} d={`M${x} ${y + 6} L${x + 9} ${y}`} stroke="#e8586f" strokeWidth="3.4" />)}
+          <circle cx={x + 4.5} cy="7" r="5" fill="#e8586f" stroke="#c0394f" strokeWidth="1" />
+        </g>
+      ))}
+    </>
+  ),
+});
+
+Object.assign(DECOR, {
+  gnome: (
+    <>
+      <ellipse cx="50" cy="95" rx="20" ry="3" fill="rgba(0,0,0,.14)" />
+      <rect x="32" y="86" width="14" height="9" rx="4" fill="#4a3a35" /><rect x="54" y="86" width="14" height="9" rx="4" fill="#4a3a35" />
+      <path d="M30 88 Q28 60 50 56 Q72 60 70 88Z" fill="#4a86c9" stroke="#2f5f9a" strokeWidth="2" strokeLinejoin="round" />
+      <rect x="30" y="72" width="40" height="5" fill="#8a5a34" /><rect x="46" y="70" width="8" height="9" rx="1" fill="#f6d26b" />
+      <circle cx="50" cy="48" r="12" fill="#f3d9a4" stroke="#c9a566" strokeWidth="2" />
+      <path d="M36 50 Q50 80 64 50 Q50 58 36 50Z" fill="#fff" stroke="#d9d2bd" strokeWidth="1.5" strokeLinejoin="round" />
+      <circle cx="50" cy="46" r="3.2" fill="#f2a08e" />
+      <circle cx="45" cy="42" r="1.4" fill="#4a3a35" /><circle cx="55" cy="42" r="1.4" fill="#4a3a35" />
+      <path d="M34 42 Q50 -2 66 42Z" fill="#e0614e" stroke="#a8412f" strokeWidth="2" strokeLinejoin="round" />
+    </>
+  ),
+  flowerbed: (
+    <>
+      <ellipse cx="50" cy="90" rx="42" ry="9" fill="#8a5d36" stroke="#5e3d22" strokeWidth="2" />
+      {[[22, 80, '#f48fb1'], [38, 72, '#ffd54f'], [52, 78, '#fff'], [66, 70, '#b79ae6'], [80, 80, '#f48fb1']].map(([x, y, c], i) => (
+        <g key={i}>
+          <path d={`M${x} 88 V${y + 4}`} stroke="#4f9a5c" strokeWidth="3" strokeLinecap="round" />
+          <circle cx={x} cy={y} r="7" fill={c} stroke="rgba(0,0,0,.15)" strokeWidth="1" /><circle cx={x} cy={y} r="2.6" fill="#f6b04a" />
+        </g>
+      ))}
+    </>
+  ),
+  haystack: (
+    <>
+      <ellipse cx="50" cy="94" rx="40" ry="4" fill="rgba(0,0,0,.14)" />
+      <path d="M12 92 Q14 44 50 34 Q86 44 88 92Z" fill="#e8c260" stroke="#b8922b" strokeWidth="2.5" strokeLinejoin="round" />
+      {[[30, 60, 40, 80], [46, 48, 50, 84], [62, 52, 58, 82], [74, 66, 70, 86], [22, 74, 28, 90]].map(([a, b, c, d], i) => <path key={i} d={`M${a} ${b} L${c} ${d}`} stroke="#b8922b" strokeWidth="2" strokeLinecap="round" />)}
+      <path d="M44 36 L36 28 M52 34 L58 24" stroke="#e8c260" strokeWidth="3" strokeLinecap="round" />
+    </>
+  ),
+  well: (
+    <>
+      <ellipse cx="50" cy="95" rx="32" ry="4" fill="rgba(0,0,0,.14)" />
+      <rect x="22" y="60" width="56" height="34" rx="6" fill="#b9b3a6" stroke="#8f897c" strokeWidth="2.5" />
+      {[[26, 66, 16], [42, 66, 16], [58, 66, 16], [30, 78, 20], [50, 78, 20]].map(([x, y, w], i) => <rect key={i} x={x} y={y} width={w} height="10" rx="3" fill={i % 2 ? '#cfc9bb' : '#c2bcae'} stroke="#8f897c" strokeWidth="1" />)}
+      <ellipse cx="50" cy="60" rx="28" ry="6" fill="#4a86c9" stroke="#8f897c" strokeWidth="2.5" />
+      <rect x="24" y="22" width="5" height="40" fill="#a9724c" /><rect x="71" y="22" width="5" height="40" fill="#a9724c" />
+      <path d="M16 26 L50 6 L84 26Z" fill="#e0614e" stroke="#a8412f" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M50 26 V46" stroke="#d9c9a4" strokeWidth="2" /><rect x="44" y="44" width="12" height="10" rx="2" fill="#a9724c" stroke="#7a4f2f" strokeWidth="1.5" />
+    </>
+  ),
+  fountain: (
+    <>
+      <ellipse cx="50" cy="95" rx="42" ry="4" fill="rgba(0,0,0,.14)" />
+      <path d="M8 84 Q50 108 92 84 L88 74 H12Z" fill="#d9d4c7" stroke="#8f897c" strokeWidth="2.5" strokeLinejoin="round" />
+      <ellipse cx="50" cy="74" rx="38" ry="8" fill="#8fd0ea" stroke="#8f897c" strokeWidth="2.5" />
+      <rect x="44" y="40" width="12" height="34" fill="#cfc9bb" stroke="#8f897c" strokeWidth="2" />
+      <path d="M26 44 Q50 62 74 44 Z" fill="#d9d4c7" stroke="#8f897c" strokeWidth="2.5" strokeLinejoin="round" />
+      <ellipse cx="50" cy="44" rx="24" ry="5" fill="#8fd0ea" stroke="#8f897c" strokeWidth="2" />
+      <path className="decor-drop" d="M50 40 Q50 22 50 16 M50 40 Q38 24 32 28 M50 40 Q62 24 68 28" stroke="#bfe6f4" strokeWidth="3.4" fill="none" strokeLinecap="round" />
+      <circle cx="50" cy="12" r="3" fill="#bfe6f4" /><circle cx="30" cy="30" r="2.4" fill="#bfe6f4" /><circle cx="70" cy="30" r="2.4" fill="#bfe6f4" />
+    </>
+  ),
+  campfire: (
+    <>
+      <ellipse cx="50" cy="94" rx="34" ry="4" fill="rgba(0,0,0,.14)" />
+      {[[14, 84], [26, 90], [42, 93], [58, 93], [74, 90], [86, 84]].map(([x, y], i) => <ellipse key={i} cx={x} cy={y} rx="9" ry="6" fill={i % 2 ? '#b9b3a6' : '#a9a396'} stroke="#7d7769" strokeWidth="1.5" />)}
+      <path d="M26 88 L70 74 M74 88 L30 74" stroke="#7a4f2f" strokeWidth="9" strokeLinecap="round" />
+      <g className="decor-flame">
+        <path d="M50 78 Q30 66 40 46 Q42 58 50 56 Q48 36 58 22 Q64 44 66 54 Q72 48 70 40 Q82 62 66 76 Q58 80 50 78Z" fill="#f6893b" stroke="#d9531e" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M50 78 Q42 68 50 58 Q52 64 56 62 Q58 52 60 50 Q66 64 62 72 Q56 78 50 78Z" fill="#ffd54f" />
+      </g>
+    </>
+  ),
+  picnic: (
+    <>
+      <path d="M8 92 L22 56 H92 L96 92Z" fill="#fff" stroke="#d94a64" strokeWidth="2.5" strokeLinejoin="round" />
+      {[0, 1, 2, 3].map((i) => <path key={i} d={`M${24 + i * 18} 56 L${14 + i * 22} 92 H${26 + i * 22} L${34 + i * 18} 56Z`} fill="#e8586f" opacity=".85" />)}
+      {[0, 1].map((i) => <path key={i} d={`M${14 - i * 3} ${68 + i * 14} H${94 + i * 2}`} stroke="#e8586f" strokeWidth="8" opacity=".35" />)}
+      <path d="M26 66 Q26 48 44 48 Q62 48 62 66Z" fill="#c08857" stroke="#8a5a34" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M26 66 H62" stroke="#8a5a34" strokeWidth="3" /><path d="M32 50 Q44 34 56 50" fill="none" stroke="#8a5a34" strokeWidth="3" />
+      <circle cx="76" cy="72" r="8" fill="#e0614e" stroke="#a8412f" strokeWidth="2" /><path d="M76 64 q2 -6 6 -6" stroke="#4f9a5c" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+    </>
+  ),
+  greenhouse: (
+    <>
+      <ellipse cx="50" cy="95" rx="42" ry="4" fill="rgba(0,0,0,.14)" />
+      <rect x="14" y="44" width="72" height="50" fill="#d9f2fb" fillOpacity=".75" stroke="#7aa9bd" strokeWidth="3" />
+      <path d="M8 46 L50 12 L92 46Z" fill="#d9f2fb" fillOpacity=".8" stroke="#7aa9bd" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M50 12 V94 M14 62 H86 M32 28 L26 46 M68 28 L74 46 M32 44 V94 M68 44 V94" stroke="#7aa9bd" strokeWidth="2" />
+      {[[24, 86, '#f48fb1'], [42, 82, '#ffd54f'], [58, 86, '#fff'], [76, 82, '#b79ae6']].map(([x, y, c], i) => (
+        <g key={i}><path d={`M${x} 94 V${y}`} stroke="#4f9a5c" strokeWidth="3" /><circle cx={x} cy={y - 3} r="5" fill={c} stroke="rgba(0,0,0,.15)" strokeWidth="1" /></g>
+      ))}
+    </>
+  ),
+});

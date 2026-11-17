@@ -1001,3 +1001,19 @@ input[type='date']:focus, textarea:focus { border-color: var(--leaf); outline: 3
 
 /* Only the leaf wobbles, not the word. */
 .brand .brand__text { animation: none; display: inline; }
+
+/* Landing top bar on phones: never wrap the buttons, tighter spacing so Log in and Get started both fit. */
+.landing__nav .btn { white-space: nowrap; }
+.landing__nav nav { flex-wrap: nowrap; flex: none; }
+@media (max-width: 480px) {
+  .landing__nav { gap: .4rem; padding-inline: .75rem; }
+  .landing__nav nav { gap: .35rem; }
+  .landing__nav .btn--small { padding: .3rem .8rem; font-size: .9rem; }
+  .landing__nav .brand { font-size: 1.1rem; gap: .25rem; }
+}
+@media (max-width: 349px) {
+  .landing__nav .btn--ghost { display: none; }
+}
+@media (min-width: 350px) and (max-width: 379px) {
+  .landing__nav .btn--ghost { display: inline-flex; }
+}

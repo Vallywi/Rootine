@@ -998,3 +998,6 @@ input[type='date']:focus, textarea:focus { border-color: var(--leaf); outline: 3
 
 .pip__mound { display: none; }
 .pip__art > svg { margin-bottom: 0; }
+
+/* Only the leaf wobbles, not the word. */
+.brand .brand__text { animation: none; display: inline; }

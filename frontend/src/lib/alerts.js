@@ -2,29 +2,61 @@
 // and an optional browser notification. Each fails quietly if the browser does not support it.
 let audioCtx;
 
-function beep() {
+function ctx() {
+  audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume?.();
+  return audioCtx;
+}
+
+// A loud bell: a few sine partials that fade out slowly, struck twice.
+function bell() {
   try {
-    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
-    const t = audioCtx.currentTime;
-    [660, 880].forEach((freq, i) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.0001, t + i * 0.22);
-      gain.gain.exponentialRampToValueAtTime(0.15, t + i * 0.22 + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.22 + 0.4);
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start(t + i * 0.22);
-      osc.stop(t + i * 0.22 + 0.45);
+    const ac = ctx();
+    const master = ac.createGain();
+    master.gain.value = 0.9;
+    master.connect(ac.destination);
+    [0, 0.9].forEach((start) => {
+      const t = ac.currentTime + start;
+      [[880, 0.5, 2.6], [2429, 0.28, 1.6], [4752, 0.16, 1.0], [7858, 0.08, 0.6]].forEach(([freq, level, decay]) => {
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(level, t + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+        osc.connect(gain).connect(master);
+        osc.start(t);
+        osc.stop(t + decay + 0.05);
+      });
     });
+  } catch { /* sound is optional */ }
+}
+
+// One clear beep for each of the last 10 seconds. The last three are higher and louder.
+export function tickSound(secondsLeft, settings) {
+  if (!settings.soundEnabled) return;
+  try {
+    const ac = ctx();
+    const t = ac.currentTime;
+    const urgent = secondsLeft <= 3;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = 'square';
+    osc.frequency.value = urgent ? 1320 : 990;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(urgent ? 0.35 : 0.25, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    osc.connect(gain).connect(ac.destination);
+    osc.start(t);
+    osc.stop(t + 0.2);
   } catch { /* sound is optional */ }
 }
 
 export const notificationsSupported = () => typeof Notification !== 'undefined';
 
 export function alertDone(session, settings) {
-  if (settings.soundEnabled) beep();
+  if (settings.soundEnabled) bell();
   if (settings.notificationsEnabled && notificationsSupported() && Notification.permission === 'granted') {
     try {
       const focus = session.kind === 'focus';

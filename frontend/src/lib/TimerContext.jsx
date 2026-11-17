@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import * as api from './api.js';
 import { useAuth } from './AuthContext.jsx';
-import { alertDone, alertSoon } from './alerts.js';
+import { alertDone, alertSoon, tickSound } from './alerts.js';
 
 const TimerContext = createContext(null);
 export const useTimer = () => useContext(TimerContext);
@@ -88,6 +88,17 @@ export function TimerProvider({ children }) {
       alertSoon(session, settingsRef.current);
     }
   }, [nearEnd, session]);
+
+  // A beep every second for the last 10 seconds (the bell at zero is played when the session completes).
+  const lastTick = useRef('');
+  const secondsLeft = Math.ceil(remainingMs / 1000);
+  useEffect(() => {
+    if (!session || session.status !== 'active' || secondsLeft < 1 || secondsLeft > 10) return;
+    const key = `${session.id}:${secondsLeft}`;
+    if (lastTick.current === key) return;
+    lastTick.current = key;
+    tickSound(secondsLeft, settingsRef.current);
+  }, [session, secondsLeft]);
 
   const complete = useCallback(async () => {
     if (completing.current || !session) return;

@@ -128,3 +128,42 @@ export function popSound(settings, high = false) {
     osc.stop(t + 0.15);
   } catch { /* sound is optional */ }
 }
+// "3, 2, 1" before the next round: a clear mid beep for each number.
+export function countSound(n, settings) {
+  if (!settings.soundEnabled) return;
+  try {
+    const ac = ctx();
+    const t = ac.currentTime;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = 600 + (3 - n) * 80; // 3 is lowest, 1 is a bit higher
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.4, t + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+    osc.connect(gain).connect(ac.destination);
+    osc.start(t);
+    osc.stop(t + 0.35);
+  } catch { /* sound is optional */ }
+}
+
+// "GO!": a bright rising chord.
+export function goSound(settings) {
+  if (!settings.soundEnabled) return;
+  try {
+    const ac = ctx();
+    const t = ac.currentTime;
+    [[880, 0], [1108, 0.05], [1318, 0.1], [1760, 0.15]].forEach(([freq, delay]) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.32, t + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + delay + 0.9);
+      osc.connect(gain).connect(ac.destination);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.95);
+    });
+  } catch { /* sound is optional */ }
+}

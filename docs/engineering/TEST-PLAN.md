@@ -258,3 +258,5 @@ backend/tests/shop.test.js (10 tests): coin rule and tiers, catalog, coins from 
 ## Addendum: shop tests
 
 backend/tests/shop.test.js (10 tests): coin rule and tiers, catalog, coins from collected plants only, starter hut, buying (not enough coins, once only, balance), equipping, decorations, privacy between accounts, simultaneous purchases, and plant names. Browser checks: naming and collecting a 50 minute plant (+75 coins), the coin counter, shop purchases, house and fence in the yard, placing and moving a decoration, and the pop-out scene.
+
+backend/tests/plan.test.js (5 tests): rounds fit in the time, plan choices and custom hours, different plant each round and every plant gets a turn, time text. Browser (e2e-plan): a 2 hour plan runs 4 rounds by itself with 3-2-1-GO each time, different plants, a summary at the end (120 coins), stopping during the countdown, one session only, and custom hours.

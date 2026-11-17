@@ -10,6 +10,7 @@ import PresetPicker from '../components/PresetPicker.jsx';
 import { popOutSupported, requestPopOut } from '../components/PopOutTimer.jsx';
 import { ConfirmDialog, FormError, GoalRing, formatClock } from '../components/ui.jsx';
 import { coinsForSeconds } from '../../../shared/shop.js';
+import { CUSTOM_HOURS, PLAN_CHOICES, hoursText, planFor, planMinutes } from '../../../shared/plan.js';
 
 export default function FocusPage() {
   const { settings } = useAuth();
@@ -77,6 +78,12 @@ function RunningView({ t, onGiveUp }) {
   return (
     <div className="card focus">
       {t.notice && <p className="success notice-pop" role="status">{t.notice}</p>}
+      {t.plan && (
+        <p className="plan-line" role="status">
+          {focus ? `Round ${t.plan.done + 1}${t.plan.rounds ? ` of ${t.plan.rounds}` : ''}` : `Rest after round ${t.plan.done}`}
+          <button type="button" className="plan-line__stop" onClick={t.stopPlan}>Stop plan</button>
+        </p>
+      )}
       <p className="chip">{focus ? (paused ? 'Paused' : 'Focusing') : session.kind === 'long_break' ? 'Long break' : 'Short break'}
         {session.taskTitle && <span className="chip__task"> · {session.taskTitle}</span>}</p>
       {focus
@@ -169,6 +176,15 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
     api.get('/tasks').then((d) => setTasks(d.tasks.filter((x) => !x.isDone).sort((a, b) => ['urgent', 'high', 'medium', 'low'].indexOf(a.priority) - ['urgent', 'high', 'medium', 'low'].indexOf(b.priority)))).catch(() => {});
   }, []);
   const untilLong = Math.max(0, settings.longBreakInterval - t.focusSinceLongBreak);
+  // How long to study: one session, keep going, or a number of hours (turned into rounds).
+  const [choice, setChoice] = useState(() => { try { return localStorage.getItem('rootine.planChoice') || 'open'; } catch { return 'open'; } });
+  const [hours, setHours] = useState(() => { try { return localStorage.getItem('rootine.planHours') || '2'; } catch { return '2'; } });
+  useEffect(() => { try { localStorage.setItem('rootine.planChoice', choice); localStorage.setItem('rootine.planHours', hours); } catch { /* ignore */ } }, [choice, hours]);
+  const spec = planFor(choice, hours, settings.focusMinutes, settings.shortBreakMinutes); // null, { rounds }, or undefined (hours not valid yet)
+  const planText = spec === undefined ? `Enter hours from ${CUSTOM_HOURS.min} to ${CUSTOM_HOURS.max}.`
+    : spec === null ? 'One focus session, then a break. You start each round yourself.'
+    : spec.rounds === null ? `It repeats by itself: ${settings.focusMinutes} min focus, ${settings.shortBreakMinutes} min rest, then 3, 2, 1, go. A different plant grows each round. Stop any time.`
+    : `${spec.rounds} ${spec.rounds === 1 ? 'round' : 'rounds'} of ${settings.focusMinutes} min focus with ${settings.shortBreakMinutes} min rests, about ${hoursText(planMinutes(spec.rounds, settings.focusMinutes, settings.shortBreakMinutes))} in all. It repeats by itself, with a different plant each round.`;
   // A tree needs a longer focus. If the rhythm gets shorter, go back to a plant that is still allowed.
   useEffect(() => {
     if (!demo && settings.focusMinutes < PLANTS[plant].minMinutes) setPlant('sunflower');
@@ -192,11 +208,37 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
         </div>
       )}
       {note && <p className="success center" role="status">{note}</p>}
+      {t.planDone && (
+        <div className="card center plan-done" role="status">
+          <p className="big-emoji" aria-hidden="true">{'\uD83C\uDF89'}</p>
+          <h2>Study plan complete!</h2>
+          <p>You finished {t.planDone.rounds} {t.planDone.rounds === 1 ? 'round' : 'rounds'} and earned <strong>{'\uD83E\uDE99'} {t.planDone.coins} coins</strong>. Time for a proper rest.</p>
+          <button type="button" className="btn" onClick={t.clearPlanDone}>Great!</button>
+        </div>
+      )}
       <div className="card focus">
         <h1>Plant a seed</h1>
         <p className="muted">Focus for {settings.focusMinutes} minute{settings.focusMinutes === 1 ? '' : 's'} to grow it, then rest for {settings.shortBreakMinutes}.</p>
         <Plant type={plant} stage="seed" size={200} title={`${PLANTS[plant].name} seed`} />
         <PresetPicker />
+        <fieldset className="plan-picker" data-tour="plan">
+          <legend>How long do you want to study?</legend>
+          <div className="seg">
+            {PLAN_CHOICES.map((c) => (
+              <label key={c.id} className={choice === c.id ? 'is-selected' : ''}>
+                <input type="radio" name="plan" value={c.id} checked={choice === c.id} onChange={() => setChoice(c.id)} />
+                {c.label}
+              </label>
+            ))}
+          </div>
+          {choice === 'custom' && (
+            <div className="field field--center">
+              <label htmlFor="plan-hours">Hours</label>
+              <input id="plan-hours" type="number" inputMode="decimal" min={CUSTOM_HOURS.min} max={CUSTOM_HOURS.max} step="0.5" value={hours} onChange={(e) => setHours(e.target.value)} />
+            </div>
+          )}
+          <p className="muted small plan-picker__text" role="status">{planText}</p>
+        </fieldset>
         <fieldset className="plant-picker" data-tour="plants">
           <legend>Choose a plant</legend>
           {[
@@ -230,7 +272,7 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
           </select>
         </div>
         <FormError>{t.error}</FormError>
-        <button className="btn btn--big" data-tour="start" disabled={t.busy} onClick={() => t.startFocus(plant, taskId ? Number(taskId) : null)}>
+        <button className="btn btn--big" data-tour="start" disabled={t.busy || spec === undefined} onClick={() => t.startFocus(plant, taskId ? Number(taskId) : null, undefined, spec)}>
           {t.busy ? 'Starting…' : 'Start focus'}
         </button>
         <p className="muted small">

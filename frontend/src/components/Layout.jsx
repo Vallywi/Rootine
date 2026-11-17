@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import * as api from '../lib/api.js';
 import Avatar from './Avatar.jsx';
 import AccountDrawer from './AccountDrawer.jsx';
+import CountdownOverlay from './CountdownOverlay.jsx';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Tour from './Tour.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
@@ -82,6 +83,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <AccountDrawer open={drawer} onClose={() => setDrawer(false)} />
+      <CountdownOverlay />
       <Tour />
       <TimerOverlay />
       <PopOutTimer />

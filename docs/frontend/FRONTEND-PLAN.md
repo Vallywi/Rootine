@@ -406,3 +406,4 @@ pages/TasksPage.jsx has the detail fields, status filter chips, sort menu, and d
 - components/PopOutTimer.jsx: the new scene (styles at the end of styles.css, classes pip__*).
 
 - components/YardPets.jsx: the pet pictures and the walking (each pet picks a new spot every few seconds, faces the way it goes, and rests in between).
+- The study plan lives in the browser (localStorage key rootine.plan), not on the server, because the server only knows single sessions. shared/plan.js has the rules (rounds, choices, next plant). TimerContext runs the plan: after a break completes it starts the 3-2-1 countdown (CountdownOverlay.jsx) and then the next focus session. The Focus start screen has the "How long do you want to study?" chooser.

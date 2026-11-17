@@ -1017,3 +1017,21 @@ input[type='date']:focus, textarea:focus { border-color: var(--leaf); outline: 3
 @media (min-width: 350px) and (max-width: 379px) {
   .landing__nav .btn--ghost { display: inline-flex; }
 }
+
+/* ---------- Study plan and the 3-2-1 countdown ---------- */
+.plan-picker { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; align-items: center; gap: .5rem; width: 100%; }
+.plan-picker legend { font-weight: 800; margin-bottom: .35rem; padding: 0; text-align: center; width: 100%; }
+.plan-picker .seg { justify-content: center; margin: 0; }
+.plan-picker__text { max-width: 30rem; text-align: center; margin: 0; }
+.plan-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem; margin: 0; font-weight: 800; color: var(--primary); }
+.plan-line__stop { min-height: 44px; padding: 0 .75rem; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.plan-done { border-color: var(--primary); }
+.countdown { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 1rem; background: rgba(20, 30, 26, .6); backdrop-filter: blur(4px); animation: fade-in .2s ease; }
+.countdown__card { width: min(22rem, 100%); display: flex; flex-direction: column; align-items: center; gap: .4rem; padding: 1.5rem 1.25rem; border-radius: 32px; background: var(--surface); border: 3px solid #fff; box-shadow: 0 10px 40px rgba(0, 0, 0, .3); text-align: center; }
+[data-theme='dark'] .countdown__card { border-color: var(--border); }
+.countdown__title { margin: 0; font-weight: 800; font-size: 1.1rem; color: var(--muted); }
+.countdown__num { font-size: 7rem; line-height: 1; font-weight: 800; color: var(--primary); animation: count-pop 1s ease-out both; font-variant-numeric: tabular-nums; }
+.countdown__num.is-go { font-size: 5rem; color: #e9893b; animation-duration: .9s; }
+@keyframes count-pop { 0% { transform: scale(.4); opacity: 0; } 25% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(.95); opacity: .9; } }
+@keyframes fade-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .countdown, .countdown__num { animation: none; } }

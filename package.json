@@ -1,0 +1,17 @@
+{
+  "name": "rootine",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Rootine: a Pomodoro focus app where plants grow while you focus.",
+  "workspaces": ["backend", "frontend"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w frontend",
+    "test": "npm test -w backend",
+    "db:init": "npm run db:init -w backend"
+  }
+}
+

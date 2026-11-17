@@ -107,6 +107,21 @@ ALTER TABLE timer_sessions ADD CONSTRAINT timer_sessions_yard_check
 -- Friends and profile picture
 ALTER TABLE users ADD COLUMN IF NOT EXISTS friend_code text;
 CREATE UNIQUE INDEX IF NOT EXISTS users_friend_code_uq ON users (friend_code);
+
+-- the yard shop (added later; safe to run again)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS yard_house text NOT NULL DEFAULT 'hut';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS yard_fence text;
+ALTER TABLE timer_sessions ADD COLUMN IF NOT EXISTS plant_name text CHECK (char_length(plant_name) BETWEEN 1 AND 30);
+CREATE TABLE IF NOT EXISTS shop_purchases (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  item_id text NOT NULL,
+  price integer NOT NULL CHECK (price > 0),
+  bought_at bigint NOT NULL,
+  x real,
+  y real
+);
+CREATE UNIQUE INDEX IF NOT EXISTS shop_purchases_user_item_uq ON shop_purchases (user_id, item_id);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS share_progress boolean NOT NULL DEFAULT true;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar bytea;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_version integer NOT NULL DEFAULT 0;
@@ -133,6 +148,6 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 
 // Supabase exposes tables through an automatic public API. Row Level Security with no
 // policies keeps that API from returning any rows. The backend role is not affected.
-export const RLS_SQL = ['users', 'auth_sessions', 'tasks', 'timer_sessions', 'friendships', 'rate_limits']
+export const RLS_SQL = ['users', 'auth_sessions', 'tasks', 'timer_sessions', 'friendships', 'shop_purchases', 'rate_limits']
   .map((t) => `ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY;`)
   .join('\n');

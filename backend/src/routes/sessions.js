@@ -5,6 +5,8 @@ import { COMPLETE_ALLOWANCE_MS, PLANT_TYPES, limitsFor, plantInfo } from '../con
 import { isUniqueViolation } from '../db.js';
 import { requireAuth } from '../auth.js';
 
+const plantName = z.string({ error: 'A name must be text.' }).trim().min(1, 'Enter a name.').max(30, 'Use at most 30 characters.');
+
 const makeStartSchema = (LIMITS) => z
   .object({
     kind: z.enum(['focus', 'break'], { error: 'Choose focus or break.' }),
@@ -19,7 +21,7 @@ const makeStartSchema = (LIMITS) => z
   })
   .strict();
 
-const COLUMNS = `id, kind, plant_type, task_id, task_title, planned_seconds, status, started_at, target_at, paused_remaining_ms, ended_at, collected_at`;
+const COLUMNS = `id, plant_name, kind, plant_type, task_id, task_title, planned_seconds, status, started_at, target_at, paused_remaining_ms, ended_at, collected_at`;
 
 export function sessionDto(row, now) {
   if (!row) return null;
@@ -30,6 +32,7 @@ export function sessionDto(row, now) {
     id: row.id,
     kind: row.kind,
     plantType: row.plant_type,
+    plantName: row.plant_name ?? null,
     taskId: row.task_id,
     taskTitle: row.task_title,
     plannedSeconds: row.planned_seconds,
@@ -173,6 +176,7 @@ export function sessionRoutes(ctx) {
 
   router.post('/:id/collect', async (req, res) => {
     const row = await loadOwned(req);
+    const { name } = parse(z.object({ name: plantName.optional() }).strict(), req.body ?? {});
     if (row.kind !== 'focus' || row.status !== 'completed') {
       throw new HttpError(409, 'Only finished focus sessions can be collected.');
     }
@@ -181,8 +185,9 @@ export function sessionRoutes(ctx) {
       [row.id, req.user.id, ctx.now()],
     );
     const collectedAt = updated.length ? updated[0].collected_at : row.collected_at;
+    if (name && updated.length) await db.query('UPDATE timer_sessions SET plant_name = $3 WHERE id = $1 AND user_id = $2', [row.id, req.user.id, name]);
     res.json({
-      plant: { id: row.id, plantType: row.plant_type, taskTitle: row.task_title, minutes: Math.round(row.planned_seconds / 60), endedAt: row.ended_at, collectedAt },
+      plant: { id: row.id, name: name || row.plant_name || null, plantType: row.plant_type, taskTitle: row.task_title, minutes: Math.round(row.planned_seconds / 60), endedAt: row.ended_at, collectedAt },
       newlyCollected: updated.length > 0,
     });
   });

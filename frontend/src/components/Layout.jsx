@@ -23,6 +23,19 @@ export default function Layout() {
   const { user, demo } = useAuth();
   const [drawer, setDrawer] = useState(false);
   const [requests, setRequests] = useState(0);
+  const [coins, setCoins] = useState(null);
+
+  // The coin counter in the top bar.
+  const loadCoins = useCallback(async () => {
+    try { setCoins((await api.get('/shop/balance')).coins.balance); } catch { /* the counter is optional */ }
+  }, []);
+  useEffect(() => {
+    loadCoins();
+    const onVisible = () => { if (document.visibilityState === 'visible') loadCoins(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('rootine:coins', loadCoins);
+    return () => { document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('rootine:coins', loadCoins); };
+  }, [loadCoins]);
 
   // The number of friend requests waiting for an answer, shown on the Friends tab.
   const loadRequests = useCallback(async () => {
@@ -47,7 +60,7 @@ export default function Layout() {
       <a className="skip-link" href="#main">Skip to content</a>
       <header className="topbar">
         <span className="row topbar__left">
-          <span className="brand"><span aria-hidden="true">🌿</span> Rootine</span>
+          <span className="brand"><span aria-hidden="true">🌿</span> <span className="brand__text">Rootine</span></span>
           {demo && <span className="demo-badge" title="Demo mode is on (development only): sessions can be 1 minute and trees are unlocked.">DEMO</span>}
         </span>
         <nav aria-label="Main" className="nav nav--top" data-tour="nav">
@@ -56,6 +69,7 @@ export default function Layout() {
           ))}
         </nav>
         <span className="row topbar__right" data-tour="tools">
+          {coins !== null && <NavLink to="/shop" className="coin-pill coin-pill--nav" title="Your coins. Open the shop." aria-label={`${coins} coins. Open the shop.`}><span aria-hidden="true">{'\uD83E\uDE99'}</span> {coins}</NavLink>}
           <ThemeToggle />
           <button type="button" className="icon-btn" aria-label="Show the beginner tour" title="How Rootine works" onClick={() => window.dispatchEvent(new Event('rootine:tour'))}>?</button>
           <button type="button" className="profile-btn" data-tour="profile" onClick={() => setDrawer(true)} aria-haspopup="dialog" aria-label={`Open your profile and settings, ${user.displayName}`} title="Profile and settings">

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import * as api from './api.js';
 import { useAuth } from './AuthContext.jsx';
 import { alertDone, alertSoon, ringBell, tickSound } from './alerts.js';
+import { coinsForSeconds } from '../../../shared/shop.js';
 
 const TimerContext = createContext(null);
 export const useTimer = () => useContext(TimerContext);
@@ -154,16 +155,17 @@ export function TimerProvider({ children }) {
     pause: () => guard(async () => apply(await api.post(`/sessions/${session.id}/pause`))),
     resume: () => guard(async () => apply(await api.post(`/sessions/${session.id}/resume`))),
     // Move the finished plant into the garden. Repeating the call is safe (the server ignores the second one).
-    collect: () => guard(async () => {
+    collect: (name) => guard(async () => {
       const finished = result?.session;
       if (!finished) return;
-      await api.post(`/sessions/${finished.id}/collect`);
+      const given = typeof name === 'string' ? name.trim() : ''; // buttons pass a click event here, which is ignored
+      await api.post(`/sessions/${finished.id}/collect`, given ? { name: given } : {});
       // Keep the rhythm going: the rest starts by itself right after the plant is collected.
       try {
         const data = await api.post('/sessions', { kind: 'break' });
         setResult(null);
         apply(data);
-        setNotice('Plant added to your garden! Time to rest.');
+        setNotice(`Plant added to your garden! +${coinsForSeconds(finished.plannedSeconds)} coins. Time to rest.`);
       } catch {
         setResult((r) => (r ? { ...r, collected: true } : r)); // show the normal "added" screen with a Start break button
       }

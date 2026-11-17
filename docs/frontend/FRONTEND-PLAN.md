@@ -388,3 +388,19 @@ Rootine can be installed from Chrome or Edge like an app. It stays a website. Th
 ## Addendum: tasks and badges
 
 pages/TasksPage.jsx has the detail fields, status filter chips, sort menu, and due labels. components/Badges.jsx shows grouped badges. The red number on the Friends tab uses the class count-badge (it used to clash with the Garden badge class).
+
+## Addendum: shop, yard house, names, pop-out scene
+
+- pages/ShopPage.jsx (route /shop, opened from the coin counter in the top bar or from the Yard): how coins work, tabs Houses, Fences, Decorations, Buy and Use buttons.
+- components/YardArt.jsx: SVG pictures for houses, fence sections, and decorations.
+- pages/YardPage.jsx: shows the house and fence, and treats owned decorations like plants (drag, arrow keys, put back).
+- components/PlantName.jsx: name with a rename button. The finished screen has an optional name box.
+- components/PopOutTimer.jsx: the new scene (styles at the end of styles.css, classes pip__*).
+
+## Addendum: shop, yard house, names, pop-out scene
+
+- pages/ShopPage.jsx (route /shop, opened from the coin counter in the top bar or from the Yard): how coins work, tabs Houses, Fences, Decorations, Buy and Use buttons.
+- components/YardArt.jsx: SVG pictures for houses, fence sections, and decorations.
+- pages/YardPage.jsx: shows the house and fence, and treats owned decorations like plants (drag, arrow keys, put back).
+- components/PlantName.jsx: name with a rename button. The finished screen has an optional name box.
+- components/PopOutTimer.jsx: the new scene (styles at the end of styles.css, classes pip__*).

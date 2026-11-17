@@ -250,3 +250,11 @@ Section 14 of the PRD has the formal acceptance criteria. Each criterion must po
 ## Addendum: task details and badges
 
 backend/tests/task-details.test.js (6 tests): defaults, all fields, status and isDone in step, bad values refused, badge list and progress, and badge counts from the garden endpoint. Browser checks: adding tasks with details, due labels, summary, sorting, filtering, status change, the Focus picker order, and badges (grouped, not clipped, no sideways scroll).
+
+## Addendum: shop tests
+
+backend/tests/shop.test.js (10 tests): coin rule and tiers, catalog, coins from collected plants only, starter hut, buying (not enough coins, once only, balance), equipping, decorations, privacy between accounts, simultaneous purchases, and plant names. Browser checks: naming and collecting a 50 minute plant (+75 coins), the coin counter, shop purchases, house and fence in the yard, placing and moving a decoration, and the pop-out scene.
+
+## Addendum: shop tests
+
+backend/tests/shop.test.js (10 tests): coin rule and tiers, catalog, coins from collected plants only, starter hut, buying (not enough coins, once only, balance), equipping, decorations, privacy between accounts, simultaneous purchases, and plant names. Browser checks: naming and collecting a 50 minute plant (+75 coins), the coin counter, shop purchases, house and fence in the yard, placing and moving a decoration, and the pop-out scene.

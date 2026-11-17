@@ -31,6 +31,8 @@ export async function api(method, path, body) {
   try { data = await res.json(); } catch { /* empty or not JSON */ }
   if (data?.csrfToken) setCsrfToken(data.csrfToken);
   if (!res.ok) throw new ApiError(res.status, data?.error || 'Something went wrong. Please try again.', data);
+  // Collecting a plant earns coins, so let the coin counter in the top bar refresh.
+  if (method === 'POST' && /\/collect(-all)?$/.test(path)) window.dispatchEvent(new Event('rootine:coins'));
   return data;
 }
 

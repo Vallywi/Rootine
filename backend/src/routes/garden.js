@@ -106,7 +106,7 @@ export function gardenRoutes(ctx) {
     const { tzOffset } = parse(querySchema, req.query);
     const userId = req.user.id;
     const completed = await ctx.db.query(
-      `SELECT id, plant_type, task_title, planned_seconds, ended_at, collected_at, yard_x, yard_y FROM timer_sessions
+      `SELECT id, plant_name, plant_type, task_title, planned_seconds, ended_at, collected_at, yard_x, yard_y FROM timer_sessions
         WHERE user_id = $1 AND kind = 'focus' AND status = 'completed' ORDER BY ended_at DESC, id DESC`,
       [userId],
     );
@@ -118,6 +118,7 @@ export function gardenRoutes(ctx) {
     const dto = (s) => ({
       id: s.id,
       plantType: s.plant_type,
+      name: s.plant_name ?? null,
       taskTitle: s.task_title,
       minutes: Math.round(s.planned_seconds / 60),
       endedAt: s.ended_at,
@@ -169,6 +170,16 @@ export function gardenRoutes(ctx) {
     if (!row) throw notFound();
     return row;
   };
+
+  // Give a plant a name (or clear it). Works for any finished plant, collected or not.
+  router.patch('/plants/:id', async (req, res) => {
+    const row = await loadPlant(req);
+    const body = parse(z.object({ name: z.string({ error: 'A name must be text.' }).trim().max(30, 'Use at most 30 characters.').nullable() }).strict(), req.body);
+    if (row.kind !== 'focus' || row.status !== 'completed') throw new HttpError(409, 'Only finished plants can be named.');
+    const name = body.name || null;
+    await ctx.db.query('UPDATE timer_sessions SET plant_name = $3 WHERE id = $1 AND user_id = $2', [row.id, req.user.id, name]);
+    res.json({ plant: { id: row.id, name } });
+  });
 
   router.put('/plants/:id/position', async (req, res) => {
     const row = await loadPlant(req);

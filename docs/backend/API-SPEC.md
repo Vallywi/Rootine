@@ -349,3 +349,33 @@ Changed: user objects have avatarUrl (string or null). GET and PUT /api/settings
 Tasks (POST and PATCH /api/tasks) accept: category (study, work, personal, chores, health, other), priority (low, medium, high, urgent), status (todo, doing, done), dueDate ("YYYY-MM-DD" or null, a real calendar date), notes (up to 500 characters or null). Defaults: other, medium, todo, no date. Task objects return all of these plus isDone. status and isDone stay in step: sending isDone true sets status done, isDone false from done sets todo.
 
 GET /api/garden badges are now objects with id, group, icon, name, hint, earned, progress, target (22 badges). Badge progress comes from: collected plants, longest streak, total focus hours, longest session, kinds of plants grown, trees grown, finished tasks, and accepted friends.
+
+## Addendum: coins, shop, and plant names
+
+| Method and path | What it does |
+|-----------------|--------------|
+| GET /api/shop/balance | { coins: { earned, spent, balance } }. Earned is calculated from collected focus sessions, so it cannot drift. |
+| GET /api/shop | { coins, house, fence, items[] }. Items: id, category (house, fence, decor), name, text, price, owned, equipped, x, y. |
+| POST /api/shop/buy | { itemId }. 201 with the new balance. 409 if you already own it or do not have enough coins (the message says how many are missing). The price is checked in the same SQL statement that saves the purchase, then checked again afterwards. A new house or fence is put up at once. |
+| POST /api/shop/equip | { category: house or fence, itemId or null }. Only owned items. A fence can be null (no fence). |
+| PUT /api/shop/items/:itemId/position | { x, y } in percent. Decorations only, and only if owned. |
+| DELETE /api/shop/items/:itemId/position | Puts a decoration back in the tray. |
+| PATCH /api/garden/plants/:id | { name } (up to 30 characters, or null or empty to clear). |
+| POST /api/sessions/:id/collect | Now accepts an optional { name }. |
+
+Plants in GET /api/garden and sessions carry name (or plantName). The coin rule is in shared/shop.js.
+
+## Addendum: coins, shop, and plant names
+
+| Method and path | What it does |
+|-----------------|--------------|
+| GET /api/shop/balance | { coins: { earned, spent, balance } }. Earned is calculated from collected focus sessions, so it cannot drift. |
+| GET /api/shop | { coins, house, fence, items[] }. Items: id, category (house, fence, decor), name, text, price, owned, equipped, x, y. |
+| POST /api/shop/buy | { itemId }. 201 with the new balance. 409 if you already own it or do not have enough coins (the message says how many are missing). The price is checked in the same SQL statement that saves the purchase, then checked again afterwards. A new house or fence is put up at once. |
+| POST /api/shop/equip | { category: house or fence, itemId or null }. Only owned items. A fence can be null (no fence). |
+| PUT /api/shop/items/:itemId/position | { x, y } in percent. Decorations only, and only if owned. |
+| DELETE /api/shop/items/:itemId/position | Puts a decoration back in the tray. |
+| PATCH /api/garden/plants/:id | { name } (up to 30 characters, or null or empty to clear). |
+| POST /api/sessions/:id/collect | Now accepts an optional { name }. |
+
+Plants in GET /api/garden and sessions carry name (or plantName). The coin rule is in shared/shop.js.

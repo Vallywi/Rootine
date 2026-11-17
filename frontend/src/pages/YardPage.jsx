@@ -5,6 +5,10 @@ import { useAuth } from '../lib/AuthContext.jsx';
 import Plant, { PLANTS } from '../components/Plant.jsx';
 import { FormError, formatDate } from '../components/ui.jsx';
 import { YARD_LIMIT } from '../../../shared/plants.js';
+import { DecorArt, FenceArt, HouseArt } from '../components/YardArt.jsx';
+
+// Big decorations get a bigger spot, like trees do.
+const BIG_DECOR = new Set(['pond', 'bench', 'swing', 'windmill']);
 
 // Plants stand on the grass only (below the fence). Positions are percentages of the yard.
 const X_RANGE = [5, 95];
@@ -47,24 +51,35 @@ export default function YardPage() {
 
   const load = useCallback(async () => {
     try {
-      const g = await api.get(`/garden?tzOffset=${new Date().getTimezoneOffset()}`);
-      setData({ plants: g.plants, pending: g.pending.length });
+      const [g, shop] = await Promise.all([api.get(`/garden?tzOffset=${new Date().getTimezoneOffset()}`), api.get('/shop')]);
+      setData({ plants: g.plants, pending: g.pending.length, shop });
     } catch (err) { fail(err); }
   }, [fail]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
 
   const posOf = (p) => local[p.id] ?? (p.x != null ? { x: p.x, y: p.y } : null);
-  const nameOf = (p) => PLANTS[p.plantType].name;
+  const nameOf = (p) => (p.decor ? p.label : (p.name || PLANTS[p.plantType].name));
+  // Decorations bought in the shop behave like plants: place, drag, put back.
+  const decor = (data?.shop?.items ?? []).filter((i) => i.category === 'decor' && i.owned)
+    .map((i) => ({ id: `d:${i.id}`, decor: true, itemId: i.id, label: i.name, x: i.x, y: i.y }));
+  const everything = [...(data?.plants ?? []), ...decor];
 
   const applyServer = (plant) => {
-    setData((d) => ({ ...d, plants: d.plants.map((p) => (p.id === plant.id ? { ...p, x: plant.x, y: plant.y } : p)) }));
+    if (typeof plant.id === 'string') {
+      setData((d) => ({ ...d, shop: { ...d.shop, items: d.shop.items.map((i) => (`d:${i.id}` === plant.id ? { ...i, x: plant.x, y: plant.y } : i)) } }));
+    } else {
+      setData((d) => ({ ...d, plants: d.plants.map((p) => (p.id === plant.id ? { ...p, x: plant.x, y: plant.y } : p)) }));
+    }
     setLocal((l) => { const { [plant.id]: _gone, ...rest } = l; return rest; });
   };
 
   const save = useCallback(async (id, pos) => {
     setError('');
-    try { applyServer((await api.put(`/garden/plants/${id}/position`, pos)).plant); }
+    try {
+      if (typeof id === 'string') { const r = await api.put(`/shop/items/${id.slice(2)}/position`, pos); applyServer({ id, x: r.item.x, y: r.item.y }); }
+      else applyServer((await api.put(`/garden/plants/${id}/position`, pos)).plant);
+    }
     catch (err) { fail(err); setLocal({}); await load(); }
   }, [fail, load]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -72,13 +87,14 @@ export default function YardPage() {
     setError('');
     clearTimeout(timers.current[id]);
     try {
-      applyServer((await api.del(`/garden/plants/${id}/position`)).plant);
+      if (typeof id === 'string') { await api.del(`/shop/items/${id.slice(2)}/position`); applyServer({ id, x: null, y: null }); }
+      else applyServer((await api.del(`/garden/plants/${id}/position`)).plant);
       setSelected((s) => (s === id ? null : s));
     } catch (err) { fail(err); await load(); }
   }, [fail, load]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const placed = (data?.plants ?? []).filter((p) => posOf(p));
-  const tray = [...(data?.plants ?? [])].sort((a, b) => Number(!!posOf(a)) - Number(!!posOf(b)));
+  const placed = everything.filter((p) => posOf(p));
+  const tray = [...everything].sort((a, b) => Number(!!posOf(a)) - Number(!!posOf(b)));
 
   const place = async (p) => {
     const pos = freeSpot(placed.map(posOf));
@@ -165,13 +181,18 @@ export default function YardPage() {
 
   if (error && !data) return <FormError>{error}</FormError>;
   if (!data) return <p role="status">Loading…</p>;
-  const selectedPlant = data.plants.find((p) => p.id === selected && posOf(p));
+  const selectedPlant = everything.find((p) => p.id === selected && posOf(p));
 
   return (
     <section className="stack">
       <div className="row row--between row--wrap">
         <h1>Your yard</h1>
-        <p className="muted small">{placed.length} of {data.plants.length} plants outside</p>
+        <p className="muted small">{placed.length} of {everything.length} things outside</p>
+      </div>
+      <div className="card yard__shopbar">
+        <span className="coin-pill" title="Your coins"><span aria-hidden="true">{'\uD83E\uDE99'}</span> <strong>{data.shop.coins.balance}</strong> coins</span>
+        <span className="muted small grow">Earn more by finishing focus sessions. Longer sessions pay more.</span>
+        <Link to="/shop" className="btn btn--small">Open the shop</Link>
       </div>
       <p className="muted">Put your collected plants outside and arrange them however you like. Drag a plant to move it, or select it and use the arrow keys.</p>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
@@ -182,21 +203,21 @@ export default function YardPage() {
           <span className="yard__cloud yard__cloud--1" /><span className="yard__cloud yard__cloud--2" />
           <div className="yard__stars">{Array.from({ length: 12 }).map((_, i) => <i key={i} style={{ '--x': `${(i * 41 + 9) % 100}%`, '--y': `${(i * 17 + 5) % 26}%`, '--d': `${2 + (i % 4)}s` }} />)}</div>
           <div className="yard__hills" />
-          <div className="yard__fence" />
+          <HouseArt id={data.shop.house} className="yard__house" />
+          {data.shop.fence && <FenceArt id={data.shop.fence} />}
           <div className="yard__grass" />
           <svg className="yard__stones" viewBox="0 0 100 100" preserveAspectRatio="none">
             {[[50, 40, 7], [46, 50, 7.4], [52, 60, 8], [58, 70, 8.6], [62, 81, 9.2], [60, 92, 9.8]].map(([cx, cy, rx], i) => (
               <ellipse key={i} cx={cx} cy={cy} rx={rx} ry={rx * 0.34} fill="#efe3c8" stroke="#d9c9a4" strokeWidth=".5" />
             ))}
           </svg>
-          <div className="yard__pond"><span /></div>
           <span className="yard__butterfly">🦋</span>
           <div className="yard__fireflies">{[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ '--x': `${15 + i * 18}%`, '--y': `${55 + (i % 3) * 14}%`, '--d': `${3 + i}s` }} />)}</div>
         </div>
 
         {placed.map((p) => {
           const pos = posOf(p);
-          const tree = PLANTS[p.plantType].kind === 'tree';
+          const tree = p.decor ? BIG_DECOR.has(p.itemId) : PLANTS[p.plantType].kind === 'tree';
           const isSel = selected === p.id;
           return (
             <button
@@ -212,12 +233,12 @@ export default function YardPage() {
               onKeyDown={(e) => onKeyDown(e, p)}
               onFocus={() => setSelected(p.id)}
             >
-              <Plant type={p.plantType} stage="full" size={100} ground title="" />
+              {p.decor ? <DecorArt id={p.itemId} /> : <Plant type={p.plantType} stage="full" size={100} ground title="" />}
               {isSel && <span className="yard__label">{nameOf(p)}</span>}
             </button>
           );
         })}
-        {placed.length === 0 && <p className="yard__empty">{data.plants.length ? 'Your yard is empty. Place a plant from the tray below.' : 'Collect a plant to start decorating your yard.'}</p>}
+        {placed.length === 0 && <p className="yard__empty">{everything.length ? 'Your yard is empty. Place a plant from the tray below.' : 'Collect a plant to start decorating your yard.'}</p>}
       </div>
 
       <FormError>{error}</FormError>
@@ -239,14 +260,14 @@ export default function YardPage() {
       )}
 
       <div className="row row--between row--wrap">
-        <h2>Your plants ({data.plants.length})</h2>
+        <h2>Your plants and decorations ({everything.length})</h2>
         <div className="row">
           <button type="button" className="btn btn--small" disabled={busy || placed.length >= YARD_LIMIT || placed.length === data.plants.length} onClick={placeAll}>Place all</button>
           <button type="button" className="btn btn--small btn--ghost" disabled={busy || !placed.length} onClick={clearAll}>Put all back</button>
         </div>
       </div>
 
-      {data.plants.length === 0 ? (
+      {everything.length === 0 ? (
         <div className="card center">
           <Plant type="sunflower" stage="seed" size={120} title="" />
           <p>No collected plants yet. Finish a focus session and tap Collect plant.</p>
@@ -258,9 +279,9 @@ export default function YardPage() {
             const out = !!posOf(p);
             return (
               <li key={p.id} style={{ '--i': i }} className={`card plant-card ${out ? 'is-out' : ''}`}>
-                <Plant type={p.plantType} stage="full" size={84} title="" />
+                {p.decor ? <DecorArt id={p.itemId} className="tray__decor" /> : <Plant type={p.plantType} stage="full" size={84} title="" />}
                 <strong>{nameOf(p)}</strong>
-                <span className="small muted">{formatDate(p.endedAt)} · {p.minutes} min</span>
+                {p.decor ? <span className="small muted">Decoration</span> : <span className="small muted">{formatDate(p.endedAt)} · {p.minutes} min</span>}
                 {out
                   ? <button type="button" className="btn btn--small btn--ghost" onClick={() => { takeBack(p.id); setAnnounce(`${nameOf(p)} is back in the tray.`); }}>Put back</button>
                   : <button type="button" className="btn btn--small" disabled={placed.length >= YARD_LIMIT} onClick={() => place(p)}>Place in yard</button>}

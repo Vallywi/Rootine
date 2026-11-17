@@ -195,3 +195,11 @@ The upgrade is additive. Existing users get a friend code the next time the serv
 ## Addendum: task details
 
 tasks gets category, priority, status (all text with CHECK lists and defaults), due_date (text, YYYY-MM-DD, so time zones cannot shift it), and notes (up to 500 characters). The upgrade is additive. Existing finished tasks get status done.
+
+## Addendum: shop and plant names
+
+users gets yard_house (default 'hut') and yard_fence (null = no fence). timer_sessions gets plant_name (1 to 30 characters). New table shop_purchases: id, user_id (cascade delete), item_id, price, bought_at, x and y (percent, null while in the tray), unique on (user_id, item_id). Coins are never stored: balance = sum of coins for collected focus sessions minus the sum of prices in shop_purchases. Row level security is on for shop_purchases.
+
+## Addendum: shop and plant names
+
+users gets yard_house (default 'hut') and yard_fence (null = no fence). timer_sessions gets plant_name (1 to 30 characters). New table shop_purchases: id, user_id (cascade delete), item_id, price, bought_at, x and y (percent, null while in the tray), unique on (user_id, item_id). Coins are never stored: balance = sum of coins for collected focus sessions minus the sum of prices in shop_purchases. Row level security is on for shop_purchases.

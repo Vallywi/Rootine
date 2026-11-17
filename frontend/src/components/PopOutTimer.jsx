@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { useTimerView } from '../lib/useTimerView.js';
 import GrowingPlant from './GrowingPlant.jsx';
 import { formatClock } from './ui.jsx';
+import { coinsForSeconds } from '../../../shared/shop.js';
 
 // "Pop out" puts a small timer window on top of everything else: other browser tabs, other windows, other apps.
 // It uses the browser's Picture-in-Picture window (Chrome and Edge on a computer). Elsewhere the button is hidden,
@@ -15,27 +16,51 @@ const PLAY = 'M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 
 const Icon = ({ d }) => <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d={d} fill="currentColor" /></svg>;
 
 // The picture inside the pop-out window. It lives in its own React root, so it only gets plain values and functions.
+// A small scene: sky with a sun or moon and clouds, a card with the plant and the time, and a strip of grass with flowers.
 function PipView({ v }) {
+  const pct = Math.round(Math.max(0, Math.min(1, v.percent)) * 100);
   return (
-    <div className={`pip ${v.mode === 'done' ? 'is-done' : ''} ${v.near ? 'is-near' : ''}`}>
-      <div className="pip__art" aria-hidden="true">
-        {v.plantType ? <GrowingPlant type={v.plantType} progress={v.percent} size={64} title="" /> : <span className="pip__emoji">{v.emoji}</span>}
+    <div className={`pip pip--${v.mode} ${v.mode === 'done' ? 'is-done' : ''} ${v.near ? 'is-near' : ''} ${v.paused ? 'is-paused' : ''}`}>
+      <div className="pip__sky" aria-hidden="true">
+        <span className="pip__sun" />
+        <span className="pip__cloud pip__cloud--1" /><span className="pip__cloud pip__cloud--2" />
+        {[0, 1, 2, 3, 4, 5].map((i) => <i key={i} className="pip__star" style={{ left: `${8 + i * 16}%`, top: `${6 + (i % 3) * 9}%`, animationDelay: `${i * 0.4}s` }} />)}
       </div>
-      <div className="pip__info">
-        <span className="pip__label">{v.label}</span>
-        {v.mode === 'run' && <strong className="pip__time" role="timer">{v.time}</strong>}
-        {v.near && <span className="pip__label">Almost there</span>}
-        {v.error && <span className="pip__error" role="alert">{v.error}</span>}
-      </div>
-      <div className="pip__actions">
-        {v.mode === 'run' && v.canPause && (
-          <button type="button" className="icon-btn" aria-label={v.paused ? 'Resume' : 'Pause'} title={v.paused ? 'Resume' : 'Pause'} onClick={v.onToggle} disabled={v.busy}>
-            <Icon d={v.paused ? PLAY : PAUSE} />
-          </button>
+
+      <div className="pip__card">
+        <div className="pip__art" aria-hidden="true">
+          <span className="pip__mound" />
+          {v.plantType ? <GrowingPlant type={v.plantType} progress={v.percent} size={72} title="" /> : <span className="pip__emoji">{v.emoji}</span>}
+        </div>
+        <div className="pip__info">
+          <span className="pip__label">{v.label}</span>
+          {v.mode === 'run' && <strong className="pip__time" role="timer">{v.time}</strong>}
+          {v.mode === 'done' && v.coins > 0 && <span className="pip__coins"><span aria-hidden="true">{'\uD83E\uDE99'}</span> +{v.coins} coins when you collect</span>}
+          {v.near && <span className="pip__soon">Almost there!</span>}
+          {v.paused && <span className="pip__soon pip__soon--paused">Paused</span>}
+          {v.error && <span className="pip__error" role="alert">{v.error}</span>}
+        </div>
+        <div className="pip__actions">
+          {v.mode === 'run' && v.canPause && (
+            <button type="button" className="icon-btn pip__btn" aria-label={v.paused ? 'Resume' : 'Pause'} title={v.paused ? 'Resume' : 'Pause'} onClick={v.onToggle} disabled={v.busy}>
+              <Icon d={v.paused ? PLAY : PAUSE} />
+            </button>
+          )}
+          {v.mode === 'done' && <button type="button" className="btn btn--small pip__collect" onClick={v.onCollect} disabled={v.busy}>{v.busy ? 'Collecting...' : 'Collect'}</button>}
+        </div>
+        {v.mode === 'run' && (
+          <div className="pip__track" aria-hidden="true">
+            <span className="pip__fill" style={{ width: `${pct}%` }} />
+            <span className="pip__knob" style={{ left: `${pct}%` }}>{'\uD83C\uDF31'}</span>
+          </div>
         )}
-        {v.mode === 'done' && <button type="button" className="btn btn--small" onClick={v.onCollect} disabled={v.busy}>{v.busy ? 'Collecting…' : 'Collect'}</button>}
+        {v.mode === 'run' && <progress className="visually-hidden" max="1" value={v.percent} aria-label="Session progress" />}
       </div>
-      {v.mode === 'run' && <progress className="bar pip__bar" max="1" value={v.percent} aria-hidden="true" />}
+
+      <div className="pip__grass" aria-hidden="true">
+        {[8, 22, 37, 52, 66, 81, 92].map((x, i) => <span key={x} className={`pip__bloom pip__bloom--${i % 3}`} style={{ left: `${x}%` }} />)}
+      </div>
+      {v.mode === 'done' && <div className="pip__sparkles" aria-hidden="true">{[0, 1, 2, 3, 4, 5, 6].map((i) => <i key={i} style={{ left: `${10 + i * 13}%`, animationDelay: `${i * 0.25}s` }}>{'\u2728'}</i>)}</div>}
     </div>
   );
 }
@@ -59,7 +84,7 @@ export default function PopOutTimer() {
     if (!popOutSupported()) return;
     if (winRef.current) { try { winRef.current.focus(); } catch { /* ignore */ } return; }
     try {
-      const pip = await window.documentPictureInPicture.requestWindow({ width: 340, height: 160 });
+      const pip = await window.documentPictureInPicture.requestWindow({ width: 360, height: 190 });
       // The new window starts empty, so give it the same look as the app.
       for (const sheet of document.styleSheets) {
         if (sheet.href) {
@@ -110,6 +135,7 @@ export default function PopOutTimer() {
           emoji: running ? '☕' : thanks ? '🎉' : '🌤',
           paused,
           near: nearEnd,
+          coins: waiting ? coinsForSeconds(view.result.session.plannedSeconds) : 0,
           canPause: focus,
           busy: t.busy,
           error: t.error,

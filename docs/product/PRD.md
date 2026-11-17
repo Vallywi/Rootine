@@ -679,3 +679,13 @@ Notes: FR-32 (friends, P2) is now delivered as FR-43 and FR-44. Search by email 
 
 | FR-46 | A task has a kind (study, work, personal, chores, health, other), an urgency (low, medium, high, urgent), a status (to do, doing, done), an optional due date, optional notes, and an optional Pomodoro estimate. The list shows friendly due labels (Overdue by 2 days, Due today, Due tomorrow), can be filtered by status, and sorted by urgency, due date, or newest. | P1 |
 | FR-47 | The Garden page shows 22 badges in 5 groups (Plants, Streaks, Focus time, Collection, Tasks and friends). Each shows a picture, what it needs, and progress. | P2 |
+
+| FR-48 | Plants can be named: when collecting (optional) and later from the Garden (pencil button). Names are up to 30 characters. | P2 |
+| FR-49 | Coins: every collected focus session earns coins, and longer sessions pay more per minute (under 25 min 1.0, 25 to 49 1.2, 50 to 74 1.5, 75 and up 2.0). 25 min = 30 coins, 50 min = 75, 90 min = 180. The balance is shown in the top bar. | P1 |
+| FR-50 | The yard has a house. Everyone starts with a plain "Tiny hut". The Shop sells better houses (cottage, cabin, treehouse, castle), fences (wood, picket, stone, flower hedge), and decorations (signpost, mailbox, lantern, bench, pond, bird bath, scarecrow, swing, windmill). Houses and fences are switched on from the shop. Decorations are placed and dragged in the yard like plants. | P1 |
+| FR-51 | The pop-out timer window is a small scene (sky, sun or moon, clouds, plant on a mound, growing progress bar, grass with flowers) that matches light and dark mode. | P2 |
+
+| FR-48 | Plants can be named: when collecting (optional) and later from the Garden (pencil button). Names are up to 30 characters. | P2 |
+| FR-49 | Coins: every collected focus session earns coins, and longer sessions pay more per minute (under 25 min 1.0, 25 to 49 1.2, 50 to 74 1.5, 75 and up 2.0). 25 min = 30 coins, 50 min = 75, 90 min = 180. The balance is shown in the top bar. | P1 |
+| FR-50 | The yard has a house. Everyone starts with a plain "Tiny hut". The Shop sells better houses (cottage, cabin, treehouse, castle), fences (wood, picket, stone, flower hedge), and decorations (signpost, mailbox, lantern, bench, pond, bird bath, scarecrow, swing, windmill). Houses and fences are switched on from the shop. Decorations are placed and dragged in the yard like plants. | P1 |
+| FR-51 | The pop-out timer window is a small scene (sky, sun or moon, clouds, plant on a mound, growing progress bar, grass with flowers) that matches light and dark mode. | P2 |

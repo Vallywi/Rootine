@@ -9,6 +9,7 @@ import Confetti from '../components/Confetti.jsx';
 import PresetPicker from '../components/PresetPicker.jsx';
 import { popOutSupported, requestPopOut } from '../components/PopOutTimer.jsx';
 import { ConfirmDialog, FormError, GoalRing, formatClock } from '../components/ui.jsx';
+import { coinsForSeconds } from '../../../shared/shop.js';
 
 export default function FocusPage() {
   const { settings } = useAuth();
@@ -100,6 +101,7 @@ function RunningView({ t, onGiveUp }) {
 
 function ResultView({ t, goal }) {
   const { result } = t;
+  const [plantName, setPlantName] = useState('');
   const focusDone = result.kind === 'focus' && result.status === 'completed';
   const gaveUp = result.kind === 'focus' && result.status === 'given_up';
   const s = result.session;
@@ -121,7 +123,11 @@ function ResultView({ t, goal }) {
           ) : (
             <>
               <h1>Your {PLANTS[s.plantType].name.toLowerCase()} is fully grown!</h1>
-              <p className="muted">Collect it to add it to your garden.</p>
+              <p className="muted">Collect it to add it to your garden and earn <strong>{'\uD83E\uDE99'} {coinsForSeconds(s.plannedSeconds)} coins</strong>.</p>
+              <div className="name-field">
+                <label htmlFor="plant-name">Name your plant (optional)</label>
+                <input id="plant-name" value={plantName} maxLength={30} placeholder={PLANTS[s.plantType].name} autoComplete="off" onChange={(e) => setPlantName(e.target.value)} />
+              </div>
             </>
           )}
         </>}
@@ -138,7 +144,7 @@ function ResultView({ t, goal }) {
         <FormError>{t.error}</FormError>
         <div className="row row--center">
           {focusDone && !collected && <>
-            <button className="btn btn--big" onClick={t.collect} disabled={t.busy}>{t.busy ? 'Collecting…' : '🧺 Collect plant'}</button>
+            <button className="btn btn--big" onClick={() => t.collect(plantName)} disabled={t.busy}>{t.busy ? 'Collecting…' : '🧺 Collect plant'}</button>
             <button className="btn btn--ghost" onClick={t.clearResult} disabled={t.busy}>Collect later</button>
           </>}
           {focusDone && collected && <>

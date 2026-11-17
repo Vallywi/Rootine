@@ -4,6 +4,8 @@ import * as api from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Plant, { PLANTS } from '../components/Plant.jsx';
 import Badges from '../components/Badges.jsx';
+import PlantName from '../components/PlantName.jsx';
+import { coinsForMinutes } from '../../../shared/shop.js';
 import { FormError, GoalRing, formatDate } from '../components/ui.jsx';
 
 const hoursMinutes = (min) => (min >= 60 ? `${Math.floor(min / 60)} h ${min % 60} min` : `${min} min`);
@@ -48,8 +50,9 @@ export default function GardenPage() {
             {pending.map((p) => (
               <li key={p.id} className="plant-card plant-card--pending">
                 <Plant type={p.plantType} stage="full" size={96} />
-                <strong>{PLANTS[p.plantType].name}</strong>
+                <PlantName plant={p} typeName={PLANTS[p.plantType].name} onSaved={load} />
                 <span className="small muted">{formatDate(p.endedAt)} · {p.minutes} min</span>
+                <span className="small coin-note">{'\uD83E\uDE99'} +{coinsForMinutes(p.minutes)} coins when collected</span>
                 <button className="btn btn--small" disabled={busy} onClick={() => collect([p.id])}>Collect</button>
               </li>
             ))}
@@ -85,7 +88,7 @@ export default function GardenPage() {
           {plants.map((p, idx) => (
             <li key={p.id} style={{ '--i': idx }} className={`card plant-card ${fresh.includes(p.id) ? 'just-collected' : ''}`}>
               <Plant type={p.plantType} stage="full" size={110} />
-              <strong>{PLANTS[p.plantType].name}</strong>
+              <PlantName plant={p} typeName={PLANTS[p.plantType].name} onSaved={load} />
               <span className="small muted">{formatDate(p.endedAt)} · {p.minutes} min</span>
               {p.taskTitle && <span className="small plant-card__task">{p.taskTitle}</span>}
             </li>

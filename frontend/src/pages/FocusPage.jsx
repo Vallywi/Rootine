@@ -37,12 +37,6 @@ export default function FocusPage() {
     } catch (err) { setNote(err.message); }
   };
 
-  // Show the time in the browser tab while a session runs.
-  useEffect(() => {
-    const running = session && (session.status === 'active' || session.status === 'paused');
-    document.title = running ? `${formatClock(t.remainingMs)} · Rootine` : 'Rootine';
-    return () => { document.title = 'Rootine'; };
-  }, [session, t.remainingMs]);
 
   const goal = today !== null && <GoalRing done={today} goal={settings.dailyGoal} />;
 

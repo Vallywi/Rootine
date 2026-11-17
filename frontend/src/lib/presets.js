@@ -2,7 +2,7 @@
 // The long break and "long break after N sessions" stay as the user set them in Settings.
 export const PRESETS = [
   { id: 'sprint', name: 'Sprint', emoji: '🐣', focus: 15, rest: 3, best: 'low energy, burnout, or dreaded admin tasks' },
-  { id: 'classic', name: 'Classic', emoji: '🍅', focus: 25, rest: 5, tag: 'Great for beginners', best: 'general studying, task switching, and beginners. After four cycles you get a longer break' },
+  { id: 'classic', name: 'Classic', emoji: '🍅', focus: 25, rest: 5, tag: 'Beginner pick', best: 'general studying, task switching, and beginners. After four cycles you get a longer break' },
   { id: 'focus-block', name: 'Focus Block', emoji: '🧩', focus: 40, rest: 10, best: 'research papers or coding, where a slightly longer ramp-up is needed' },
   { id: 'deep-work', name: 'Deep Work', emoji: '🌊', focus: 50, rest: 10, best: 'writing, complex problem-solving, and tasks that need sustained concentration' },
   { id: 'extended-sprint', name: 'Extended Sprint', emoji: '🚀', focus: 75, rest: 15, best: 'graduate-level work or deep hyperfocus' },

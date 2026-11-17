@@ -195,6 +195,18 @@ Rules the screen must follow:
 ### 6.10 Demo mode (FR-48)
 - The settings response says `demo: true`. Then the Focus screen shows a notice, the top bar shows a DEMO badge, a **Demo 1 / 1** rhythm appears first, Custom accepts 1 minute, and the trees are not locked.
 
+### 6.11 Floating timer (FR-49)
+- `TimerOverlay` lives in the layout, so it appears on Tasks, Garden, Yard, and Settings. It is hidden on Focus. It reads the same timer state as the Focus screen, so there is one source of truth.
+- Running: mini growing plant (or a cup for breaks), a label ("Focusing", "Paused", "Short break", with the task name), the time, a progress bar, **Pause or Resume** (focus only), and **Open** (back to Focus).
+- Finished while the user was elsewhere: a yellow card "Your pine tree is fully grown!" with **Collect**, **Open**, and **Dismiss**. After collecting it flashes "Added to your garden!" for a few seconds. A finished break shows "Break is over". Dismissing a plant card leaves the plant waiting to be collected.
+- Placement: above the tab bar and centered on phones, in the bottom right corner on wide screens. It measures its own height and tells the page (`--timer-overlay-h`), so the page always leaves exactly enough room and never hides its last item.
+- Accessibility: a labelled region, a live status line for state changes, a `role="timer"` for the time (not announced every second), and 44 px buttons.
+- The page title (`12:34 Â· Rootine`) is set here, so it works on every tab.
+
+### 6.12 Phone checklist (FR-50)
+- Checked at 320x568, 360x740, 390x844, 412x915, 768x1024, and 844x390 (landscape). The audit looks for sideways scrolling, targets under 44 px, text under 12 px, form fields under 16 px, anything sticking out past the screen, popups that do not fit, and content hidden behind the bars.
+- Rules that came out of it: the landing top bar hides "Log in" below 380 px (it is also in the hero and the footer), footer links and the logo are 44 px tall, the smallest text is 12 px, and links and buttons use `touch-action: manipulation` so taps are immediate.
+
 ## 7. Timer behavior in the browser
 
 1. The backend sends `targetAt` and `serverNow` with every session response.

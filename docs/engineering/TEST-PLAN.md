@@ -157,6 +157,11 @@ Run on a phone-width screen first, then desktop.
 | F-1s | Tap the light/dark switch in the app, on the landing page, and on the login page, then reload | The look changes at once and is kept. In the app it is also saved to the account. |
 | F-1t | Run with `DEMO_MODE=1` | DEMO badge, a notice, and a Demo 1 / 1 rhythm. Trees are unlocked. A 1 minute Golden Ginkgo can be grown, collected, and placed in the yard. |
 | F-1u | Run a production build with `DEMO_MODE=1` set | No DEMO badge, no Demo rhythm, and no 1 minute sessions |
+| F-1v | Start a session, then open Tasks, Garden, Yard, and Settings | A floating timer shows the plant, the time, and Pause or Resume on each. It is not shown on Focus. The browser tab title shows the time. |
+| F-1w | Pause and Resume from the floating timer, then tap Open | The time freezes and continues, and Open goes to the Focus screen |
+| F-1x | Let the session finish while on another tab | The floating card says the plant is fully grown with a Collect button. Collect works, then "Added to your garden!" appears and the card goes away. |
+| F-1y | Scroll to the bottom of every tab while the floating timer is showing, on a small phone | The last item is fully visible above the floating timer and the tab bar |
+| F-1z | Run the phone audit at 320, 360, 390, 412, 768, and 844x390 | No sideways scrolling, no targets under 44 px, no text under 12 px, no form fields under 16 px, no popup off screen, and nothing hidden behind a bar |
 | F-2 | Register with a weak password | Inline error under the field |
 | F-3 | Register correctly | Lands on Focus screen |
 | F-4 | Add, edit, complete, and delete a task | Delete asks for confirmation. History stays. |

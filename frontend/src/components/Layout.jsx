@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Tour from './Tour.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
+import TimerOverlay from './TimerOverlay.jsx';
 
 // Settings is not here. It is the gear at the top right, next to the light/dark switch and the tour button.
 const links = [
@@ -38,6 +39,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <Tour />
+      <TimerOverlay />
       <nav aria-label="Main (mobile)" className="nav nav--bottom" data-tour="nav">
         {links.map((l) => (
           <NavLink key={l.to} to={l.to} end={l.end} className="nav__link">

@@ -42,7 +42,7 @@ export function ConfirmDialog({ open, title, children, confirmLabel, cancelLabel
 }
 
 // "3 of 4 today" ring. The number is also written as text.
-export function GoalRing({ done, goal, size = 96 }) {
+export function GoalRing({ done, goal, size = 108 }) {
   const target = Math.min(1, goal ? done / goal : 0);
   const [pct, setPct] = useState(0); // starts empty, then fills with a transition
   useEffect(() => {

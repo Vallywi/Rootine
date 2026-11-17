@@ -36,7 +36,8 @@ export const LIMITS = {
 
 export const GENDERS = ['female', 'male', 'non_binary', 'prefer_not_to_say'];
 
-export const PLANT_TYPES = ['sunflower', 'cactus', 'tulip', 'sakura'];
+// Plants come from the shared catalog (shared/plants.js). Trees need a minimum focus length.
+export { PLANT_IDS as PLANT_TYPES, plantInfo, YARD_LIMIT } from '../../shared/plants.js';
 
 export const SESSION_DAYS = 7;
 export const LOCK_AFTER_FAILURES = 5;

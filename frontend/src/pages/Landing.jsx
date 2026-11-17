@@ -29,7 +29,7 @@ const STAGES = [
 export default function Landing() {
   const grow = useGrowLoop();
   return (
-    <div className="landing">
+    <div className="landing" id="top">
       <a className="skip-link" href="#landing-main">Skip to content</a>
       <header className="landing__nav">
         <Link to="/" className="brand"><span aria-hidden="true">🌿</span> Rootine</Link>
@@ -93,7 +93,31 @@ export default function Landing() {
               </li>
             ))}
           </ul>
-          <p className="center muted">Choose from {Object.values(PLANTS).map((p) => p.name).join(', ')}.</p>
+          <p className="center muted">And that is only the start. <a href="#plants">Meet all {Object.keys(PLANTS).length} plants</a>.</p>
+        </Reveal>
+
+        <Reveal as="section" className="section" aria-labelledby="plants">
+          <h2 id="plants" className="section__title">Meet the plants</h2>
+          <p className="section__lead">Nine flowers and plants you can grow any time, plus four trees that grow when you focus for longer.</p>
+          <h3 className="plants__group">Flowers and plants</h3>
+          <ul className="showcase">
+            {Object.values(PLANTS).filter((p) => p.kind === 'plant').map((p, i) => (
+              <li key={p.id} className="card showcase__item" style={{ '--i': i }}>
+                <Plant type={p.id} stage="full" size={78} title="" />
+                <strong>{p.name}</strong>
+              </li>
+            ))}
+          </ul>
+          <h3 className="plants__group">Trees <span className="muted">(they take longer to grow)</span></h3>
+          <ul className="showcase showcase--trees">
+            {Object.values(PLANTS).filter((p) => p.kind === 'tree').map((p, i) => (
+              <li key={p.id} className="card showcase__item" style={{ '--i': i }}>
+                <Plant type={p.id} stage="full" size={92} title="" />
+                <strong>{p.name}</strong>
+                <span className="showcase__tag">{p.minMinutes}+ min focus</span>
+              </li>
+            ))}
+          </ul>
         </Reveal>
 
         <Reveal as="section" className="section" aria-labelledby="why">
@@ -120,7 +144,46 @@ export default function Landing() {
       </main>
 
       <footer className="landing__footer">
-        <p>Made with 🌱 for CS0053.</p>
+        <div className="footer__card">
+          <div className="footer__brand">
+            <Link to="/" className="brand"><span aria-hidden="true">🌿</span> Rootine</Link>
+            <p className="muted">Focus a little. Grow a lot. A cozy Pomodoro timer that grows a garden while you study.</p>
+            <div className="footer__plants" aria-hidden="true">
+              <Plant type="sunflower" stage="full" size={48} title="" />
+              <Plant type="pine" stage="full" size={52} title="" />
+              <Plant type="rose" stage="full" size={48} title="" />
+              <Plant type="mushroom" stage="full" size={44} title="" />
+            </div>
+          </div>
+          <nav aria-label="Explore" className="footer__col">
+            <h2 className="footer__title">Explore</h2>
+            <ul>
+              <li><a href="#how">How it works</a></li>
+              <li><a href="#grow">Watch it grow</a></li>
+              <li><a href="#plants">Meet the plants</a></li>
+              <li><a href="#why">Features</a></li>
+            </ul>
+          </nav>
+          <nav aria-label="Get started" className="footer__col">
+            <h2 className="footer__title">Get started</h2>
+            <ul>
+              <li><Link to="/register">Create an account</Link></li>
+              <li><Link to="/login">Log in</Link></li>
+            </ul>
+          </nav>
+          <div className="footer__col">
+            <h2 className="footer__title">Good to know</h2>
+            <ul>
+              <li>Free to use</li>
+              <li>Works on phones and computers</li>
+              <li>Install it from Chrome like an app</li>
+            </ul>
+          </div>
+        </div>
+        <div className="footer__bottom">
+          <p>© {new Date().getFullYear()} Rootine · Made with 🌱 for CS0053</p>
+          <a href="#top" className="footer__top">Back to top ↑</a>
+        </div>
       </footer>
     </div>
   );

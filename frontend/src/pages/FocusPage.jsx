@@ -165,6 +165,10 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
     api.get('/tasks').then((d) => setTasks(d.tasks.filter((x) => !x.isDone))).catch(() => {});
   }, []);
   const untilLong = Math.max(0, settings.longBreakInterval - t.focusSinceLongBreak);
+  // A tree needs a longer focus. If the rhythm gets shorter, go back to a plant that is still allowed.
+  useEffect(() => {
+    if (settings.focusMinutes < PLANTS[plant].minMinutes) setPlant('sunflower');
+  }, [settings.focusMinutes, plant]);
 
   return (
     <section className="stack">
@@ -186,12 +190,27 @@ function StartView({ t, goal, pending, note, onCollectAll }) {
         <PresetPicker />
         <fieldset className="plant-picker" data-tour="plants">
           <legend>Choose a plant</legend>
-          {Object.entries(PLANTS).map(([key, p]) => (
-            <label key={key} className={`plant-option ${plant === key ? 'is-selected' : ''}`}>
-              <input type="radio" name="plant" value={key} checked={plant === key} onChange={() => setPlant(key)} />
-              <Plant type={key} stage="full" size={56} title="" />
-              <span>{p.name}</span>
-            </label>
+          {[
+            { title: 'Flowers and plants', items: Object.values(PLANTS).filter((p) => p.kind === 'plant') },
+            { title: 'Trees', note: 'Trees take longer to grow. Pick a longer rhythm above to unlock them.', items: Object.values(PLANTS).filter((p) => p.kind === 'tree') },
+          ].map((group) => (
+            <div key={group.title} className="plant-group">
+              <p className="plant-group__title">{group.title}</p>
+              {group.note && <p className="plant-group__note">{group.note}</p>}
+              <div className="plant-group__grid">
+                {group.items.map((p) => {
+                  const locked = settings.focusMinutes < p.minMinutes;
+                  return (
+                    <label key={p.id} className={`plant-option ${plant === p.id ? 'is-selected' : ''} ${locked ? 'is-locked' : ''}`}>
+                      <input type="radio" name="plant" value={p.id} checked={plant === p.id} disabled={locked} onChange={() => setPlant(p.id)} />
+                      <Plant type={p.id} stage="full" size={56} title="" />
+                      <span>{p.name}</span>
+                      {locked && <span className="plant-option__lock"><span aria-hidden="true">🔒 </span>{p.minMinutes}+ min<span className="visually-hidden"> of focus needed to grow this tree</span></span>}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </fieldset>
         <div className="field field--center" data-tour="task">

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Head, PLANTS, Pot, STAGE_LABEL, stageFor } from './Plant.jsx';
+import { NEW_ART } from './plantArt.jsx';
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const LEAF = '#6FA66F';
@@ -42,7 +43,13 @@ export default function GrowingPlant({ type = 'sunflower', progress = 0, size = 
         <ellipse cx="60" cy="112" rx="7" ry="5" fill="#8B6F47" stroke="#6b5233" strokeWidth="1.5" style={{ opacity: seedOpacity, transition: 'opacity .5s' }} />
         <g className="plant__sway">
           <g {...scale(body, 60, 118)} style={{ transform: `scale(${body})`, transformOrigin: '60px 118px', opacity: plantOpacity }}>
-            {type === 'cactus' ? (
+            {NEW_ART[type] ? (
+              <>
+                {NEW_ART[type].base}
+                {/* flowers and caps pop open near the end. Trees grow their crown from the middle of the session. */}
+                <g {...scale(NEW_ART[type].tree ? clamp01((p - 0.25) / 0.6) : bloom, NEW_ART[type].origin[0], NEW_ART[type].origin[1], 'pop')}>{NEW_ART[type].top}</g>
+              </>
+            ) : type === 'cactus' ? (
               <>
                 <rect x="46" y="66" width="28" height="58" rx="12" fill={cactusBody} />
                 <g {...scale(leaves, 48, 92, 'pop')}>

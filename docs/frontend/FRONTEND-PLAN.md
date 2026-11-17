@@ -76,11 +76,12 @@ frontend/
 | Path | Screen | Access | PRD |
 |---|---|---|---|
 | `/login` | Log in | Guests only | FR-2 |
-| `/` (signed out) | Landing page: hero, how it works, plant stages, features, call to action | Guests only | PRD 4.1 |
+| `/` (signed out) | Landing page: hero, how it works, plant stages, meet the plants, features, call to action, and a footer | Guests only | PRD 4.1 |
 | `/register` | Create account | Guests only | FR-1 |
 | `/` | Focus (idle, running, break, result) | Signed in | FR-6 to 17 |
 | `/tasks` | Task list | Signed in | FR-24 to 26 |
 | `/garden` | Garden and stats | Signed in | FR-19, 27, 28 |
+| `/yard` | Yard: place collected plants outside | Signed in | FR-45 |
 | `/settings` | Timer, alerts, account | Signed in | FR-12, 35, 36 |
 | anything else | Redirect to `/` | | |
 
@@ -170,6 +171,20 @@ Rules the screen must follow:
 - **Account:** edit display name, change password, log out, and **Delete account** (a confirmation dialog that asks for the password and says it cannot be undone).
 
 ---
+
+### 6.6 Yard screen (FR-45)
+- A scene with a sky, sun, clouds, hills, a picket fence, grass, stepping stones, and a pond. In dark mode it becomes a night yard with stars and fireflies.
+- **Tray** below the scene lists every collected plant with **Place in yard** or **Put back**, plus **Place all** and **Put all back**. A banner points to the Garden when plants are still waiting to be collected.
+- **Placing and moving:** plants stand on the grass only (below the fence). Drag with a mouse, pen, or finger. Or select a plant (click, tap, or Tab to it) and use the arrow keys (Shift moves further). Delete puts it back. Positions are saved when the drag ends or 0.4 seconds after the last key press. Trees are drawn bigger. Plants further down the scene are drawn in front.
+- **Outside, plants have no pot.** They stand on a small mound of earth with a face.
+- Accessibility: every plant is a button with a label that explains the keys, changes are announced in a live region, and the yard works without a mouse.
+
+### 6.7 Plants and trees (FR-44)
+- The picker groups "Flowers and plants" and "Trees". Locked trees are dimmed and show the minutes they need. Choosing a longer rhythm unlocks them. If the rhythm gets shorter while a tree is chosen, the choice goes back to the Sunflower.
+- Each plant is drawn in `Plant.jsx` and `plantArt.jsx` for every stage (seed, sprout, small, full, withered) and animates through `GrowingPlant`. Trees grow their crown from the middle of the session, and flowers pop open near the end.
+
+### 6.8 Landing footer (FR-46)
+- Four blocks (brand with a short description and little plants, Explore, Get started, Good to know) in one rounded card, then the year and a Back to top button. Links to sections use smooth scrolling, which stops with reduced motion.
 
 ## 7. Timer behavior in the browser
 

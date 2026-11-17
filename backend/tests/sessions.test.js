@@ -41,7 +41,7 @@ test('T-M2b two simultaneous starts: exactly one wins (database unique index)', 
 
 test('start validation: unknown plant, missing plant, minutes out of range', async () => {
   const c = await newUser();
-  assert.equal((await c.post('/sessions', { kind: 'focus', plantType: 'rose' })).status, 400);
+  assert.equal((await c.post('/sessions', { kind: 'focus', plantType: 'oak' })).status, 400);
   assert.equal((await c.post('/sessions', { kind: 'focus' })).status, 400);
   assert.equal((await startFocus(c, { minutes: 14 })).status, 400);
   assert.equal((await startFocus(c, { minutes: 91 })).status, 400);

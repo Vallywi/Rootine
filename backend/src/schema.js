@@ -1,4 +1,8 @@
+import { PLANT_IDS } from '../../shared/plants.js';
+
 // PostgreSQL schema (see docs/backend/DATABASE-SCHEMA.md). Safe to run more than once.
+const PLANT_LIST = PLANT_IDS.map((id) => `'${id}'`).join(', ');
+
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS users (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -55,7 +59,7 @@ CREATE TABLE IF NOT EXISTS timer_sessions (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   kind text NOT NULL CHECK (kind IN ('focus', 'short_break', 'long_break')),
-  plant_type text CHECK (plant_type IN ('sunflower', 'cactus', 'tulip', 'sakura')),
+  plant_type text,
   task_id bigint REFERENCES tasks(id) ON DELETE SET NULL,
   task_title text,
   planned_seconds integer NOT NULL CHECK (planned_seconds > 0),
@@ -66,6 +70,10 @@ CREATE TABLE IF NOT EXISTS timer_sessions (
   ended_at bigint,
   collected_at bigint
 );
+
+-- Plant types: rebuilt from the shared catalog each time, so new plants are allowed in older databases.
+ALTER TABLE timer_sessions DROP CONSTRAINT IF EXISTS timer_sessions_plant_type_check;
+ALTER TABLE timer_sessions ADD CONSTRAINT timer_sessions_plant_type_check CHECK (plant_type IN (${PLANT_LIST}));
 
 -- Upgrade for databases created before plants had to be collected: add the column once and
 -- mark every plant that was already finished as collected (so nothing disappears from the garden).
@@ -80,6 +88,12 @@ CREATE INDEX IF NOT EXISTS timer_sessions_task_idx ON timer_sessions (task_id);
 CREATE UNIQUE INDEX IF NOT EXISTS one_open_session_per_user
   ON timer_sessions (user_id) WHERE status IN ('active', 'paused');
 
+-- Yard: where a collected plant stands outside. Both are percentages of the yard (0 to 100), or both empty.
+ALTER TABLE timer_sessions ADD COLUMN IF NOT EXISTS yard_x double precision;
+ALTER TABLE timer_sessions ADD COLUMN IF NOT EXISTS yard_y double precision;
+ALTER TABLE timer_sessions DROP CONSTRAINT IF EXISTS timer_sessions_yard_check;
+ALTER TABLE timer_sessions ADD CONSTRAINT timer_sessions_yard_check
+  CHECK ((yard_x IS NULL) = (yard_y IS NULL) AND (yard_x IS NULL OR (yard_x BETWEEN 0 AND 100 AND yard_y BETWEEN 0 AND 100)));
 CREATE TABLE IF NOT EXISTS rate_limits (
   key text PRIMARY KEY,
   window_start bigint NOT NULL,

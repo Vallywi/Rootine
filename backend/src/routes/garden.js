@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { parse } from '../http.js';
+import { HttpError, notFound, parse, parseId } from '../http.js';
+import { YARD_LIMIT } from '../config.js';
 import { requireAuth } from '../auth.js';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -74,7 +75,7 @@ export function gardenRoutes(ctx) {
     const { tzOffset } = parse(querySchema, req.query);
     const userId = req.user.id;
     const completed = await ctx.db.query(
-      `SELECT id, plant_type, task_title, planned_seconds, ended_at, collected_at FROM timer_sessions
+      `SELECT id, plant_type, task_title, planned_seconds, ended_at, collected_at, yard_x, yard_y FROM timer_sessions
         WHERE user_id = $1 AND kind = 'focus' AND status = 'completed' ORDER BY ended_at DESC, id DESC`,
       [userId],
     );
@@ -83,7 +84,15 @@ export function gardenRoutes(ctx) {
         WHERE user_id = $1 AND kind = 'focus' AND status = 'given_up' ORDER BY ended_at DESC, id DESC LIMIT 30`,
       [userId],
     );
-    const dto = (s) => ({ id: s.id, plantType: s.plant_type, taskTitle: s.task_title, minutes: Math.round(s.planned_seconds / 60), endedAt: s.ended_at });
+    const dto = (s) => ({
+      id: s.id,
+      plantType: s.plant_type,
+      taskTitle: s.task_title,
+      minutes: Math.round(s.planned_seconds / 60),
+      endedAt: s.ended_at,
+      x: s.yard_x ?? null, // where it stands in the yard (percent), or null while it is in the tray
+      y: s.yard_y ?? null,
+    });
     // Time and streaks count every finished session. Plants in the garden are the collected ones.
     const collected = completed.filter((s) => s.collected_at != null);
     const pending = completed.filter((s) => s.collected_at == null);
@@ -97,6 +106,48 @@ export function gardenRoutes(ctx) {
       stats,
       badges: computeBadges({ ...stats, totalSeconds }),
     });
+  });
+
+  // ----- Yard: put a collected plant outside, move it, or take it back.
+  const positionSchema = z
+    .object({
+      x: z.number({ error: 'x must be a number from 0 to 100.' }).min(0, 'x must be a number from 0 to 100.').max(100, 'x must be a number from 0 to 100.'),
+      y: z.number({ error: 'y must be a number from 0 to 100.' }).min(0, 'y must be a number from 0 to 100.').max(100, 'y must be a number from 0 to 100.'),
+    })
+    .strict();
+  const round1 = (v) => Math.round(v * 10) / 10;
+
+  const loadPlant = async (req) => {
+    const id = parseId(req.params.id);
+    if (!id) throw notFound();
+    const [row] = await ctx.db.query(
+      'SELECT id, kind, status, collected_at, yard_x FROM timer_sessions WHERE id = $1 AND user_id = $2',
+      [id, req.user.id],
+    );
+    if (!row) throw notFound();
+    return row;
+  };
+
+  router.put('/plants/:id/position', async (req, res) => {
+    const row = await loadPlant(req);
+    const body = parse(positionSchema, req.body);
+    if (row.kind !== 'focus' || row.status !== 'completed' || row.collected_at == null) {
+      throw new HttpError(409, 'Only collected plants can be placed in the yard.');
+    }
+    if (row.yard_x == null) {
+      const [{ n }] = await ctx.db.query('SELECT count(*)::int AS n FROM timer_sessions WHERE user_id = $1 AND yard_x IS NOT NULL', [req.user.id]);
+      if (n >= YARD_LIMIT) throw new HttpError(409, `Your yard is full (${YARD_LIMIT} plants). Put one back in the tray first.`);
+    }
+    const x = round1(body.x);
+    const y = round1(body.y);
+    await ctx.db.query('UPDATE timer_sessions SET yard_x = $3, yard_y = $4 WHERE id = $1 AND user_id = $2 AND collected_at IS NOT NULL', [row.id, req.user.id, x, y]);
+    res.json({ plant: { id: row.id, x, y } });
+  });
+
+  router.delete('/plants/:id/position', async (req, res) => {
+    const row = await loadPlant(req);
+    await ctx.db.query('UPDATE timer_sessions SET yard_x = NULL, yard_y = NULL WHERE id = $1 AND user_id = $2', [row.id, req.user.id]);
+    res.json({ plant: { id: row.id, x: null, y: null } });
   });
 
   return router;

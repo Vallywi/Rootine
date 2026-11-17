@@ -86,7 +86,7 @@ The number of completed Pomodoros per task is **calculated** from `timer_session
 | id | bigint | primary key, generated always as identity | |
 | user_id | bigint | required, FK to users, delete cascades | Owner |
 | kind | text | one of `focus`, `short_break`, `long_break` | |
-| plant_type | text | nullable (null for breaks) | `sunflower`, `cactus`, `tulip`, `sakura` |
+| plant_type | text | nullable (null for breaks) | One of the 13 plant ids in `shared/plants.js` (nine flowers and plants, and the trees `pine`, `apple`, `cherry`, `ginkgo`). The `CHECK` is rebuilt from that list each time the schema runs. |
 | task_id | bigint | nullable, FK to tasks, on delete set null | Optional link |
 | task_title | text | nullable | Copy of the title at start (BR-11) |
 | planned_seconds | integer | required | Duration copied at start (BR-12) |
@@ -96,6 +96,8 @@ The number of completed Pomodoros per task is **calculated** from `timer_session
 | paused_remaining_ms | bigint | nullable | Time left while paused |
 | ended_at | bigint | nullable | When it completed or ended |
 | collected_at | bigint | nullable | When the user collected the plant. Null while a finished plant is still waiting (and always null for breaks and given-up sessions). |
+| yard_x | double precision | nullable, 0 to 100 | Where the collected plant stands in the yard, as a percent from the left. Null while it is in the tray. |
+| yard_y | double precision | nullable, 0 to 100 | Percent from the top of the yard. A `CHECK` makes `yard_x` and `yard_y` both set or both empty. |
 
 Indexes:
 - `(user_id, ended_at)` for garden and stats queries.
@@ -136,6 +138,7 @@ At school-project scale these run fast with the indexes above.
 - **First version:** keep the schema in `backend/db/001_init.sql` and run it in the Supabase SQL editor (or with `psql`). Use `CREATE TABLE IF NOT EXISTS` so it is safe to repeat.
 - **Upgrade to collectable plants:** `collected_at` is added once, and plants that were already finished are marked collected so nothing disappears. Running the schema again does not collect waiting plants.
 - **Upgrade to the new timer limits:** the two `CHECK` constraints (`users_focus_minutes_check`, `users_short_break_minutes_check`) are dropped and added again by name each time the schema runs, so older databases move from 15 to 60 and 5 to 15 to the new 15 to 90 and 3 to 20.
+- **Upgrade to more plants and the yard:** the plant `CHECK` (`timer_sessions_plant_type_check`) is dropped and added again from the shared list, and `yard_x` and `yard_y` are added if missing. Nothing existing changes.
 - **Later changes:** keep numbered migration files (`001_init.sql`, `002_...`) once real users exist. **[TO CONFIRM]** whether needed for the course.
 - **Demo seed (optional):** a script that adds a demo user with a few completed plants, so a presentation never starts with an empty garden. Keep it out of production.
 

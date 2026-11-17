@@ -158,6 +158,10 @@ All responses that include a session also return `serverNow`, so the frontend ca
 
 **Collecting plants (FR-40).** Completing a focus session does not put the plant in the garden by itself. `POST /sessions/:id/collect` sets `collected_at` once, using a guarded update (`WHERE collected_at IS NULL`), so repeated or parallel calls are safe. `POST /sessions/collect-all` does the same for every waiting plant of the signed-in user. Only finished focus sessions owned by the user can be collected.
 
+**Plants and trees (FR-44).** `shared/plants.js` is the single list of plants (id, name, kind, minimum focus minutes). The backend reads it to validate the plant on `POST /sessions` and to build the database `CHECK`, and the frontend reads it to draw the picker. For a tree, the focus length (the `minutes` sent, or the saved focus length) must be at least its minimum, otherwise the request is refused with a message on `plantType`.
+
+**Yard (FR-45).** `PUT /garden/plants/:id/position` stores `yard_x` and `yard_y` for a collected focus plant of the signed-in user (404 for anyone else, 409 for anything not collected, and 409 when 60 plants are already outside). `DELETE` clears the position. The values are rounded to one decimal and range-checked in the app and in the database.
+
 ### 5.5 Garden and stats (FR-19, FR-27, FR-28)
 
 - Completed focus sessions are the grown plants. Given-up focus sessions are the withered list (latest 30).

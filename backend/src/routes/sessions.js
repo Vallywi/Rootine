@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { HttpError, notFound, parse, parseId } from '../http.js';
-import { COMPLETE_ALLOWANCE_MS, LIMITS, PLANT_TYPES } from '../config.js';
+import { COMPLETE_ALLOWANCE_MS, LIMITS, PLANT_TYPES, plantInfo } from '../config.js';
 import { isUniqueViolation } from '../db.js';
 import { requireAuth } from '../auth.js';
 
@@ -117,7 +117,15 @@ export function sessionRoutes(ctx) {
         taskId = task.id;
         taskTitle = task.title; // copied, so history survives task deletion (BR-11)
       }
-      const seconds = (input.minutes ?? u.focus_minutes) * 60; // copied duration (BR-12)
+      const minutes = input.minutes ?? u.focus_minutes;
+      const info = plantInfo(input.plantType);
+      if (minutes < info.minMinutes) {
+        // Trees take longer to grow. Say which rhythm unlocks them.
+        throw new HttpError(400, 'Please check the highlighted fields.', {
+          fields: { plantType: `${info.name} needs a focus session of at least ${info.minMinutes} minutes. Choose a longer rhythm.` },
+        });
+      }
+      const seconds = minutes * 60; // copied duration (BR-12)
       values = ['focus', input.plantType, taskId, taskTitle, seconds];
     } else {
       const long = u.focus_since_long_break >= u.long_break_interval;

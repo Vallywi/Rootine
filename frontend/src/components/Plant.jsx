@@ -1,11 +1,17 @@
 // One SVG component for all plants. Stages: seed, sprout, small, full, withered.
 // Plants sit in a pot with a small face. All shapes are drawn here, no image files.
-export const PLANTS = {
-  sunflower: { name: 'Sunflower', petal: '#E8B02E', center: '#7B5A2E' },
-  cactus: { name: 'Cactus', body: '#5E9E6B', flower: '#E58AA8' },
-  tulip: { name: 'Tulip', petal: '#E0657A', petal2: '#C84C63' },
-  sakura: { name: 'Sakura', petal: '#F4B6C8', petal2: '#E98FAB' },
+import { PLANT_CATALOG } from '../../../shared/plants.js';
+import { NEW_ART, StaticNewArt } from './plantArt.jsx';
+
+// Colors for the first four plants (the newer ones are drawn in plantArt.jsx).
+const LOOKS = {
+  sunflower: { petal: '#E8B02E', center: '#7B5A2E' },
+  cactus: { body: '#5E9E6B', flower: '#E58AA8' },
+  tulip: { petal: '#E0657A', petal2: '#C84C63' },
+  sakura: { petal: '#F4B6C8', petal2: '#E98FAB' },
 };
+// id, name, kind ("plant" or "tree"), and minMinutes come from shared/plants.js.
+export const PLANTS = Object.fromEntries(PLANT_CATALOG.map((p) => [p.id, { ...LOOKS[p.id], ...p }]));
 export const STAGE_LABEL = { seed: 'Seed', sprout: 'Sprout', small: 'Growing', full: 'Fully grown', withered: 'Withered' };
 
 const LEAF = '#6FA66F';
@@ -57,10 +63,20 @@ export function Head({ type, stage, cx, cy, s }) {
 // The pot is always at the bottom, so plants of different sizes stand on the same line.
 const VIEW = { seed: [98, 42], sprout: [84, 56], small: [54, 86], full: [34, 106], withered: [56, 84] };
 
+// The newer plants and trees are tall or short in different ways, so their crop is worked out from the top of the picture.
+function viewFor(type, stage) {
+  const art = NEW_ART[type];
+  if (!art) return VIEW[stage];
+  const top = { seed: 98, sprout: 84 }[stage]
+    ?? Math.max(0, Math.round(118 - (118 - art.fullTop) * { small: 0.62, full: 1, withered: 0.95 }[stage]) - 6);
+  return [top, 140 - top];
+}
+
 // fit="tight" (default) crops the empty space. fit="full" keeps one fixed box, so the layout does not jump while a plant grows.
-export default function Plant({ type = 'sunflower', stage = 'full', size = 140, title, fit = 'tight' }) {
+// ground=true draws a little face on a mound of earth instead of a pot (used outside, in the yard).
+export default function Plant({ type = 'sunflower', stage = 'full', size = 140, title, fit = 'tight', ground = false }) {
   const wilt = stage === 'withered';
-  const view = fit === 'full' ? [0, 140] : VIEW[stage];
+  const view = fit === 'full' ? [0, 140] : viewFor(type, stage);
   const p = PLANTS[type] ?? PLANTS.sunflower;
   const stemColor = wilt ? WILT : LEAF;
   const label = title ?? `${p.name}, ${STAGE_LABEL[stage].toLowerCase()}`;
@@ -73,6 +89,8 @@ export default function Plant({ type = 'sunflower', stage = 'full', size = 140, 
   let plant = null;
   if (stage === 'seed') {
     plant = <ellipse cx="60" cy={potTop - 6} rx="7" ry="5" fill="#8B6F47" stroke="#6b5233" strokeWidth="1.5" />;
+  } else if (NEW_ART[type] && stage !== 'sprout') {
+    plant = <StaticNewArt type={type} scale={{ small: 0.58, full: 1, withered: 0.92 }[stage]} topScale={{ small: 0.6, full: 1, withered: 0.9 }[stage]} wilt={wilt} />;
   } else if (type === 'cactus') {
     const body = wilt ? WILT : p.body;
     plant = (
@@ -98,7 +116,7 @@ export default function Plant({ type = 'sunflower', stage = 'full', size = 140, 
     <svg className={`plant plant--${stage}`} width={size} height={fit === 'full' ? size : Math.round((size * view[1]) / 120)} viewBox={`0 ${view[0]} 120 ${view[1]}`} role="img" aria-label={label}>
       <title>{label}</title>
       <g className="plant__sway">{plant}</g>
-      <Pot wilt={wilt} />
+      {ground ? <Mound wilt={wilt} /> : <Pot wilt={wilt} />}
     </svg>
   );
 }
@@ -114,6 +132,22 @@ export function Pot({ wilt = false }) {
       {!wilt && <><circle cx="45" cy="130" r="2.6" fill="#f4a6b7" opacity=".75" /><circle cx="75" cy="130" r="2.6" fill="#f4a6b7" opacity=".75" /></>}
       {wilt ? <path d="M55 133 q5 -3 10 0" stroke="#3a2a22" strokeWidth="1.6" fill="none" strokeLinecap="round" />
             : <path d="M55 130 q5 4 10 0" stroke="#3a2a22" strokeWidth="1.6" fill="none" strokeLinecap="round" />}
+    </g>
+  );
+}
+
+// A little hill of earth with a face, so a plant can stand outside in the yard without its pot.
+export function Mound({ wilt = false }) {
+  return (
+    <g className="pot">
+      <ellipse cx="60" cy="130" rx="40" ry="11" fill="#7A5C3A" />
+      <path d="M24 130 C28 112 92 112 96 130 Z" fill="#8B6F47" />
+      <path d="M36 122 C44 114 76 114 84 122" fill="none" stroke="#A98B5F" strokeWidth="2.4" strokeLinecap="round" opacity=".7" />
+      <circle className="eye" cx="51" cy="126" r="2" fill="#3a2a22" />
+      <circle className="eye" cx="69" cy="126" r="2" fill="#3a2a22" />
+      {!wilt && <><circle cx="45" cy="129" r="2.6" fill="#f4a6b7" opacity=".75" /><circle cx="75" cy="129" r="2.6" fill="#f4a6b7" opacity=".75" /></>}
+      {wilt ? <path d="M55 132 q5 -3 10 0" stroke="#3a2a22" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+            : <path d="M55 129 q5 4 10 0" stroke="#3a2a22" strokeWidth="1.6" fill="none" strokeLinecap="round" />}
     </g>
   );
 }

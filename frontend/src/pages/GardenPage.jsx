@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import * as api from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Plant, { PLANTS } from '../components/Plant.jsx';
@@ -78,7 +79,10 @@ export default function GardenPage() {
         ))}
       </ul>
 
-      <h2>Plants ({stats.totalPlants})</h2>
+      <div className="row row--between row--wrap">
+        <h2>Plants ({stats.totalPlants})</h2>
+        {stats.totalPlants > 0 && <Link to="/yard" className="btn btn--small">🏡 Decorate your yard</Link>}
+      </div>
       {plants.length === 0 ? (
         <div className="card center">
           <Plant type="sunflower" stage="seed" size={120} title="" />

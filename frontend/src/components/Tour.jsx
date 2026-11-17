@@ -12,12 +12,13 @@ import Confetti from './Confetti.jsx';
 const STEPS = [
   { id: 'welcome', demo: 'sprout', title: 'Welcome to Rootine! 🌱', text: 'Rootine turns your focus time into a garden. Here is a quick tour, about one minute. You can skip it any time.' },
   { id: 'presets', target: 'presets', title: '1. Pick your rhythm ⏱️', text: 'Choose how long to focus and how long to rest. 25 / 5 Classic is a great start if you are new. Want something else? Tap Custom.' },
-  { id: 'plants', target: 'plants', title: '2. Choose a seed 🌻', text: 'Pick the plant you want to grow. They all grow the same way: stay focused and it blooms.' },
+  { id: 'plants', target: 'plants', title: '2. Choose a seed 🌻', text: 'Pick the plant you want to grow. Flowers and plants grow with any rhythm. Trees take longer, so they unlock when your focus is 40 minutes or more.' },
   { id: 'task', target: 'task', title: '3. What are you working on? 📝', text: 'This is optional. Add tasks in the Tasks tab, then pick one here to count the Pomodoros you spend on it.' },
   { id: 'start', target: 'start', title: '4. Press Start focus ▶️', text: 'The timer runs on our server, so refreshing the page or closing the tab will not lose your progress.' },
   { id: 'grow', demo: 'grow', title: '5. Stay focused 🌿', text: 'Your plant grows while the timer runs. You can pause if you need to. If you give up, the plant withers.' },
   { id: 'collect', demo: 'collect', title: '6. Collect your plant 🧺', text: 'When the time is up, tap Collect plant to add it to your Garden. Then enjoy your break!' },
-  { id: 'nav', target: 'nav', title: '7. Explore 🧭', text: 'Tasks is your to-do list. Garden shows your plants, streaks, and badges. Settings has your goal, theme, and details.' },
+  { id: 'yard', demo: 'yard', title: '7. Decorate your yard 🏡', text: 'Collected plants can stand outside in your Yard. Drag them around to make your own little garden.' },
+  { id: 'nav', target: 'nav', title: '8. Explore 🧭', text: 'Tasks is your to-do list. Garden shows your plants, streaks, and badges. Yard is where your plants stand outside. Settings has your goal, theme, and details.' },
   { id: 'done', demo: 'done', title: 'You are ready! 🎉', text: 'Plant your first seed whenever you like. Need this tour again? Tap the ? button at the top, or open Settings.' },
 ];
 
@@ -28,6 +29,13 @@ function Demo({ kind }) {
   const loop = useGrowLoop(4200, 1200);
   if (kind === 'sprout') return <GrowingPlant type="sunflower" progress={0.3} size={92} title="" />;
   if (kind === 'grow') return <GrowingPlant type="tulip" progress={loop} size={92} title="" />;
+  if (kind === 'yard') return (
+    <div className="tour__demo-yard">
+      <Plant type="daisy" stage="full" size={54} ground title="" />
+      <Plant type="apple" stage="full" size={74} ground title="" />
+      <Plant type="rose" stage="full" size={54} ground title="" />
+    </div>
+  );
   if (kind === 'collect') return (
     <div className="tour__demo-collect">
       <Plant type="cactus" stage="full" size={80} title="" />

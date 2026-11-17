@@ -70,7 +70,8 @@ All timestamps are milliseconds since 1970 (UTC numbers). Durations are seconds 
 | Long break minutes | whole number 10 to 30 |
 | Long-break interval | whole number 2 to 6 |
 | Tasks per user | up to 200 |
-| Plant types | `sunflower`, `cactus`, `tulip`, `sakura` |
+| Plant types | `sunflower`, `cactus`, `tulip`, `sakura`, `rose`, `daisy`, `lavender`, `succulent`, `mushroom` (any focus length) and the trees `pine` (40 minutes or more), `apple` (50), `cherry` (75), `ginkgo` (90) |
+| Yard | at most 60 plants outside. Position `x` and `y` are numbers from 0 to 100 (percent of the yard) |
 
 ---
 
@@ -234,6 +235,7 @@ Start a break (the server picks short or long):
 ```
 - `201`: session response.
 - `400`: invalid plant, minutes out of range.
+- `400` with `fields.plantType`: a tree was chosen but the focus length is too short, for example "Pine Tree needs a focus session of at least 40 minutes. Choose a longer rhythm." The length used is `minutes` if sent, otherwise the saved focus length. No session is created.
 - `404`: task not found.
 - `409`: `{ "error": "You already have a session in progress.", "session": {...}, "serverNow": ... }`
 
@@ -294,6 +296,20 @@ Collects every finished plant that is waiting. Body `{}`. `200`: `{ "collected":
 - `plants` are the **collected** plants, newest first. `pending` are finished focus sessions that are not collected yet.
 - `stats.totalPlants` counts collected plants and `stats.pendingPlants` counts waiting ones. Time, `todaySessions`, and streaks count every finished session, collected or not. The "First sprout" and "Ten plants" badges count collected plants.
 - `withered` are given-up focus sessions, latest 30. They do not count toward stats.
+- Each item in `plants` also has `x` and `y`: where it stands in the yard (percent), or `null` while it is in the tray.
+
+### `PUT /garden/plants/:id/position`
+Put a collected plant in the yard, or move it. The id is the session id of the plant.
+```json
+{ "x": 42.4, "y": 71.0 }
+```
+- `200`: `{ "plant": { "id": 12, "x": 42.4, "y": 71 } }` (values are rounded to one decimal).
+- `400`: `x` or `y` missing, not a number, or outside 0 to 100, or an unknown field.
+- `409`: the session is not a collected focus plant ("Only collected plants can be placed in the yard."), or the yard already has 60 plants and this one is not in it yet.
+- `404`: not found, or not yours.
+
+### `DELETE /garden/plants/:id/position`
+Put the plant back in the tray. `200`: `{ "plant": { "id": 12, "x": null, "y": null } }`. Repeating the call is fine. `404` if not yours.
 
 ---
 

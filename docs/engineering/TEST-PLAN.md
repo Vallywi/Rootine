@@ -54,6 +54,17 @@ The backend should let tests set the current time, so a 25-minute session can be
 | T-R2 | Save focus 14 or 91, short break 2 or 21 | 400 on that field |
 | T-R3 | Save Sprint 15/3, start a focus session, finish it, start a break. Repeat with 90/20. | Focus lasts 15 minutes and the break 3. Then 90 and 20. |
 | T-R4 | Upgrade an old database that has the narrower limits, twice | 90 and 3 are accepted, 91 and 2 are rejected, and exactly one constraint exists per column |
+| T-P1 | Start a focus session with each of the 13 plants and a long enough length | 201 for each, with the chosen `plantType` |
+| T-P2 | Start Pine at 39, Apple at 49, Cherry at 74, Ginkgo at 89 minutes, and with the default 25 | 400 on `plantType` naming the minimum, and no session left running |
+| T-P3 | Save a 50 minute rhythm, then start an Apple Tree without sending minutes | 201 and a 50 minute session |
+| T-P4 | Start an unknown plant such as `oak` | 400 |
+| T-Y1 | Place a collected plant, move it, read the garden, then take it out (twice) | Position saved and rounded, then moved, then null. The second delete also returns 200. |
+| T-Y2 | Send x or y out of range, not a number, missing, or an extra field | 400 |
+| T-Y3 | Place a plant that is not collected, withered, or a break | 409 |
+| T-Y4 | Another user places or removes your plant, or the id is invalid | 404, and your plant is unchanged |
+| T-Y5 | Put 60 plants outside, then place one more, then move or remove an existing one | 409 for the 61st, 200 for moving, and room again after removing |
+| T-Y6 | Set only one of `yard_x` or `yard_y`, or a value above 100, directly in the database | The database refuses it |
+| T-Y7 | Upgrade an old database (4 plants, no yard columns) twice | New plants are accepted, old plants keep their collected state, and the yard columns exist |
 
 ### Security
 
@@ -133,6 +144,11 @@ Run on a phone-width screen first, then desktop.
 | F-1j | Register a new account | The tour opens by itself. Each step lights up the right control. Back and Next work. Escape and Skip close it. It does not come back after a reload. |
 | F-1k | Press the ? button in the top bar, and use Settings, Replay the tour | The tour opens again from the first step |
 | F-1l | Use the tour with the keyboard only (Tab, Enter, Escape) and with a screen reader | Focus stays inside the tour card. The title and text are read for every step. |
+| F-1m | Open the Focus screen with Classic, then choose Focus Block (40) | Trees are locked with "40+ min" style labels under Classic. Pine unlocks at 40. Apple, Cherry, and Ginkgo stay locked. |
+| F-1n | Start a Pine Tree and watch it | A tree grows from the pot, with its crown opening from the middle of the session |
+| F-1o | Open the Yard with collected plants | Plants can be placed, dragged, moved with arrow keys, put back with Delete or the button, and are still there after a reload |
+| F-1p | Open the Yard on a phone, and with dark mode on | The scene fits the screen, dragging with a finger does not scroll the page, and the night yard shows stars and fireflies |
+| F-1q | Scroll to the bottom of the landing page on a phone and on a desktop | The footer is complete and readable, its links jump to sections, and there is no horizontal scroll |
 | F-2 | Register with a weak password | Inline error under the field |
 | F-3 | Register correctly | Lands on Focus screen |
 | F-4 | Add, edit, complete, and delete a task | Delete asks for confirmation. History stays. |

@@ -1,6 +1,6 @@
 # Rootine
 
-A Pomodoro focus web app. While you focus, a plant grows. Finish the session, then tap **Collect plant** to add it to your garden. Give up and it withers. Pick a rhythm that fits you (15/3, 25/5, 40/10, 50/10, 75/15, 90/20, or your own), and take the short tour on your first visit. It works in any browser, on phones and computers, and can be installed from Chrome like an app (PWA).
+A Pomodoro focus web app. While you focus, a plant grows. Finish the session, then tap **Collect plant** to add it to your garden. Give up and it withers. Pick a rhythm that fits you (15/3, 25/5, 40/10, 50/10, 75/15, 90/20, or your own), and take the short tour on your first visit. Grow 9 flowers and plants, or 4 trees that need a longer focus (40, 50, 75, or 90 minutes), then place your collected plants outside in the Yard. It works in any browser, on phones and computers, and can be installed from Chrome like an app (PWA).
 
 Plans and specs are in [`docs/`](docs/README.md).
 

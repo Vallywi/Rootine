@@ -317,7 +317,7 @@ Rootine uses a mobile-first layout. On phone viewports, primary Focus, Tasks, Ga
 |---|---|---|
 | FR-14 | Every available plant has four complete visual stages: seed, sprout, small plant, and full plant. **Assumption A-6:** stages begin at 0%, 25%, 60%, and 100% elapsed; the full plant appears on completion. | P0 |
 | FR-15 | The active screen communicates stage changes with an image change or animation. Reduced-motion settings must preserve the same information without required motion. | P0 |
-| FR-16 | Successful completion creates exactly one full-plant garden record linked to the session. | P0 |
+| FR-16 | Successful completion marks exactly one full-plant record as finished and waiting to be collected, linked to the session. The user adds it to the garden with **Collect plant** (FR-40). Finished focus time counts toward statistics and streaks right away, even before the plant is collected. | P0 |
 | FR-17 | Confirmed give-up creates a withered result, grants no completion rewards, and follows the display location in Assumption A-4. | P0 |
 | FR-18 | A future strict-focus mode may detect an extended tab absence and wither a plant after a disclosed grace period. It is not enabled in the MVP and must not be added until OQ-5 is decided. | P2 |
 
@@ -341,6 +341,8 @@ Rootine uses a mobile-first layout. On phone viewports, primary Focus, Tasks, Ga
 | FR-37 | A user can optionally organize tasks with personal categories and review category-level focus totals. | P1 |
 | FR-38 | A user can set a daily goal of 1 to 12 completed focus sessions (default 4). The Focus screen shows progress toward today's goal, using the same local-day boundary as the statistics. Changing the goal never changes past sessions. | P1 |
 | FR-39 | A signed-in user can permanently delete their account after confirming with their password. All their data (tasks, sessions, plants, settings) is removed, other devices are signed out, and the confirmation states that this cannot be undone. This also covers the missing password reset, so users are never locked into data they cannot remove. | P1 |
+| FR-40 | After each finished focus session the user can **collect** the plant to add it to the Garden, one at a time or all at once. A plant that is not collected stays waiting (it is never lost if the tab is closed) and appears in "Ready to collect" on the Focus screen and in the Garden. Collecting twice changes nothing. Only the owner can collect, and only finished focus sessions (not breaks, given-up, or running sessions). | P1 |
+| FR-41 | While a focus session runs, the plant grows smoothly with the elapsed time (seed, leaves unfurling, flower opening), with a small pop and sparkles at each stage, and confetti when it is fully grown. Reduced-motion settings replace the animation with static images that still show the stage. | P1 |
 
 ### 8.6 Statistics and streaks
 

@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import * as api from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { useTimer } from '../lib/TimerContext.jsx';
 import Plant, { PLANTS, STAGE_LABEL, stageFor } from '../components/Plant.jsx';
+import GrowingPlant from '../components/GrowingPlant.jsx';
+import Confetti from '../components/Confetti.jsx';
 import { ConfirmDialog, FormError, GoalRing, formatClock } from '../components/ui.jsx';
 
 export default function FocusPage() {
@@ -11,15 +14,27 @@ export default function FocusPage() {
   const { session } = t;
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
   const [today, setToday] = useState(null);
+  const [pending, setPending] = useState(0);
+  const [note, setNote] = useState('');
 
-  // Daily goal progress. Refresh after any session change.
-  useEffect(() => {
-    let alive = true;
-    api.get(`/garden?tzOffset=${new Date().getTimezoneOffset()}`)
-      .then((g) => { if (alive) setToday(g.stats.todaySessions); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [t.result, session?.id, session?.status]);
+  // Daily goal progress and plants waiting to be collected. Refresh after any session change.
+  const refreshGarden = useCallback(async () => {
+    try {
+      const g = await api.get(`/garden?tzOffset=${new Date().getTimezoneOffset()}`);
+      setToday(g.stats.todaySessions);
+      setPending(g.pending.length);
+    } catch { /* the numbers are decorative here */ }
+  }, []);
+  useEffect(() => { refreshGarden(); }, [refreshGarden, t.result, session?.id, session?.status]);
+
+  const collectAll = async () => {
+    setNote('');
+    try {
+      const r = await api.post('/sessions/collect-all');
+      setNote(r.collected === 1 ? 'Collected 1 plant! 🌱' : `Collected ${r.collected} plants! 🌱`);
+      await refreshGarden();
+    } catch (err) { setNote(err.message); }
+  };
 
   // Show the time in the browser tab while a session runs.
   useEffect(() => {
@@ -53,23 +68,26 @@ export default function FocusPage() {
 
   if (t.result) return <ResultView t={t} goal={goal} />;
 
-  return <StartView t={t} goal={goal} />;
+  return <StartView t={t} goal={goal} pending={pending} note={note} onCollectAll={collectAll} />;
 }
 
 function RunningView({ t, onGiveUp }) {
   const { session } = t;
   const focus = session.kind === 'focus';
   const paused = session.status === 'paused';
-  const percent = 1 - t.remainingMs / (session.plannedSeconds * 1000);
+  const percent = Math.max(0, Math.min(1, 1 - t.remainingMs / (session.plannedSeconds * 1000)));
   const stage = stageFor(percent);
   return (
     <div className="card focus">
       <p className="chip">{focus ? (paused ? 'Paused' : 'Focusing') : session.kind === 'long_break' ? 'Long break' : 'Short break'}
         {session.taskTitle && <span className="chip__task"> · {session.taskTitle}</span>}</p>
-      {focus ? <Plant type={session.plantType} stage={stage} size={200} fit="full" /> : <div className="break-art" aria-hidden="true">☕</div>}
+      {focus
+        ? <GrowingPlant type={session.plantType} progress={percent} size={220} />
+        : <div className="break-art" aria-hidden="true">☕</div>}
       <p className="visually-hidden" role="status" aria-live="polite">{focus ? `${PLANTS[session.plantType].name}: ${STAGE_LABEL[stage]}` : 'Break in progress'}</p>
       <p className="clock" aria-label={`${formatClock(t.remainingMs)} remaining`}>{formatClock(t.remainingMs)}</p>
-      <progress className="bar" max="1" value={Math.max(0, Math.min(1, percent))} aria-label="Session progress" />
+      <progress className="bar" max="1" value={percent} aria-label="Session progress" />
+      {focus && <p className="muted small grow-note">🌱 Your plant grows while you focus</p>}
       <FormError>{t.error}</FormError>
       <div className="row row--center">
         {focus && (paused
@@ -86,13 +104,27 @@ function ResultView({ t, goal }) {
   const focusDone = result.kind === 'focus' && result.status === 'completed';
   const gaveUp = result.kind === 'focus' && result.status === 'given_up';
   const s = result.session;
+  const collected = !!result.collected;
   return (
     <section className="stack">
-      <div className="card focus" role="status">
+      <div className={`card focus ${collected ? 'is-collected' : ''}`} role="status">
         {focusDone && <>
-          <Plant type={s.plantType} stage="full" size={200} fit="full" />
-          <h1>Your {PLANTS[s.plantType].name.toLowerCase()} is fully grown!</h1>
-          <p className="muted">It is now in your garden. Time for a break?</p>
+          <div className="plant-stage">
+            <GrowingPlant type={s.plantType} progress={1} size={220} />
+            <Confetti key={collected ? 'collected' : 'grown'} count={collected ? 12 : 20} />
+            {collected && <span className="plus-one" aria-hidden="true">+1 🌱</span>}
+          </div>
+          {collected ? (
+            <>
+              <h1>Added to your garden! 🎉</h1>
+              <p className="muted">Your {PLANTS[s.plantType].name.toLowerCase()} is safe in your garden now.</p>
+            </>
+          ) : (
+            <>
+              <h1>Your {PLANTS[s.plantType].name.toLowerCase()} is fully grown!</h1>
+              <p className="muted">Collect it to add it to your garden.</p>
+            </>
+          )}
         </>}
         {gaveUp && <>
           <Plant type={s.plantType} stage="withered" size={200} fit="full" />
@@ -106,8 +138,16 @@ function ResultView({ t, goal }) {
         </>}
         <FormError>{t.error}</FormError>
         <div className="row row--center">
-          {focusDone && <button className="btn" onClick={t.startBreak} disabled={t.busy}>Start {t.nextBreak === 'long_break' ? 'long' : 'short'} break</button>}
-          <button className={`btn ${focusDone ? 'btn--ghost' : ''}`} onClick={t.clearResult}>{focusDone ? 'Skip break' : 'Plant a new seed'}</button>
+          {focusDone && !collected && <>
+            <button className="btn btn--big" onClick={t.collect} disabled={t.busy}>{t.busy ? 'Collecting…' : '🧺 Collect plant'}</button>
+            <button className="btn btn--ghost" onClick={t.clearResult} disabled={t.busy}>Collect later</button>
+          </>}
+          {focusDone && collected && <>
+            <button className="btn" onClick={t.startBreak} disabled={t.busy}>Start {t.nextBreak === 'long_break' ? 'long' : 'short'} break</button>
+            <button className="btn btn--ghost" onClick={t.clearResult}>Skip break</button>
+            <Link to="/garden" className="btn btn--ghost">See my garden</Link>
+          </>}
+          {!focusDone && <button className="btn" onClick={t.clearResult}>Plant a new seed</button>}
         </div>
       </div>
       {goal && <div className="card row row--center">{goal}</div>}
@@ -115,7 +155,7 @@ function ResultView({ t, goal }) {
   );
 }
 
-function StartView({ t, goal }) {
+function StartView({ t, goal, pending, note, onCollectAll }) {
   const { settings } = useAuth();
   const [plant, setPlant] = useState('sunflower');
   const [taskId, setTaskId] = useState('');
@@ -127,6 +167,17 @@ function StartView({ t, goal }) {
 
   return (
     <section className="stack">
+      {pending > 0 && (
+        <div className="card collect-banner">
+          <span className="collect-banner__icon" aria-hidden="true">🧺</span>
+          <div className="grow">
+            <strong>{pending === 1 ? '1 plant is' : `${pending} plants are`} ready to collect!</strong>
+            <p className="muted small">Collect them to add them to your garden.</p>
+          </div>
+          <button className="btn btn--small" onClick={onCollectAll}>Collect all</button>
+        </div>
+      )}
+      {note && <p className="success center" role="status">{note}</p>}
       <div className="card focus">
         <h1>Plant a seed</h1>
         <p className="muted">Focus for {settings.focusMinutes} minutes to grow it.</p>

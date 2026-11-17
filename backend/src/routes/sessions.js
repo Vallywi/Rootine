@@ -19,7 +19,7 @@ const startSchema = z
   })
   .strict();
 
-const COLUMNS = `id, kind, plant_type, task_id, task_title, planned_seconds, status, started_at, target_at, paused_remaining_ms, ended_at`;
+const COLUMNS = `id, kind, plant_type, task_id, task_title, planned_seconds, status, started_at, target_at, paused_remaining_ms, ended_at, collected_at`;
 
 export function sessionDto(row, now) {
   if (!row) return null;
@@ -38,6 +38,7 @@ export function sessionDto(row, now) {
     targetAt: row.target_at,
     remainingMs,
     endedAt: row.ended_at,
+    collectedAt: row.collected_at ?? null,
   };
 }
 
@@ -147,6 +148,32 @@ export function sessionRoutes(ctx) {
     if (!row) throw notFound();
     return row;
   };
+
+  // Collecting moves a finished plant into the garden. It is a separate step, so a plant is never
+  // lost if the tab is closed before the user taps Collect. Repeating the call changes nothing.
+  router.post('/collect-all', async (req, res) => {
+    const rows = await db.query(
+      "UPDATE timer_sessions SET collected_at = $2 WHERE user_id = $1 AND kind = 'focus' AND status = 'completed' AND collected_at IS NULL RETURNING id",
+      [req.user.id, ctx.now()],
+    );
+    res.json({ collected: rows.length });
+  });
+
+  router.post('/:id/collect', async (req, res) => {
+    const row = await loadOwned(req);
+    if (row.kind !== 'focus' || row.status !== 'completed') {
+      throw new HttpError(409, 'Only finished focus sessions can be collected.');
+    }
+    const updated = await db.query(
+      "UPDATE timer_sessions SET collected_at = $3 WHERE id = $1 AND user_id = $2 AND collected_at IS NULL RETURNING collected_at",
+      [row.id, req.user.id, ctx.now()],
+    );
+    const collectedAt = updated.length ? updated[0].collected_at : row.collected_at;
+    res.json({
+      plant: { id: row.id, plantType: row.plant_type, taskTitle: row.task_title, minutes: Math.round(row.planned_seconds / 60), endedAt: row.ended_at, collectedAt },
+      newlyCollected: updated.length > 0,
+    });
+  });
 
   router.post('/:id/pause', async (req, res) => {
     let row = await loadOwned(req);

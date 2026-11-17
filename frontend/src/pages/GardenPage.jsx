@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import * as api from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Plant, { PLANTS } from '../components/Plant.jsx';
@@ -10,21 +10,50 @@ export default function GardenPage() {
   const { settings, sessionEnded } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [fresh, setFresh] = useState([]); // ids collected during this visit, for the little hop animation
 
-  useEffect(() => {
+  const load = useCallback(() =>
     api.get(`/garden?tzOffset=${new Date().getTimezoneOffset()}`)
       .then(setData)
-      .catch((err) => { if (err.status === 401) sessionEnded(); setError(err.message); });
-  }, [sessionEnded]);
+      .catch((err) => { if (err.status === 401) sessionEnded(); setError(err.message); }), [sessionEnded]);
+  useEffect(() => { load(); }, [load]);
 
+  const collect = async (ids) => {
+    setBusy(true); setError('');
+    try {
+      if (ids.length === 1) await api.post(`/sessions/${ids[0]}/collect`);
+      else await api.post('/sessions/collect-all');
+      setFresh((f) => [...f, ...ids]);
+      await load();
+    } catch (err) { if (err.status === 401) sessionEnded(); setError(err.message); }
+    finally { setBusy(false); }
+  };
   if (error) return <FormError>{error}</FormError>;
   if (!data) return <p role="status">Loading…</p>;
-  const { stats, plants, withered, badges } = data;
+  const { stats, plants, pending, withered, badges } = data;
 
   return (
     <section className="stack">
       <h1>Your garden</h1>
-      <div className="tiles">
+      {pending.length > 0 && (
+        <div className="card collect-panel">
+          <div className="row row--wrap collect-panel__head">
+            <h2>🧺 Ready to collect ({pending.length})</h2>
+            <button className="btn btn--small" disabled={busy} onClick={() => collect(pending.map((p) => p.id))}>Collect all</button>
+          </div>
+          <ul className="grid">
+            {pending.map((p) => (
+              <li key={p.id} className="plant-card plant-card--pending">
+                <Plant type={p.plantType} stage="full" size={96} />
+                <strong>{PLANTS[p.plantType].name}</strong>
+                <span className="small muted">{formatDate(p.endedAt)} · {p.minutes} min</span>
+                <button className="btn btn--small" disabled={busy} onClick={() => collect([p.id])}>Collect</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}      <div className="tiles">
         <Tile label="Today" value={hoursMinutes(stats.todayMinutes)} />
         <Tile label="This week" value={hoursMinutes(stats.weekMinutes)} />
         <Tile label="This month" value={hoursMinutes(stats.monthMinutes)} />
@@ -53,12 +82,12 @@ export default function GardenPage() {
       {plants.length === 0 ? (
         <div className="card center">
           <Plant type="sunflower" stage="seed" size={120} title="" />
-          <p>Your garden is empty. Finish a focus session to grow your first plant.</p>
+          <p>{pending.length ? 'Collect your plants above to fill your garden.' : 'Your garden is empty. Finish a focus session to grow your first plant.'}</p>
         </div>
       ) : (
         <ul className="grid">
           {plants.map((p) => (
-            <li key={p.id} className="card plant-card">
+            <li key={p.id} className={`card plant-card ${fresh.includes(p.id) ? 'just-collected' : ''}`}>
               <Plant type={p.plantType} stage="full" size={110} />
               <strong>{PLANTS[p.plantType].name}</strong>
               <span className="small muted">{formatDate(p.endedAt)} · {p.minutes} min</span>

@@ -156,6 +156,8 @@ Break choice: if completed focus sessions since the last long break reach the us
 
 All responses that include a session also return `serverNow`, so the frontend can correct for a wrong device clock.
 
+**Collecting plants (FR-40).** Completing a focus session does not put the plant in the garden by itself. `POST /sessions/:id/collect` sets `collected_at` once, using a guarded update (`WHERE collected_at IS NULL`), so repeated or parallel calls are safe. `POST /sessions/collect-all` does the same for every waiting plant of the signed-in user. Only finished focus sessions owned by the user can be collected.
+
 ### 5.5 Garden and stats (FR-19, FR-27, FR-28)
 
 - Completed focus sessions are the grown plants. Given-up focus sessions are the withered list (latest 30).

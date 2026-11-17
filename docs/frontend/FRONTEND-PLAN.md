@@ -121,6 +121,8 @@ Each screen needs these states built from the start: **loading, empty, error, su
 - Submit buttons show a busy label and are disabled to prevent double submit.
 
 ### 6.2 Focus screen (main screen)
+- **Growing animation (FR-41):** `GrowingPlant` takes a `progress` from 0 to 1. The whole plant scales up from the pot, the leaves unfurl around 20 to 50 percent, and the flower pops open from 60 to 95 percent. Each part uses a CSS transition, so new values glide. A small squish and sparkles play when the stage changes. At the end, confetti bursts. With reduced motion, parts change without transitions and confetti and sparkles are hidden.
+- **Collect (FR-40):** when a session finishes, the result shows the full plant and **Collect plant** (with **Collect later**). After collecting: "Added to your garden!" with a hop and "+1", then **Start break**, **Skip break**, and **See my garden**. A break cannot start before the plant is collected or deferred. Plants left uncollected show a "ready to collect" banner with **Collect all** on the Focus screen.
 
 | State | What the user sees | Actions |
 |---|---|---|
@@ -149,6 +151,7 @@ Rules the screen must follow:
 - **Focus** button opens the Focus screen with that task preselected.
 
 ### 6.4 Garden screen
+- **Ready to collect:** a panel at the top lists finished plants that are not collected yet, with **Collect** on each and **Collect all**. Collected plants move to the Plants grid with a small hop.
 - Stat tiles: today, this week, this month, streak (and best streak).
 - Daily goal ring ("3 of 4 today") shown on the Focus screen and in the Garden. It also shows text, not only color.
 - Badges row: earned badges in color, locked badges grey with progress ("6 of 10"). Each badge has a text name.

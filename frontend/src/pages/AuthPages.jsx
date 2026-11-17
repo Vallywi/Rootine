@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { Field, FormError } from '../components/ui.jsx';
-import Plant from '../components/Plant.jsx';
+import GrowingPlant from '../components/GrowingPlant.jsx';
 
 export const GENDER_OPTIONS = [
   { value: 'female', label: 'Female', emoji: '🌸' },
@@ -15,12 +15,12 @@ function PasswordInput({ show, ...props }) {
   return <input type={show ? 'text' : 'password'} {...props} />;
 }
 
-function AuthCard({ title, subtitle, children, footer, plantStage = 'full' }) {
+function AuthCard({ title, subtitle, children, footer, growth = 1 }) {
   return (
     <div className="auth">
       <Link to="/" className="auth__home brand"><span aria-hidden="true">🌿</span> Rootine</Link>
       <div className="card auth__card">
-        <div className="auth__mascot"><Plant type="sunflower" stage={plantStage} size={96} title="" /></div>
+        <div className="auth__mascot"><GrowingPlant type="sunflower" progress={growth} size={104} title="" /></div>
         <h1>{title}</h1>
         <p className="muted auth__subtitle">{subtitle}</p>
         {children}
@@ -125,7 +125,7 @@ export function RegisterPage() {
 
   return (
     <AuthCard
-      plantStage={step === 1 ? 'sprout' : 'small'}
+      growth={step === 1 ? 0.35 : 0.8}
       title={step === 1 ? 'Let’s get to know you!' : 'Almost there!'}
       subtitle={step === 1 ? 'Tell us a little about yourself.' : 'Set up your login and start growing.'}
       footer={<>Already have an account? <Link to="/login">Log in</Link></>}>

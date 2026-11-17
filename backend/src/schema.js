@@ -56,8 +56,18 @@ CREATE TABLE IF NOT EXISTS timer_sessions (
   started_at bigint NOT NULL,
   target_at bigint NOT NULL,
   paused_remaining_ms bigint,
-  ended_at bigint
+  ended_at bigint,
+  collected_at bigint
 );
+
+-- Upgrade for databases created before plants had to be collected: add the column once and
+-- mark every plant that was already finished as collected (so nothing disappears from the garden).
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'timer_sessions' AND column_name = 'collected_at') THEN
+    ALTER TABLE timer_sessions ADD COLUMN collected_at bigint;
+    UPDATE timer_sessions SET collected_at = ended_at WHERE kind = 'focus' AND status = 'completed';
+  END IF;
+END $$;
 CREATE INDEX IF NOT EXISTS timer_sessions_user_ended_idx ON timer_sessions (user_id, ended_at);
 CREATE INDEX IF NOT EXISTS timer_sessions_task_idx ON timer_sessions (task_id);
 CREATE UNIQUE INDEX IF NOT EXISTS one_open_session_per_user

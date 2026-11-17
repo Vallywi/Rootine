@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Plant, { PLANTS } from '../components/Plant.jsx';
+import GrowingPlant, { prefersReducedMotion } from '../components/GrowingPlant.jsx';
 
 const STEPS = [
   { emoji: '🌰', title: 'Pick a seed', text: 'Choose a plant and the task you want to work on.', color: 'butter' },
@@ -23,7 +25,23 @@ const STAGES = [
   { stage: 'full', label: 'Bloom!' },
 ];
 
+// Loops 0 -> 1 -> pause -> 0 so the visitor sees a seed grow into a flower. Stays fully grown for people who prefer less motion.
+function useGrowLoop(growMs = 9000, holdMs = 2500) {
+  const [value, setValue] = useState(prefersReducedMotion() ? 1 : 0);
+  useEffect(() => {
+    if (prefersReducedMotion()) return undefined;
+    const start = Date.now();
+    const id = setInterval(() => {
+      const t = (Date.now() - start) % (growMs + holdMs);
+      setValue(Math.min(1, t / growMs));
+    }, 120);
+    return () => clearInterval(id);
+  }, [growMs, holdMs]);
+  return value;
+}
+
 export default function Landing() {
+  const grow = useGrowLoop();
   return (
     <div className="landing">
       <a className="skip-link" href="#landing-main">Skip to content</a>
@@ -53,12 +71,12 @@ export default function Landing() {
           <div className="hero__art" aria-hidden="true">
             <div className="hero__scene">
               <div className="hero__plants">
-                <Plant type="sunflower" stage="full" size={150} title="" />
+                <GrowingPlant type="sunflower" progress={grow} size={150} title="A sunflower growing" />
                 <Plant type="tulip" stage="small" size={120} title="" />
                 <Plant type="cactus" stage="full" size={130} title="" />
                 <Plant type="sakura" stage="sprout" size={110} title="" />
               </div>
-              <span className="hero__bubble hero__bubble--1">25:00 🍅</span>
+              <span className="hero__bubble hero__bubble--1">{grow < 1 ? `Growing… ${Math.round(grow * 100)}%` : 'Bloom! 🌻'}</span>
               <span className="hero__bubble hero__bubble--2">Keep going! ✨</span>
             </div>
           </div>

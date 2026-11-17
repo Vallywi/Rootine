@@ -251,6 +251,15 @@ Start a break (the server picks short or long):
 - `200`: focus becomes `given_up` (withered), break becomes `skipped`. Calling again returns the same result.
 - `409`: the session is already completed.
 
+### `POST /sessions/:id/collect`
+Adds a finished plant to the garden. Body `{}`.
+- `200`: `{ "plant": { "id", "plantType", "taskTitle", "minutes", "endedAt", "collectedAt" }, "newlyCollected": true }`. Calling again returns the same `collectedAt` with `"newlyCollected": false` and changes nothing.
+- `409`: "Only finished focus sessions can be collected." (still running, given up, skipped, or a break).
+- `404`: not found, or not yours.
+
+### `POST /sessions/collect-all`
+Collects every finished plant that is waiting. Body `{}`. `200`: `{ "collected": 2 }` (`0` if none were waiting). Only the signed-in user's plants are affected.
+
 ---
 
 ## 7. Garden (signed in)
@@ -261,6 +270,7 @@ Start a break (the server picks short or long):
 ```json
 {
   "plants":   [ { "id": 12, "plantType": "cactus", "taskTitle": "Review Chapter 4", "minutes": 25, "endedAt": 1700001500000 } ],
+  "pending":  [ { "id": 13, "plantType": "sunflower", "taskTitle": null, "minutes": 25, "endedAt": 1700003000000 } ],
   "withered": [ { "id": 11, "plantType": "tulip", "taskTitle": null, "minutes": 25, "endedAt": 1699990000000 } ],
   "stats": {
     "todayMinutes": 50,
@@ -281,7 +291,8 @@ Start a break (the server picks short or long):
 ```
 - `todaySessions` counts completed focus sessions today (local day). The frontend compares it with `settings.dailyGoal`.
 - `badges` are calculated on every request from completed focus sessions. No badge is stored, so the numbers cannot drift out of sync. `progress` and `target` for `hundred_hours` are in hours.
-- `plants` are completed focus sessions, newest first.
+- `plants` are the **collected** plants, newest first. `pending` are finished focus sessions that are not collected yet.
+- `stats.totalPlants` counts collected plants and `stats.pendingPlants` counts waiting ones. Time, `todaySessions`, and streaks count every finished session, collected or not. The "First sprout" and "Ten plants" badges count collected plants.
 - `withered` are given-up focus sessions, latest 30. They do not count toward stats.
 
 ---

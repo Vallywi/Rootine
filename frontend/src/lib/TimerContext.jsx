@@ -114,6 +114,13 @@ export function TimerProvider({ children }) {
     startBreak: () => guard(async () => { setResult(null); apply(await api.post('/sessions', { kind: 'break' })); }),
     pause: () => guard(async () => apply(await api.post(`/sessions/${session.id}/pause`))),
     resume: () => guard(async () => apply(await api.post(`/sessions/${session.id}/resume`))),
+    // Move the finished plant into the garden. Repeating the call is safe (the server ignores the second one).
+    collect: () => guard(async () => {
+      const finished = result?.session;
+      if (!finished) return;
+      await api.post(`/sessions/${finished.id}/collect`);
+      setResult((r) => (r ? { ...r, collected: true } : r));
+    }),
     giveUp: () => guard(async () => {
       const kind = session.kind;
       const data = await api.post(`/sessions/${session.id}/give-up`);

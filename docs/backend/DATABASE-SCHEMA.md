@@ -95,6 +95,7 @@ The number of completed Pomodoros per task is **calculated** from `timer_session
 | target_at | bigint | required | When the session ends if not paused |
 | paused_remaining_ms | bigint | nullable | Time left while paused |
 | ended_at | bigint | nullable | When it completed or ended |
+| collected_at | bigint | nullable | When the user collected the plant. Null while a finished plant is still waiting (and always null for breaks and given-up sessions). |
 
 Indexes:
 - `(user_id, ended_at)` for garden and stats queries.
@@ -133,6 +134,7 @@ At school-project scale these run fast with the indexes above.
 ## 5. Migrations and seed data
 
 - **First version:** keep the schema in `backend/db/001_init.sql` and run it in the Supabase SQL editor (or with `psql`). Use `CREATE TABLE IF NOT EXISTS` so it is safe to repeat.
+- **Upgrade to collectable plants:** `collected_at` is added once, and plants that were already finished are marked collected so nothing disappears. Running the schema again does not collect waiting plants.
 - **Later changes:** keep numbered migration files (`001_init.sql`, `002_...`) once real users exist. **[TO CONFIRM]** whether needed for the course.
 - **Demo seed (optional):** a script that adds a demo user with a few completed plants, so a presentation never starts with an empty garden. Keep it out of production.
 

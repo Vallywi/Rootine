@@ -46,6 +46,10 @@ The backend should let tests set the current time, so a 25-minute session can be
 | T-E4 | Set daily goal to 0, 13, and 5 | 400, 400, then 200; changing it during a running session works |
 | T-E5 | Complete 3 focus sessions today, read `/garden` | `todaySessions` is 3, `first_plant` is earned, `ten_plants` shows progress 3 of 10 |
 | T-E6 | Set theme to `dark` and read settings on another device | `theme` is `dark`; an invalid value returns 400 |
+| T-C1 | Complete a focus session, read the garden, collect it, collect again | Waiting in `pending` first, then in `plants`. The second collect returns `newlyCollected: false` and the same `collectedAt`. |
+| T-C2 | Collect a running, given-up, or break session, and another user's session | 409 for the first three, 404 for another user's session |
+| T-C3 | Collect all with two waiting plants, twice, and with a second user who also has a waiting plant | `collected: 2`, then `0`. The other user's plant is untouched. |
+| T-C4 | Upgrade an old database that has finished plants, then run the upgrade again | Old finished plants are collected. A plant finished after the first upgrade is still waiting after the second. |
 
 ### Security
 
@@ -116,6 +120,10 @@ Run on a phone-width screen first, then desktop.
 | F-1a | Landing page on a phone (390 px) and a desktop (1280 px) | No horizontal scroll, readable text, easy-to-tap buttons, backgrounds do not cover text |
 | F-1b | Register step 1 with empty fields, then with age 200 | Every empty field shows a message, age shows its range message, Next does not continue |
 | F-1c | Finish step 2 and open Settings | The nickname shows in the top bar, and full name, age, and gender are filled in Settings |
+| F-1d | Start a focus session, jump the clock to half time, reload | The plant is clearly bigger than at the start, with leaves visible. Near the end the flower is open. |
+| F-1e | Finish a session | Full plant, confetti, **Collect plant** and **Collect later**. The break buttons are not shown until the plant is collected. |
+| F-1f | Choose **Collect later**, then open Focus and Garden | A "ready to collect" banner on Focus. The plant is listed under "Ready to collect" in the Garden and moves to Plants after **Collect**. |
+| F-1g | Turn on reduced motion in the system settings | Clouds, butterflies, confetti, and growth transitions stop. Every screen still shows the plant stage in static form. |
 | F-2 | Register with a weak password | Inline error under the field |
 | F-3 | Register correctly | Lands on Focus screen |
 | F-4 | Add, edit, complete, and delete a task | Delete asks for confirmation. History stays. |

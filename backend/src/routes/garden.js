@@ -74,7 +74,7 @@ export function gardenRoutes(ctx) {
     const { tzOffset } = parse(querySchema, req.query);
     const userId = req.user.id;
     const completed = await ctx.db.query(
-      `SELECT id, plant_type, task_title, planned_seconds, ended_at FROM timer_sessions
+      `SELECT id, plant_type, task_title, planned_seconds, ended_at, collected_at FROM timer_sessions
         WHERE user_id = $1 AND kind = 'focus' AND status = 'completed' ORDER BY ended_at DESC, id DESC`,
       [userId],
     );
@@ -84,9 +84,15 @@ export function gardenRoutes(ctx) {
       [userId],
     );
     const dto = (s) => ({ id: s.id, plantType: s.plant_type, taskTitle: s.task_title, minutes: Math.round(s.planned_seconds / 60), endedAt: s.ended_at });
+    // Time and streaks count every finished session. Plants in the garden are the collected ones.
+    const collected = completed.filter((s) => s.collected_at != null);
+    const pending = completed.filter((s) => s.collected_at == null);
     const { totalSeconds, ...stats } = computeStats(completed, ctx.now(), tzOffset);
+    stats.totalPlants = collected.length;
+    stats.pendingPlants = pending.length;
     res.json({
-      plants: completed.slice(0, 500).map(dto),
+      plants: collected.slice(0, 500).map(dto),
+      pending: pending.map(dto),
       withered: withered.map(dto),
       stats,
       badges: computeBadges({ ...stats, totalSeconds }),

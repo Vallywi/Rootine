@@ -19,7 +19,7 @@ export function stageFor(percent, status) {
   return 'small';
 }
 
-function Head({ type, stage, cx, cy, s }) {
+export function Head({ type, stage, cx, cy, s }) {
   const p = PLANTS[type];
   const wilt = stage === 'withered';
   if (type === 'sunflower') {
@@ -98,13 +98,22 @@ export default function Plant({ type = 'sunflower', stage = 'full', size = 140, 
     <svg className={`plant plant--${stage}`} width={size} height={fit === 'full' ? size : Math.round((size * view[1]) / 120)} viewBox={`0 ${view[0]} 120 ${view[1]}`} role="img" aria-label={label}>
       <title>{label}</title>
       <g className="plant__sway">{plant}</g>
-      {/* pot with a small face */}
+      <Pot wilt={wilt} />
+    </svg>
+  );
+}
+
+// The pot with a small face. The eyes blink now and then, and the mouth droops when the plant is withered.
+export function Pot({ wilt = false }) {
+  return (
+    <g className="pot">
       <path d="M32 118 H88 L82 138 H38 Z" fill="#B65F50" />
       <rect x="28" y="113" width="64" height="9" rx="4.5" fill="#C97563" />
-      <circle cx="51" cy="127" r="2" fill="#3a2a22" />
-      <circle cx="69" cy="127" r="2" fill="#3a2a22" />
+      <circle className="eye" cx="51" cy="127" r="2" fill="#3a2a22" />
+      <circle className="eye" cx="69" cy="127" r="2" fill="#3a2a22" />
+      {!wilt && <><circle cx="45" cy="130" r="2.6" fill="#f4a6b7" opacity=".75" /><circle cx="75" cy="130" r="2.6" fill="#f4a6b7" opacity=".75" /></>}
       {wilt ? <path d="M55 133 q5 -3 10 0" stroke="#3a2a22" strokeWidth="1.6" fill="none" strokeLinecap="round" />
             : <path d="M55 130 q5 4 10 0" stroke="#3a2a22" strokeWidth="1.6" fill="none" strokeLinecap="round" />}
-    </svg>
+    </g>
   );
 }

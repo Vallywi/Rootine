@@ -72,14 +72,22 @@ test('garden endpoint: plants, withered, stats, badges, and only the signed-in u
   const w = await c.post('/sessions', { kind: 'focus', plantType: 'tulip' });
   await c.post(`/sessions/${w.body.session.id}/give-up`);
 
+  // Finished plants wait to be collected. Collect one of the two.
+  const waiting = (await c.get('/garden?tzOffset=0')).body;
+  assert.equal(waiting.plants.length, 0);
+  assert.equal(waiting.pending.length, 2);
+  await c.post('/sessions/' + waiting.pending[0].id + '/collect');
+
   const g = (await c.get('/garden?tzOffset=0')).body;
-  assert.equal(g.plants.length, 2);
+  assert.equal(g.plants.length, 1);
+  assert.equal(g.pending.length, 1);
   assert.equal(g.withered.length, 1);
   assert.equal(g.withered[0].plantType, 'tulip');
-  assert.equal(g.stats.totalPlants, 2); // withered plants do not count (BR-8)
+  assert.equal(g.stats.totalPlants, 1); // only collected plants; withered plants never count (BR-8)
+  assert.equal(g.stats.pendingPlants, 1);
   assert.equal(g.stats.todayMinutes, 50);
   assert.equal(g.stats.todaySessions, 2);
   assert.equal(g.badges.find((b) => b.id === 'first_plant').earned, true);
-  assert.equal((await other.get('/garden')).body.plants.length, 1);
+  assert.equal((await other.get('/garden')).body.pending.length, 1);
   assert.equal((await c.get('/garden?tzOffset=abc')).status, 400);
 });

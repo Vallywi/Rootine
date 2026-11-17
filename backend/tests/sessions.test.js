@@ -140,6 +140,7 @@ test('T-M7 task link: completed focus sessions count on the task; deleting the t
   }
   assert.equal((await c.get('/tasks')).body.tasks[0].completedSessions, 2);
   await c.del(`/tasks/${t.task.id}`);
+  await c.post('/sessions/collect-all');
   const garden = await c.get('/garden');
   assert.equal(garden.body.plants.length, 2);
   assert.equal(garden.body.plants[0].taskTitle, 'Read');
@@ -151,6 +152,7 @@ test('T-M8 later settings changes do not change a copied duration (BR-12)', asyn
   s.clock.t += s.minutes(25);
   await c.post(`/sessions/${body.session.id}/complete`);
   await c.put('/settings', { focusMinutes: 50 });
+  await c.post('/sessions/collect-all');
   const plants = (await c.get('/garden')).body.plants;
   assert.equal(plants[0].minutes, 25);
 });
@@ -181,6 +183,7 @@ test('T-M9 breaks: short breaks first, long break after 4 focus sessions, and a 
   assert.equal(end.body.focusSinceLongBreak, 0);
   assert.equal(end.body.nextBreak, 'short_break');
   // breaks never create plants (BR-4)
+  await c.post('/sessions/collect-all');
   assert.equal((await c.get('/garden')).body.plants.length, 4);
 });
 
@@ -206,4 +209,70 @@ test("another user cannot see or change someone else's session (BR-9)", async ()
     assert.equal((await b.post(`/sessions/${body.session.id}/${action}`)).status, 404, action);
   }
   assert.equal((await b.get('/sessions/current')).body.session, null);
+});
+
+test('collect: a finished plant waits in "pending" until collected, and collecting twice changes nothing', async () => {
+  const c = await newUser();
+  const { body } = await startFocus(c);
+  s.clock.t += s.minutes(25);
+  await c.post(`/sessions/${body.session.id}/complete`);
+
+  let g = (await c.get('/garden')).body;
+  assert.equal(g.pending.length, 1);
+  assert.equal(g.plants.length, 0);
+  assert.equal(g.stats.pendingPlants, 1);
+  assert.equal(g.stats.totalPlants, 0);
+  assert.equal(g.stats.todaySessions, 1); // focus time is earned even before collecting
+
+  const first = await c.post(`/sessions/${body.session.id}/collect`);
+  assert.equal(first.status, 200);
+  assert.equal(first.body.newlyCollected, true);
+  assert.equal(first.body.plant.plantType, 'cactus');
+  s.clock.t += s.minutes(5);
+  const again = await c.post(`/sessions/${body.session.id}/collect`);
+  assert.equal(again.status, 200);
+  assert.equal(again.body.newlyCollected, false);
+  assert.equal(again.body.plant.collectedAt, first.body.plant.collectedAt); // unchanged
+
+  g = (await c.get('/garden')).body;
+  assert.equal(g.pending.length, 0);
+  assert.equal(g.plants.length, 1);
+  assert.equal(g.stats.totalPlants, 1);
+  assert.equal(g.badges.find((b) => b.id === 'first_plant').earned, true);
+});
+
+test('collect: only finished focus sessions can be collected; other users get 404', async () => {
+  const a = await newUser();
+  const b = await newUser();
+  const running = (await startFocus(a)).body.session;
+  assert.equal((await a.post(`/sessions/${running.id}/collect`)).status, 409); // still running
+  await a.post(`/sessions/${running.id}/give-up`);
+  assert.equal((await a.post(`/sessions/${running.id}/collect`)).status, 409); // withered
+  const br = (await a.post('/sessions', { kind: 'break' })).body.session;
+  s.clock.t += s.minutes(5);
+  await a.post(`/sessions/${br.id}/complete`);
+  assert.equal((await a.post(`/sessions/${br.id}/collect`)).status, 409); // breaks give no plants
+
+  const done = (await startFocus(a)).body.session;
+  s.clock.t += s.minutes(25);
+  await a.post(`/sessions/${done.id}/complete`);
+  assert.equal((await b.post(`/sessions/${done.id}/collect`)).status, 404);
+  assert.equal((await a.post('/sessions/abc/collect')).status, 404);
+  assert.equal((await b.get('/garden')).body.pending.length, 0);
+});
+
+test('collect-all: collects every waiting plant once and leaves other users alone', async () => {
+  const a = await newUser();
+  const b = await newUser();
+  for (const client of [a, a, b]) {
+    const { body } = await startFocus(client);
+    s.clock.t += s.minutes(25);
+    await client.post(`/sessions/${body.session.id}/complete`);
+  }
+  assert.equal((await a.get('/garden')).body.pending.length, 2);
+  const r = await a.post('/sessions/collect-all');
+  assert.deepEqual(r.body, { collected: 2 });
+  assert.deepEqual((await a.post('/sessions/collect-all')).body, { collected: 0 });
+  assert.equal((await a.get('/garden')).body.plants.length, 2);
+  assert.equal((await b.get('/garden')).body.pending.length, 1); // b is untouched
 });

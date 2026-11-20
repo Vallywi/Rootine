@@ -55,17 +55,54 @@ export function tickSound(secondsLeft, settings) {
 
 export const notificationsSupported = () => typeof Notification !== 'undefined';
 
+const canNotify = (settings) => settings.notificationsEnabled && notificationsSupported() && Notification.permission === 'granted';
+
+// Phones (Android Chrome) only allow notifications through the service worker, so try that first.
+async function show(title, options) {
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration?.();
+    if (reg?.showNotification) { await reg.showNotification(title, options); return; }
+  } catch { /* fall back below */ }
+  try { new Notification(title, options); } catch { /* notifications are optional */ }
+}
+
+async function closeByTag(tag) {
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration?.();
+    (await reg?.getNotifications?.({ tag }))?.forEach((n) => n.close());
+  } catch { /* nothing to close */ }
+}
+
+const clock = (ms) => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+// Shown when a session starts or resumes, so the end time is on the lock screen. Silent.
+export function notifyRunning(session, settings) {
+  if (!canNotify(settings) || !session.targetAt) return;
+  const focus = session.kind === 'focus';
+  show(focus ? `Focus until ${clock(session.targetAt)}` : `Break until ${clock(session.targetAt)}`, {
+    body: focus ? 'Your plant is growing. Rootine will tell you when it is done.' : 'Rest up. Rootine will tell you when it is over.',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag: 'rootine-running',
+    silent: true,
+  });
+}
+
+export function clearRunning() { closeByTag('rootine-running'); }
+
 export function alertDone(session, settings) {
   if (settings.soundEnabled) bell();
-  if (settings.notificationsEnabled && notificationsSupported() && Notification.permission === 'granted') {
-    try {
-      const focus = session.kind === 'focus';
-      new Notification(focus ? 'Your plant is fully grown!' : 'Break is over', {
-        body: focus ? 'Nice focus. Take a break when you are ready.' : 'Ready for the next focus session?',
-        icon: '/icons/icon-192.png',
-        tag: `rootine-${session.id}`, // the same tag replaces a duplicate instead of stacking
-      });
-    } catch { /* some browsers only allow notifications from a service worker */ }
+  clearRunning();
+  if (canNotify(settings)) {
+    const focus = session.kind === 'focus';
+    show(focus ? 'Your plant is fully grown!' : 'Break is over', {
+      body: focus ? 'Nice focus. Take a break when you are ready.' : 'Ready for the next focus session?',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: `rootine-${session.id}`, // the same tag replaces a duplicate instead of stacking
+      vibrate: [250, 100, 250, 100, 400],
+      requireInteraction: true, // stays until tapped
+    });
   }
 }
 
@@ -87,14 +124,14 @@ export function alertSoon(session, settings) {
       osc.stop(t + 0.55);
     } catch { /* sound is optional */ }
   }
-  if (settings.notificationsEnabled && notificationsSupported() && Notification.permission === 'granted') {
-    try {
-      new Notification('Almost there', {
-        body: session.kind === 'focus' ? 'Your plant is almost fully grown.' : 'Your break is almost over.',
-        icon: '/icons/icon-192.png',
-        tag: `rootine-soon-${session.id}`,
-      });
-    } catch { /* some browsers only allow notifications from a service worker */ }
+  if (canNotify(settings)) {
+    show('Almost there', {
+      body: session.kind === 'focus' ? 'Your plant is almost fully grown.' : 'Your break is almost over.',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: `rootine-soon-${session.id}`,
+      vibrate: [150, 80, 150],
+    });
   }
 }
 

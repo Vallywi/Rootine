@@ -102,7 +102,7 @@ export function AlertSettings() {
         {supported && permission !== 'denied' && (settings.notificationsEnabled && permission === 'granted'
           ? <button className="btn btn--ghost btn--small" onClick={() => saveSettings({ notificationsEnabled: false })}>Turn off notifications</button>
           : <button className="btn btn--small" onClick={enable}>Enable notifications</button>)}
-        <p className="muted small">Notifications only work while Rootine is open in a tab or window.</p>
+        <p className="muted small">Notifications show the end time when a session starts and alert you when it ends. On a phone, install Rootine to your home screen and keep it running in the background. Delivery is not guaranteed if the app is fully closed.</p>
         {msg && <p role="status" className="small">{msg}</p>}
       </div>
     </div>

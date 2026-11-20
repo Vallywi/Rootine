@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import * as api from './api.js';
 import { useAuth } from './AuthContext.jsx';
-import { alertDone, alertSoon, countSound, goSound, ringBell, tickSound } from './alerts.js';
+import { alertDone, alertSoon, clearRunning, countSound, notifyRunning, goSound, ringBell, tickSound } from './alerts.js';
 import { coinsForSeconds } from '../../../shared/shop.js';
 import { nextPlant } from '../../../shared/plan.js';
 
@@ -128,6 +128,14 @@ export function TimerProvider({ children }) {
     }
   }, [nearEnd, session]);
 
+  // Lock-screen note with the end time. A resume changes targetAt, so it is refreshed; pause or finish clears it.
+  const runningId = session?.status === 'active' ? session.id : null;
+  const runningTarget = session?.status === 'active' ? session.targetAt : null;
+  useEffect(() => {
+    if (runningId === null) { clearRunning(); return; }
+    notifyRunning({ id: runningId, kind: session.kind, targetAt: runningTarget }, settingsRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runningId, runningTarget]);
   // A beep every second for the last 10 seconds (the bell at zero is played when the session completes).
   const lastTick = useRef('');
   const secondsLeft = Math.ceil(remainingMs / 1000);

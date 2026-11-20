@@ -29,6 +29,7 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [],
+        importScripts: ['/sw-notify.js'], // notification tap handler
       },
     }),
   ],

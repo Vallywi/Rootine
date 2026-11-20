@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import * as api from '../lib/api.js';
 import { useAuth } from '../lib/AuthContext.jsx';
 import { useTimer } from '../lib/TimerContext.jsx';
-import { askNotificationPermission, notificationsSupported } from '../lib/alerts.js';
+import { disablePush, enablePush } from '../lib/push.js';
+import { askNotificationPermission, notificationsSupported, testNotification } from '../lib/alerts.js';
 import { ConfirmDialog, Field, FormError } from '../components/ui.jsx';
 
 const TIMING = [
@@ -83,7 +84,7 @@ export function AlertSettings() {
   const enable = async () => {
     setMsg('');
     const result = await askNotificationPermission();
-    if (result === 'granted') { await saveSettings({ notificationsEnabled: true }); setMsg('Notifications are on.'); }
+    if (result === 'granted') { await saveSettings({ notificationsEnabled: true }); setMsg((await enablePush()) ? 'Notifications are on. You will also be alerted when the app is closed.' : 'Notifications are on while Rootine is open. Alerts when the app is closed are not available on this device.'); }
     else if (result === 'denied') setMsg('Notifications are blocked for this site. Allow them in your browser’s site settings. In-app alerts still work.');
     else setMsg('Notifications were not enabled.');
   };
@@ -100,8 +101,11 @@ export function AlertSettings() {
         {!supported && <p className="muted small">This browser does not support notifications. In-app alerts still work.</p>}
         {supported && permission === 'denied' && <p className="muted small">Blocked for this site. Allow them in your browser’s site settings. In-app alerts still work.</p>}
         {supported && permission !== 'denied' && (settings.notificationsEnabled && permission === 'granted'
-          ? <button className="btn btn--ghost btn--small" onClick={() => saveSettings({ notificationsEnabled: false })}>Turn off notifications</button>
+          ? <button className="btn btn--ghost btn--small" onClick={async () => { await disablePush(); saveSettings({ notificationsEnabled: false }); }}>Turn off notifications</button>
           : <button className="btn btn--small" onClick={enable}>Enable notifications</button>)}
+        {supported && settings.notificationsEnabled && permission === 'granted' && (
+          <button className="btn btn--ghost btn--small" onClick={async () => setMsg((await testNotification()) ? 'Test sent. Check your notification shade.' : 'The test could not be shown. Check your phone’s notification settings for this app or browser.')}>Send a test notification</button>
+        )}
         <p className="muted small">Notifications show the end time when a session starts and alert you when it ends. On a phone, install Rootine to your home screen and keep it running in the background. Delivery is not guaranteed if the app is fully closed.</p>
         {msg && <p role="status" className="small">{msg}</p>}
       </div>
@@ -167,7 +171,6 @@ export function InstallCard() {
     return () => { window.removeEventListener('beforeinstallprompt', onPrompt); window.removeEventListener('appinstalled', onInstalled); };
   }, []);
   if (installed) return null;
-  if (!prompt && !ios) return null;
   return (
     <div className="card">
       <h2>Install Rootine</h2>
@@ -175,7 +178,8 @@ export function InstallCard() {
         <p className="muted">Add Rootine to your device. It opens in its own window, like an app.</p>
         <button className="btn" onClick={async () => { prompt.prompt(); await prompt.userChoice; setPrompt(null); }}>Install Rootine</button>
       </>}
-      {!prompt && ios && <p className="muted">On iPhone or iPad: tap the Share button, then <strong>Add to Home Screen</strong>.</p>}
+      {!prompt && ios && <p className="muted">On iPhone or iPad, open Rootine in Safari, tap the Share button, then <strong>Add to Home Screen</strong>. Notifications on iPhone only work after you add it to the Home Screen (iOS 16.4 or newer).</p>}
+      {!prompt && !ios && <p className="muted">In Chrome, tap the <strong>⋮</strong> menu, then <strong>Install app</strong> (or <strong>Add to Home screen</strong>). Use the https address of the site, not a local or http one.</p>}
     </div>
   );
 }

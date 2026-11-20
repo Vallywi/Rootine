@@ -4,6 +4,7 @@ import { HttpError, notFound, parse, parseId } from '../http.js';
 import { COMPLETE_ALLOWANCE_MS, PLANT_TYPES, limitsFor, plantInfo } from '../config.js';
 import { isUniqueViolation } from '../db.js';
 import { requireAuth } from '../auth.js';
+import { cancelDone, scheduleDone } from '../push.js';
 
 const plantName = z.string({ error: 'A name must be text.' }).trim().min(1, 'Enter a name.').max(30, 'Use at most 30 characters.');
 
@@ -68,6 +69,7 @@ export function sessionRoutes(ctx) {
         [row.id, userId, endedAt],
       );
       if (!updated.length) return;
+      await t.query('DELETE FROM push_jobs WHERE session_id = $1', [row.id]); // finished in the app: no push needed
       if (row.kind === 'focus') await t.query('UPDATE users SET focus_since_long_break = focus_since_long_break + 1 WHERE id = $1', [userId]);
       else if (row.kind === 'long_break') await t.query('UPDATE users SET focus_since_long_break = 0 WHERE id = $1', [userId]);
     });
@@ -153,6 +155,7 @@ export function sessionRoutes(ctx) {
       }
       throw err;
     }
+    await scheduleDone(db, { ...created, user_id: userId });
     res.status(201).json(await body(userId, created));
   });
 
@@ -201,6 +204,7 @@ export function sessionRoutes(ctx) {
     if (row.status !== 'active') throw new HttpError(409, 'This session is not running.', await body(req.user.id, row));
     const remaining = Math.max(0, row.target_at - ctx.now());
     // Guarded update: only an active session can be paused, even with parallel calls.
+    await cancelDone(db, row.id);
     await db.query("UPDATE timer_sessions SET status = 'paused', paused_remaining_ms = $3 WHERE id = $1 AND user_id = $2 AND status = 'active'", [row.id, req.user.id, remaining]);
     res.json(await body(req.user.id, await getOwned(req.user.id, row.id)));
   });
@@ -213,6 +217,7 @@ export function sessionRoutes(ctx) {
       "UPDATE timer_sessions SET status = 'active', target_at = $3::bigint + paused_remaining_ms, paused_remaining_ms = NULL WHERE id = $1 AND user_id = $2 AND status = 'paused'",
       [row.id, req.user.id, now],
     );
+    await scheduleDone(db, { id: row.id, user_id: req.user.id, kind: row.kind, target_at: now + (row.paused_remaining_ms ?? 0) });
     res.json(await body(req.user.id, await getOwned(req.user.id, row.id)));
   });
 
@@ -238,6 +243,7 @@ export function sessionRoutes(ctx) {
       "UPDATE timer_sessions SET status = $3, ended_at = $4, paused_remaining_ms = NULL WHERE id = $1 AND user_id = $2 AND status IN ('active', 'paused')",
       [row.id, req.user.id, endStatus, ctx.now()],
     );
+    await cancelDone(db, row.id);
     res.json(await body(req.user.id, await getOwned(req.user.id, row.id)));
   });
 

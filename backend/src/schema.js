@@ -139,6 +139,25 @@ CREATE TABLE IF NOT EXISTS friendships (
 CREATE UNIQUE INDEX IF NOT EXISTS friendships_pair_uq ON friendships (LEAST(requester_id, addressee_id), GREATEST(requester_id, addressee_id));
 CREATE INDEX IF NOT EXISTS friendships_addressee_idx ON friendships (addressee_id);
 
+-- Web Push: one row per browser or phone that allowed notifications, and one job per running session.
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  endpoint text NOT NULL,
+  p256dh text NOT NULL,
+  auth text NOT NULL,
+  created_at bigint NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS push_subscriptions_endpoint_uq ON push_subscriptions (endpoint);
+CREATE INDEX IF NOT EXISTS push_subscriptions_user_idx ON push_subscriptions (user_id);
+CREATE TABLE IF NOT EXISTS push_jobs (
+  session_id bigint PRIMARY KEY REFERENCES timer_sessions(id) ON DELETE CASCADE,
+  user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind text NOT NULL,
+  due_at bigint NOT NULL
+);
+CREATE INDEX IF NOT EXISTS push_jobs_due_idx ON push_jobs (due_at);
+
 CREATE TABLE IF NOT EXISTS rate_limits (
   key text PRIMARY KEY,
   window_start bigint NOT NULL,
@@ -148,6 +167,6 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 
 // Supabase exposes tables through an automatic public API. Row Level Security with no
 // policies keeps that API from returning any rows. The backend role is not affected.
-export const RLS_SQL = ['users', 'auth_sessions', 'tasks', 'timer_sessions', 'friendships', 'shop_purchases', 'rate_limits']
+export const RLS_SQL = ['users', 'auth_sessions', 'tasks', 'timer_sessions', 'friendships', 'shop_purchases', 'rate_limits', 'push_subscriptions', 'push_jobs']
   .map((t) => `ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY;`)
   .join('\n');

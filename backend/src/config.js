@@ -9,6 +9,11 @@ export function loadConfig(env = process.env) {
     databaseUrl: env.DATABASE_URL || '',
     databaseSsl: env.DATABASE_SSL !== 'false',
     pgliteDir: env.PGLITE_DIR || '.data/pglite',
+    // Web Push (optional). Generate keys with: npx web-push generate-vapid-keys. The private key and cron secret are secrets.
+    vapidPublicKey: env.VAPID_PUBLIC_KEY || '',
+    vapidPrivateKey: env.VAPID_PRIVATE_KEY || '',
+    vapidSubject: env.VAPID_SUBJECT || 'mailto:admin@example.com',
+    cronSecret: env.CRON_SECRET || '',
     trustProxy: env.TRUST_PROXY === '1',
     // Create tables on start. On Vercel run `npm run db:init` once instead.
     autoMigrate: env.AUTO_MIGRATE ? env.AUTO_MIGRATE === '1' : !env.DATABASE_URL,

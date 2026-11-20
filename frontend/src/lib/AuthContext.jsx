@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import * as api from './api.js';
+import { disablePush } from './push.js';
 
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -76,6 +77,7 @@ export function AuthProvider({ children }) {
     login: async (email, password) => enter(await api.post('/auth/login', { email, password })),
     register: async (details) => enter(await api.post('/auth/register', details)),
     logout: async () => {
+      await disablePush(); // this device must not get the next person's alerts
       try { await api.post('/auth/logout'); } catch { /* the cookie is cleared by the next load anyway */ }
       api.setCsrfToken('');
       setSettings((s) => ({ ...DEFAULT_SETTINGS, theme: s.theme })); // keep the look the user was seeing

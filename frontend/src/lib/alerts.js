@@ -58,12 +58,19 @@ export const notificationsSupported = () => typeof Notification !== 'undefined';
 const canNotify = (settings) => settings.notificationsEnabled && notificationsSupported() && Notification.permission === 'granted';
 
 // Phones (Android Chrome) only allow notifications through the service worker, so try that first.
+// Resolves to true when a notification was handed to the browser.
 async function show(title, options) {
   try {
-    const reg = await navigator.serviceWorker?.getRegistration?.();
-    if (reg?.showNotification) { await reg.showNotification(title, options); return; }
+    // `ready` waits for the service worker to be active (getRegistration can be empty right after install).
+    const reg = await Promise.race([navigator.serviceWorker?.ready, new Promise((r) => setTimeout(r, 3000))]);
+    if (reg?.showNotification) { await reg.showNotification(title, options); return true; }
   } catch { /* fall back below */ }
-  try { new Notification(title, options); } catch { /* notifications are optional */ }
+  try { new Notification(title, options); return true; } catch { return false; /* notifications are optional */ }
+}
+
+export async function testNotification() {
+  if (!notificationsSupported() || Notification.permission !== 'granted') return false;
+  return show('Rootine test', { body: 'Notifications are working.', icon: '/icons/icon-192.png', badge: '/icons/icon-192.png', tag: 'rootine-test', vibrate: [200, 100, 200] });
 }
 
 async function closeByTag(tag) {

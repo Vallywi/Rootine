@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext.jsx';
 import { alertDone, alertSoon, clearRunning, countSound, notifyRunning, goSound, ringBell, tickSound } from './alerts.js';
 import { coinsForSeconds } from '../../../shared/shop.js';
 import { nextPlant } from '../../../shared/plan.js';
+import { enablePush } from './push.js';
 
 // The study plan (how many rounds to keep going) is remembered in this browser, so a reload does not lose it.
 const PLAN_KEY = 'rootine.plan';
@@ -127,6 +128,10 @@ export function TimerProvider({ children }) {
       alertSoon(session, settingsRef.current);
     }
   }, [nearEnd, session]);
+
+  // Keep this device registered for push alerts (the browser can drop a subscription).
+  const pushWanted = !!user && !!settings.notificationsEnabled;
+  useEffect(() => { if (pushWanted) enablePush(); }, [pushWanted, userId]);
 
   // Lock-screen note with the end time. A resume changes targetAt, so it is refreshed; pause or finish clears it.
   const runningId = session?.status === 'active' ? session.id : null;

@@ -1052,3 +1052,15 @@ input[type='date']:focus, textarea:focus { border-color: var(--leaf); outline: 3
 .chat__form { display: flex; gap: .5rem; align-items: flex-end; }
 .chat__input { flex: 1; resize: none; font: inherit; color: var(--text); background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: .55rem .75rem; }
 .chat__input:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
+.tour__demo-chat { display: flex; flex-direction: column; justify-content: flex-end; gap: .3rem; width: min(100%, 17rem); font-size: .8rem; }
+.tour__demo-chat .chat__msg { padding: .35rem .65rem; box-shadow: 0 4px 10px rgba(0, 0, 0, .12); }
+
+/* Landing: Meet Rootie */
+.rootie { display: grid; gap: 1.5rem; align-items: center; }
+@media (min-width: 860px) { .rootie { grid-template-columns: 1fr 1fr; } }
+.rootie__text .section__title, .rootie__text .section__lead { text-align: left; margin-left: 0; }
+.rootie__list { margin: 1rem 0 0; padding-left: 1.2rem; display: grid; gap: .4rem; }
+.rootie__chat { display: flex; flex-direction: column; gap: .6rem; padding: 1.25rem; }
+.rootie__head { display: flex; align-items: center; gap: .6rem; margin-bottom: .25rem; }
+.rootie__head strong { display: block; }
+.rootie__head .small { display: block; }

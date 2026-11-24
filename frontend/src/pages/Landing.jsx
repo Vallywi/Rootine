@@ -18,6 +18,15 @@ const FEATURES = [
   { emoji: '🎯', title: 'Daily goals and badges', text: 'Set a goal for the day, watch the ring fill up, and earn little badges.' },
   { emoji: '🌙', title: 'Light and dark', text: 'A sunny meadow by day and a sleepy night garden after dark.' },
   { emoji: '📱', title: 'Works on your phone', text: 'Open it in any browser and install it like an app from Chrome.' },
+  { emoji: '\uD83D\uDCAC', title: 'Ask Rootie, your AI helper', text: 'Chat with Rootie to get a quick summary of your focus time, plants, streaks, and tasks.' },
+  { emoji: '\uD83E\uDD1D', title: 'Friends and a cozy yard', text: 'Add friends with a code, compare streaks, and decorate your yard with plants and shop items.' },
+];
+
+const ROOTIE_CHAT = [
+  { me: true, text: 'How is my progress this week?' },
+  { me: false, text: 'You focused 3 h 20 min this week and grew 8 plants, including your first Pine Tree. Your streak is 4 days. One more session today keeps it going!' },
+  { me: true, text: 'What should I do next?' },
+  { me: false, text: 'Your "Math reviewer" task is high priority and due tomorrow. Try a 25 minute session on it now.' },
 ];
 
 const STAGES = [
@@ -122,6 +131,29 @@ export default function Landing() {
           </ul>
         </Reveal>
 
+        <Reveal as="section" className="section rootie" aria-labelledby="rootie">
+          <div className="rootie__text">
+            <p className="pill">{'\u2728'} New</p>
+            <h2 id="rootie" className="section__title">Meet Rootie, your garden helper</h2>
+            <p className="section__lead">Rootie is a friendly AI chat inside Rootine. Ask how you are doing and get a short summary made from your own data.</p>
+            <ul className="rootie__list">
+              <li>See your focus time for today, this week, and this month</li>
+              <li>Check your streak, your plants, and the badges you are close to</li>
+              <li>Get a nudge on which task to work on next</li>
+            </ul>
+            <p className="small muted">Rootie only reads your own progress. It never sees your password or other people's data.</p>
+          </div>
+          <div className="card rootie__chat" aria-label="Example chat with Rootie">
+            <div className="rootie__head">
+              <span className="chat__avatar" aria-hidden="true">{'\uD83C\uDF31'}</span>
+              <div><strong>Rootie</strong><span className="small muted">Your progress assistant</span></div>
+            </div>
+            {ROOTIE_CHAT.map((m, i) => (
+              <p key={i} className={`chat__msg ${m.me ? 'chat__msg--me' : 'chat__msg--bot'}`}>{m.text}</p>
+            ))}
+          </div>
+        </Reveal>
+
         <Reveal as="section" className="section" aria-labelledby="why">
           <h2 id="why" className="section__title">Everything you need to stay on track</h2>
           <ul className="features">
@@ -163,6 +195,7 @@ export default function Landing() {
               <li><a href="#how">How it works</a></li>
               <li><a href="#grow">Watch it grow</a></li>
               <li><a href="#plants">Meet the plants</a></li>
+              <li><a href="#rootie">Meet Rootie</a></li>
               <li><a href="#why">Features</a></li>
             </ul>
           </nav>

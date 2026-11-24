@@ -20,7 +20,8 @@ const STEPS = [
   { id: 'yard', demo: 'yard', title: '7. Decorate your yard 🏡', text: 'Collected plants can stand outside in your Yard. Drag them around to make your own little garden.' },
   { id: 'nav', target: 'nav', title: '8. Explore 🧭', text: 'Tasks is your to-do list. Garden shows your plants, streaks, and badges. Yard is where your plants stand outside.' },
   { id: 'tools', target: 'tools', title: '9. Quick buttons ✨', text: 'At the top right: the sun or moon switches between light and dark, the ? shows this tour again, Tap your name to open a side panel with your photo, details, settings, and Sign out. Friends has your friend code and the leaderboard.' },
-  { id: 'done', demo: 'done', title: 'You are ready! 🎉', text: 'Plant your first seed whenever you like. Need this tour again? Tap the ? button at the top, or open the side panel from your name.' },
+  { id: 'chat', target: 'chat', demo: 'chat', title: '10. Ask Rootie \uD83D\uDCAC', text: 'Tap the chat button at the bottom right to talk to Rootie, your AI helper. Ask things like "How is my progress this week?" or "What should I do next?" Rootie only reads your own focus time, plants, tasks, and badges.' },
+  { id: 'done', demo: 'done', title: 'You are ready! 🎉', text: 'Plant your first seed whenever you like. Need this tour again? Tap the ? button at the top, or open the side panel from your name. Questions about your progress? Ask Rootie.' },
 ];
 
 const findTarget = (name) =>
@@ -35,6 +36,12 @@ function Demo({ kind }) {
       <Plant type="daisy" stage="full" size={54} ground title="" />
       <Plant type="apple" stage="full" size={74} ground title="" />
       <Plant type="rose" stage="full" size={54} ground title="" />
+    </div>
+  );
+  if (kind === 'chat') return (
+    <div className="tour__demo-chat">
+      <p className="chat__msg chat__msg--me">How is my week?</p>
+      <p className="chat__msg chat__msg--bot">You focused 3 hours and grew 7 plants. Nice streak!</p>
     </div>
   );
   if (kind === 'collect') return (

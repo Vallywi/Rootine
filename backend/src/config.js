@@ -14,6 +14,9 @@ export function loadConfig(env = process.env) {
     vapidPrivateKey: env.VAPID_PRIVATE_KEY || '',
     vapidSubject: env.VAPID_SUBJECT || 'mailto:admin@example.com',
     cronSecret: env.CRON_SECRET || '',
+    // AI chatbot (optional, Google Gemini). Get a key at https://aistudio.google.com/apikey. The key is a secret.
+    aiApiKey: env.AI_API_KEY || '',
+    aiModel: env.AI_MODEL || 'gemini-flash-lite-latest',
     trustProxy: env.TRUST_PROXY === '1',
     // Create tables on start. On Vercel run `npm run db:init` once instead.
     autoMigrate: env.AUTO_MIGRATE ? env.AUTO_MIGRATE === '1' : !env.DATABASE_URL,

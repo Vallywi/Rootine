@@ -13,11 +13,13 @@ import { userRoutes } from './routes/users.js';
 import { shopRoutes } from './routes/shop.js';
 import { pushRoutes } from './routes/push.js';
 import { createPusher } from './push.js';
+import { chatRoutes } from './routes/chat.js';
+import { createAi } from './ai.js';
 
 // Builds the Express app without listening, so tests and Vercel can use it.
 // `now` can be replaced in tests with a fake clock.
-export function createApp({ db, config, now = () => Date.now(), logger = console, pusher }) {
-  const ctx = { db, config, now, logger, pusher: pusher ?? createPusher(config) };
+export function createApp({ db, config, now = () => Date.now(), logger = console, pusher, ai }) {
+  const ctx = { db, config, now, logger, pusher: pusher ?? createPusher(config), ai: ai ?? createAi(config) };
   if (config.demoIgnored) logger.warn('[config] DEMO_MODE is ignored in production.');
   const app = express();
   app.disable('x-powered-by');
@@ -42,6 +44,7 @@ export function createApp({ db, config, now = () => Date.now(), logger = console
   app.use('/api/users', userRoutes(ctx));
   app.use('/api/shop', shopRoutes(ctx));
   app.use('/api/push', pushRoutes(ctx));
+  app.use('/api/chat', chatRoutes(ctx));
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
   app.use(errorHandler(logger));

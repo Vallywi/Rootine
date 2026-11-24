@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import * as api from '../lib/api.js';
 import Avatar from './Avatar.jsx';
 import AccountDrawer from './AccountDrawer.jsx';
+import ChatDrawer from './ChatDrawer.jsx';
 import CountdownOverlay from './CountdownOverlay.jsx';
 import { useAuth } from '../lib/AuthContext.jsx';
 import Tour from './Tour.jsx';
@@ -23,6 +24,7 @@ const links = [
 export default function Layout() {
   const { user, demo } = useAuth();
   const [drawer, setDrawer] = useState(false);
+  const [chat, setChat] = useState(false);
   const [requests, setRequests] = useState(0);
   const [coins, setCoins] = useState(null);
 
@@ -83,6 +85,8 @@ export default function Layout() {
         <Outlet />
       </main>
       <AccountDrawer open={drawer} onClose={() => setDrawer(false)} />
+      <button type="button" className="chat-fab" aria-haspopup="dialog" aria-label="Ask Rootie about your progress" title="Ask Rootie" onClick={() => setChat(true)}><span aria-hidden="true">{'\uD83D\uDCAC'}</span></button>
+      <ChatDrawer open={chat} onClose={() => setChat(false)} />
       <CountdownOverlay />
       <Tour />
       <TimerOverlay />

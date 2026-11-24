@@ -1035,3 +1035,20 @@ input[type='date']:focus, textarea:focus { border-color: var(--leaf); outline: 3
 @keyframes count-pop { 0% { transform: scale(.4); opacity: 0; } 25% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(.95); opacity: .9; } }
 @keyframes fade-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .countdown, .countdown__num { animation: none; } }
+
+/* ---------- AI chat assistant ---------- */
+.chat-fab { position: fixed; right: 1rem; bottom: calc(5rem + env(safe-area-inset-bottom)); z-index: 30; width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--primary); background: var(--primary); color: #fff; font-size: 1.6rem; cursor: pointer; box-shadow: 0 4px 0 color-mix(in srgb, var(--primary) 55%, #000), 0 8px 20px rgba(0, 0, 0, .2); }
+.chat-fab:hover { filter: brightness(1.08); }
+@media (min-width: 760px) { .chat-fab { bottom: 1.25rem; right: 1.25rem; } }
+.chat__avatar { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: color-mix(in srgb, var(--primary) 18%, var(--surface)); font-size: 1.5rem; }
+.chat__log { display: flex; flex-direction: column; gap: .6rem; }
+.chat__msg { margin: 0; max-width: 88%; padding: .6rem .85rem; border-radius: 18px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.45; }
+.chat__msg--bot { align-self: flex-start; background: color-mix(in srgb, var(--primary) 12%, var(--surface)); border: 2px solid var(--border); border-bottom-left-radius: 6px; }
+.chat__msg--me { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 6px; }
+.chat__chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chat__chip { min-height: 44px; padding: .4rem .9rem; border-radius: 999px; border: 2px solid var(--primary); background: transparent; color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+.chat__chip:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 12%, transparent); }
+.chat__error { margin: 0; padding: .6rem .85rem; border-radius: 14px; border: 2px solid #c0392b; color: #c0392b; background: color-mix(in srgb, #c0392b 8%, var(--surface)); }
+.chat__form { display: flex; gap: .5rem; align-items: flex-end; }
+.chat__input { flex: 1; resize: none; font: inherit; color: var(--text); background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: .55rem .75rem; }
+.chat__input:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }

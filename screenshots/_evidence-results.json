@@ -1,0 +1,17 @@
+{
+  "tc01": {
+    "title": "Rootine",
+    "status": true
+  },
+  "tc03": [
+    "⚠ Use at least 8 characters."
+  ],
+  "tc04": {
+    "ms": 11370,
+    "reply": "Hi Mia! You are doing wonderfully this week. You have focused for a total of 175 minutes so far, which is amazing! You are also on a lovely 3-day focus streak. \n\nFor a quick productivity tip: try breaking your open tasks, like your urgent CS0053 project documentation, into small 25-minute Pomodoro sessions to keep that momentum going. You've got this!",
+    "error": ""
+  },
+  "tc05": {
+    "error": "The assistant is not set up yet."
+  }
+}

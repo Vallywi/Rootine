@@ -1,3 +1,4 @@
+import { mkdirSync } from 'node:fs';
 import { SCHEMA_SQL, RLS_SQL } from './schema.js';
 import { backfillFriendCodes } from './friendCode.js';
 
@@ -68,6 +69,8 @@ async function createPgDb(config) {
 async function createPgliteDb(config) {
   // Local development and tests only. Real PostgreSQL running inside Node, no install needed.
   const { PGlite } = await import('@electric-sql/pglite');
+  // A fresh clone has no backend/.data folder yet, and PGlite does not create parent folders.
+  if (config.pgliteDir !== 'memory') mkdirSync(config.pgliteDir, { recursive: true });
   const db = config.pgliteDir === 'memory' ? new PGlite() : new PGlite(config.pgliteDir);
   await db.waitReady;
   // PGlite runs one query at a time, so serialize everything to keep transactions isolated.

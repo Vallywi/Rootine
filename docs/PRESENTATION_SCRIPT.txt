@@ -1,241 +1,288 @@
-ROOTINE - 8 MINUTE PRESENTATION SCRIPT
+ROOTINE - 8 MINUTE GROUP PRESENTATION SCRIPT
 CS0053 Programming Tools and Techniques - Final Project Demonstration
 
+PRESENTERS
+  Kent Anthony Capuno      (Group creator)  - Introduction and closing
+  Jecyn Vallirie Turbanos                   - Live demo: how Rootine works
+  Jericko Ocampo                            - Architecture and the Gemini API
+  Ailish Narvasa                            - Design pattern, tools, Git and testing
+
+The parts above are a suggestion. Swap them if someone knows a topic better, but keep each person
+speaking for about 1.5 to 2 minutes, and make sure everyone can answer questions about their own part.
+Each person should also be able to show their own commits on GitHub (see docs/GITHUB_WORKFLOW.md).
+
 HOW TO USE THIS SCRIPT
-- Lines in plain text are what you say. Lines in [BRACKETS] are things to do or show.
-- Speaking pace is about 140 words per minute. The teaser video is 60 seconds long and plays at 1:30.
-- Before you start: run "npm run dev:backend" and "npm run dev:frontend", log in to a demo account,
-  open VS Code with the project, open teaser/rootine-teaser.mp4 in a player, and have your GitHub repo open in a tab.
-- Replace anything marked (UPDATE) with your final numbers before the presentation.
+- Plain text is what you say. Lines in [BRACKETS] are things to do or show.
+- Speaking pace is about 140 words per minute. The teaser video is 60 seconds and is NOT explained scene by
+  scene. It is played once, and the demo that follows explains how Rootine works.
+- Before you start: run "npm run dev:backend" and "npm run dev:frontend", log in to a demo account with
+  DEMO_MODE=1 so a session takes 1 minute, open VS Code on the project, open teaser/rootine-teaser.mp4 in a
+  player, and open the GitHub repo in a browser tab.
+- Replace anything marked (UPDATE) with your final numbers before presenting.
 
-TIMELINE
-  0:00 - 1:30  Introduction and the problem
-  1:30 - 2:30  Teaser video
-  2:30 - 4:00  Live demo: how Rootine works
-  4:00 - 5:00  Architecture and technologies
-  5:00 - 6:00  The external API: Google Gemini
-  6:00 - 6:45  Design pattern: Strategy
-  6:45 - 7:30  Development process: VS Code, Git, testing
-  7:30 - 8:00  Limitations, future work, closing
+TIMELINE (with slides)
+  0:00 - 1:15   Kent       Slides 1-6    Introduction and the problem
+  1:15 - 2:15   All        Slide 7       Teaser video (just play it)
+  2:15 - 3:45   Jecyn      Slides 8-15   Live demo: how Rootine works
+  3:45 - 4:35   Jericko    Slides 16-19  Architecture and technologies
+  4:35 - 5:45   Jericko    Slides 20-22  The external API: Google Gemini
+  5:45 - 6:30   Ailish     Slides 23-25  Design pattern: Strategy
+  6:30 - 7:15   Ailish     Slides 26-28  VS Code, Git and testing
+  7:15 - 8:00   Kent       Slides 29-30  Limitations, future work, closing
 
-==========================================================================
-0:00 - 1:30   INTRODUCTION AND THE PROBLEM
-==========================================================================
-[SHOW: Rootine landing page]
+SLIDE MAP (file: docs/Rootine-Presentation.pptx)
+   1 Title                          16 How it is built (divider)
+   2 Meet the team                  17 Architecture diagram
+   3 Our 8 minute journey           18 Technology stack
+   4 Hard to stay focused? (problem) 19 Security and secrets
+   5 One idea: focus grows a plant  20 Our external API: Google Gemini
+   6 Who is it for?                 21 What happens when you ask Rootie
+   7 Teaser (insert your video)     22 When the API has a bad day (errors)
+   8 How Rootine works (divider)    23 Design pattern: Strategy (diagram)
+   9 1 Pick a rhythm and a seed     24 The pattern in our real code
+  10 2 Stay focused, watch it grow  25 Why Strategy and not something else
+  11 The plant grows with focus     26 Built in VS Code with six extensions
+  12 3 Tasks, collecting, coins     27 Version control on GitHub
+  13 4 Your garden                  28 Tested before we trust it (128 tests)
+  14 5 A cozy yard, paid with coins 29 Limitations and what is next
+  15 6 Friends and leaderboard      30 Thank you / Questions
 
-Good day, everyone. My name is (YOUR NAME), and this is Rootine, my final project for Programming Tools
-and Techniques.
-
-Here is the problem. Many students sit down to study, and within minutes they are on their phones.
-A plain timer does not help much, because it only shows numbers. Nothing rewards you for staying focused,
-and nothing costs you when you quit.
-
-Rootine fixes this with a simple idea. It is a Pomodoro focus app, which means you work in timed blocks
-with short breaks between them. But while you focus, a plant grows on your screen. If you finish the
-session, you collect the plant and it joins your garden. If you give up, the plant withers.
-
-The users are students and anyone who works in focused blocks. It runs in any browser, on phones and
-computers, and it can be installed like an app because it is a Progressive Web App.
-
-Before I show it live, here is a short teaser that I made for the project.
-
-==========================================================================
-1:30 - 2:30   TEASER VIDEO (60 seconds)
-==========================================================================
-[PLAY: teaser/rootine-teaser.mp4, full screen, sound on. Do not talk during the video.]
-
-What the teaser shows, in case the sound fails:
-  0:00  Title: "Focus a little... grow a lot."
-  0:10  Pick a rhythm, from a quick sprint to deep work, and choose a seed. Trees unlock with longer focus.
-  0:17  Stay on task and the plant grows with the timer. Give up and it wilts.
-  0:23  Every finished session becomes a plant. Minutes, streak, and badges.
-  0:30  Spend coins on a cozy yard: a house, a fence, even a cat.
-  0:36  Meet Rootie, the AI garden helper that sums up your progress.
-  0:51  Tasks, friends, a leaderboard, and dark mode.
-
-[WHEN IT ENDS, say:]
-That teaser was built as part of the project too. I will explain how at the end.
+TEASER VIDEO ON SLIDE 7
+The video is NOT inside the PowerPoint file. Add it before presenting:
+  1. Open slide 7 in PowerPoint.
+  2. Insert > Video > This Device, and pick teaser/rootine-teaser.mp4.
+  3. Drag the video over the picture frame and resize it to fit.
+  4. Playback tab > Start: "On Click" (or "Automatically"). Test it with sound on.
+  5. Keep a copy of the mp4 on the desktop as a backup, in case it does not play.
+The slide shows a still frame behind the video, so it never looks empty.
+If you use PowerPoint's Slide Show, press F5 from slide 1 and click through. Each slide also has the matching
+script lines in its speaker notes (Presenter View).
 
 ==========================================================================
-2:30 - 4:00   LIVE DEMO: HOW ROOTINE WORKS
+0:00 - 1:15   KENT: INTRODUCTION AND THE PROBLEM
 ==========================================================================
-[SHOW: the running app, Focus page]
+[SLIDE 1: Title. Then SLIDE 2: Meet the team, while Kent names the group.]
 
-Now let me show how it really works.
+KENT:
+Good day, everyone. We are Group (UPDATE: group name), and we are Kent Anthony Capuno, Jecyn Vallirie Turbanos,
+Jericko Ocampo, and Ailish Narvasa. Today we present Rootine, our final project for Programming Tools and
+Techniques.
 
-Step one: the Focus page. I pick a rhythm. There are six presets, from 15 minutes of focus and 3 of rest
-up to 90 and 20, plus a custom option. I choose a plant. Trees only unlock for longer sessions of 40
-minutes or more.
+[SLIDE 3: Roadmap. One sentence: 'Here is our 8 minute path.' Then SLIDE 4: Hard to stay focused?]
 
-[CLICK: start. Show the 3-2-1-GO countdown, then the growing plant. Use DEMO_MODE=1 so a session is 1 minute.]
+Here is the problem. Many students sit down to study, and within minutes they are on their phones. A plain
+timer only shows numbers. Nothing rewards you for staying focused, and nothing is lost when you quit.
 
-When I press start, the app sends the request to the server. This is important: the server is the source
-of truth for the timer. The browser only shows the countdown. So if I refresh the page, close the tab, or
-change my computer clock, the timer is still correct, because the server remembers when it started.
+[SLIDE 5: One idea, focus grows a plant]
 
-[WAIT for it to finish, or show a finished one. CLICK: Collect plant. Give it a name.]
+Rootine fixes this with one simple idea. It is a Pomodoro focus app, so you work in timed blocks with breaks.
+But while you focus, a plant grows on your screen. Finish the session and you collect the plant into your
+garden. Give up, and it withers.
 
-The session is done. I tap Collect plant, give it a name, and it goes into my garden. I also earn coins.
-Longer sessions pay more per minute.
+[SLIDE 6: Who is it for?]
 
-[SHOW: Tasks page]
-The Tasks page is my to-do list. Each task has a kind, urgency, status, due date, and notes. I can link
-a task to a focus session.
+It is made for students, and anyone who works in focused blocks. It runs in any browser, on phones and
+computers, and it can be installed like an app.
 
-[SHOW: Garden page]
-The Garden shows every plant I collected, my focus minutes for today, this week and this month, my streak,
-and my badges. There are 22 badges with progress bars.
+Before we show how it works, please watch our short teaser.
 
-[SHOW: Yard, then Shop]
-In the Yard I place plants outside, and in the Shop I spend coins on houses, fences, decorations, and pets.
-The server checks the coin balance, so you cannot spend coins you do not have, even if two purchases arrive
-at the same moment. I have an automated test for that.
-
-[SHOW: Friends page]
-Friends has a friend code, requests, and a leaderboard. Friends only see my nickname, photo, and score.
+[Go to SLIDE 7.]
 
 ==========================================================================
-4:00 - 5:00   ARCHITECTURE AND TECHNOLOGIES
+1:15 - 2:15   TEASER VIDEO (60 seconds)
 ==========================================================================
-[SHOW: docs/architecture.md in VS Code, with the Mermaid diagram previewed]
+[SLIDE 7: Click the video you inserted and play it, sound on. Nobody talks during the video.]
 
-Now, how it is built. Rootine has three layers.
+[If the video or sound fails, do not explain it. Open teaser/rootine-teaser.mp4 from the desktop copy, or skip. Skip it, say "Our teaser shows the app in 60 seconds, and we will
+show the same features live," and hand over to Jecyn.]
 
-The frontend is React 19 with Vite, and a PWA plugin that makes it installable. Each screen is one file
-in frontend/src/pages.
+[WHEN IT ENDS, KENT says:]
+KENT:
+That was the teaser. Now Jecyn will show how Rootine really works.
+
+==========================================================================
+2:15 - 3:45   JECYN: LIVE DEMO - HOW ROOTINE WORKS
+==========================================================================
+[SLIDE 8: How Rootine works (divider), then SLIDE 9: Pick a rhythm and a seed. Switch to the running app for the live parts. Use the slides as a backup if the app fails.]
+
+JECYN:
+Thank you, Kent. Let me show how Rootine works, from start to finish.
+
+First, the Focus page. I pick a rhythm. There are six presets, from 15 minutes of focus and 3 of rest, up to
+90 and 20, plus a custom one. Then I choose a plant. Trees only unlock for longer sessions, 40 minutes or more.
+
+[SLIDE 10 (Stay focused and watch it grow). LIVE APP: click start. The 3-2-1-GO countdown plays, then the plant starts growing.]
+
+When I press start, the browser asks our server to start the session. The server keeps the time, and the
+browser only shows the countdown. So if I refresh the page or close the tab, the timer is still right. And
+changing the computer clock does not help anyone cheat.
+
+[SLIDE 12 (Tasks, collecting, and coins), or the Tasks page in the live app, while the timer runs]
+While this runs, here is Tasks. Each task has a kind, urgency, status, due date, and notes, and it can be
+linked to a focus session.
+
+[SLIDE 11 (growth stages) if you need to fill time. LIVE APP: the session has finished. CLICK: Collect plant. Type a name.]
+
+The session is done. I tap Collect plant, give it a name, and it goes to my garden. I also earn coins, and
+longer sessions pay more per minute.
+
+[SLIDE 13: Your garden, or the Garden page in the live app]
+The Garden shows all my plants, my focus time for today, this week and this month, my streak, and my badges.
+
+[SLIDE 14: Yard and shop, or the Yard and Shop pages in the live app]
+In the Yard, I place my plants outside. In the Shop, I spend coins on houses, fences, decorations, and pets.
+The server checks the balance, so nobody can spend coins they do not have.
+
+[SLIDE 15: Friends and leaderboard, or the Friends page in the live app]
+And in Friends, I can add people with a friend code and compare on a leaderboard. Friends only see my nickname,
+photo, and score.
+
+Now Jericko will explain how all of this is built.
+
+==========================================================================
+3:45 - 4:35   JERICKO: ARCHITECTURE AND TECHNOLOGIES
+==========================================================================
+[SLIDE 16: How it is built (divider), then SLIDE 17: Architecture diagram. Then SLIDE 18: Technology stack, when talking about React, Express and the database. Then SLIDE 19: Security and secrets, for the .env and .gitignore part.]
+
+JERICKO:
+Thank you, Jecyn. Rootine has three layers.
+
+The frontend is React 19 with Vite, and a PWA plugin that makes it installable. Each screen is one file in
+frontend/src/pages.
 
 The backend is Node.js with Express 5. Each feature has its own router: auth, tasks, sessions, garden, shop,
-friends, and chat. Every request body is checked with a library called zod, and I use helmet for security
+friends, and chat. Every request is validated with a library called zod. We also use helmet for security
 headers, a CSRF header on every write, rate limits, and hashed passwords.
 
-The database is PostgreSQL. In production it is Supabase, and it is hosted on Vercel. For local use and tests
-I use PGlite, which is real PostgreSQL running inside Node, so nobody needs to install a database.
+The database is PostgreSQL. In production it is Supabase, and the app is hosted on Vercel. For local use and
+tests, we use PGlite, which is real PostgreSQL running inside Node, so nobody needs to install a database.
 
-Secrets, like the database URL and the AI key, live in a .env file that is in .gitignore. The repository
-only has a .env.example with empty placeholders.
+Secrets like the database URL and the AI key stay in a .env file that is in .gitignore. The repository only has
+a .env.example with empty placeholders.
 
 ==========================================================================
-5:00 - 6:00   THE EXTERNAL API: GOOGLE GEMINI
+4:35 - 5:45   JERICKO: THE EXTERNAL API - GOOGLE GEMINI
 ==========================================================================
-[SHOW: the chat drawer in the app, then backend/src/ai.js in VS Code]
+[SLIDE 20: Our external API, Google Gemini. Then switch to the live app and open the chat drawer.]
 
-The external API I use is Google Gemini. It powers Rootie, the chat assistant.
+JERICKO:
+Our external API is Google Gemini. It powers Rootie, the chat assistant.
 
-Why Gemini? It has a free tier, it works with plain JSON over HTTPS so I did not need an extra library,
-and it is good at short natural answers.
+We chose Gemini because it has a free tier, it uses plain JSON over HTTPS so we did not need extra libraries,
+and it writes short, natural answers.
 
-[ACTION: type "How is my progress this week?" and send. Read the reply aloud.]
+[LIVE APP: type "How is my progress this week?" and send. Read the reply aloud. If the API is busy, show that error message instead.]
 
-Here is what happens when I send this question. The browser calls my own server at /api/chat. The server
-checks that I am logged in, checks the rate limit of 30 questions per hour, and validates the input: at most
-10 messages, at most 500 characters each.
+Here is what happens when I send this question. The browser calls our own server at /api/chat. The server checks
+that I am logged in, applies a limit of 30 questions per hour, and validates the input: at most 10 messages and
+500 characters each.
 
-Then the server builds a snapshot of MY data from the database: focus minutes, streaks, plants, open tasks,
-and badges. The browser cannot add facts to it, and other users' data, emails, and friends' progress are never
-included. The server sends that snapshot with the question to this endpoint:
+Then the server builds a snapshot of my own data from the database: focus minutes, streaks, plants, tasks, and
+badges. The browser cannot add facts to it. Other users' data, emails, and friends' progress are never included.
+The server sends that snapshot and the question to this endpoint:
 
   POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent
 
-The API key goes in a request header, never in the URL, and it only exists on the server. Gemini answers with
-JSON, and I read the text from candidates, first item, content, parts.
+[SLIDE 21: What happens when you ask Rootie (six steps). Optional: show backend/src/ai.js in VS Code.]
+The API key travels in a request header, never in the URL, and it only exists on the server. Gemini replies with
+JSON, and we read the text from candidates, content, parts.
 
-[SHOW: the error handling code in ai.js]
-Now, error handling, which the course requires. The request times out after 15 seconds. If Gemini says it is
-busy with a 503, the server retries once. If it is rate limited with a 429, the user sees "The assistant is busy
-right now." For other errors, the user sees "not available", and I do not show provider details, so the key
-cannot leak. An empty answer gives its own message. And if there is no key at all, the rest of the app still
-works.
+For errors: the request times out after 15 seconds. If Gemini is busy with a 503, we retry once. If it is rate
+limited with a 429, the user sees "The assistant is busy right now." Other failures show "not available" without
+provider details, so the key cannot leak. An empty answer has its own message. And without a key, the rest of
+the app still works.
 
-[SHOW: docs/rootine.http with the REST Client extension, click Send Request]
-I can also test the API directly from VS Code with the REST Client extension.
-
-One more use of the API: the voice-over in the teaser was generated with Gemini text-to-speech.
+[SLIDE 22: When the API has a bad day (error table). Optional: docs/rootine.http in VS Code, click Send Request.]
+We can also test the API directly from VS Code with the REST Client extension. Now Ailish will explain our
+design pattern.
 
 ==========================================================================
-6:00 - 6:45   DESIGN PATTERN: STRATEGY
+5:45 - 6:30   AILISH: DESIGN PATTERN - STRATEGY
 ==========================================================================
-[SHOW: backend/src/db.js, the createDb function]
+[SLIDE 23: Design pattern, Strategy (diagram). Then SLIDE 24: The pattern in our real code. Optional: open backend/src/db.js in VS Code.]
 
-The design pattern is Strategy. Strategy means several interchangeable implementations behind one interface.
+AILISH:
+Thank you, Jericko. Our design pattern is Strategy, which means several interchangeable implementations behind
+one interface.
 
-In db.js, a function called createDb looks at the configuration. If there is a DATABASE_URL, it returns the
-Supabase PostgreSQL driver. If not, it returns the local PGlite driver. Both have the same four methods:
-query, tx for transactions, migrate, and close.
+In db.js, a function called createDb checks the configuration. With a DATABASE_URL it returns the Supabase
+PostgreSQL driver. Without one, it returns the local PGlite driver. Both have the same methods: query, tx for
+transactions, migrate, and close.
 
-So all the routes just call ctx.db.query and never know which database they are using. This solves a real
-problem: the same code runs in production, on a grader's laptop with nothing installed, and in tests with a
-fresh in-memory database each time.
+So every route just calls ctx.db.query and never knows which database it uses. That solves a real problem. The
+same code runs in production, on a grader's laptop with nothing installed, and in tests with a fresh in-memory
+database each time.
 
-Why not the alternatives? Putting an if-production check in every route would duplicate logic across ten
-files. A Singleton gives one shared instance but cannot be swapped, so tests would share state. And mocking
-the database would not run real SQL.
+Why not the alternatives? An if-production check in every route would repeat logic in about ten files. A
+Singleton gives one shared instance that cannot be swapped, so tests would share state. And a mocked database
+would not run real SQL.
 
-The AI client follows the same idea: the chat route only needs one method, reply, so my tests inject a fake AI.
+The AI client follows the same idea: the chat route only needs one method, reply, so our tests plug in a fake AI.
 
-[SHOW: docs/DESIGN_PATTERNS.md class diagram]
+[SLIDE 25: Why Strategy and not something else. Optional: docs/DESIGN_PATTERNS.md class diagram.]
 
 ==========================================================================
-6:45 - 7:30   DEVELOPMENT PROCESS: VS CODE, GIT, TESTING
+6:30 - 7:15   AILISH: VS CODE, GIT AND TESTING
 ==========================================================================
-[SHOW: VS Code with the extensions panel]
+[SLIDE 26: Built in VS Code with six extensions. Optional: show the VS Code extensions panel.]
 
-I developed in VS Code with six extensions: Prettier for formatting, GitLens for Git history, Error Lens for
-inline errors, REST Client for API requests, EditorConfig for consistent style, and a Mermaid preview for my
+AILISH:
+We developed in VS Code with six extensions: Prettier for formatting, GitLens for Git history, Error Lens for
+inline errors, REST Client for API requests, EditorConfig for consistent style, and a Mermaid preview for our
 diagrams.
 
-[SHOW: GitHub repository, commits page, branches, Issues, pull requests, release tag]
-For version control, the project is on GitHub with (UPDATE: number) commits, (UPDATE: number) feature
-branches, (UPDATE: number) issues, (UPDATE: number) pull requests, and a tagged release, v1.0.0.
+[SLIDE 27: Version control on GitHub. Update the amber numbers first. Then open the GitHub repository: commits, branches, Issues, pull requests, release tag.]
+Our code is on GitHub with (UPDATE: number) commits, (UPDATE: number) feature branches, (UPDATE: number) issues,
+(UPDATE: number) pull requests, and a tagged release, v1.0.0. Every member's commits are in the history.
 
-[SHOW: terminal, run "npm test"]
-For testing, I run npm test. There are 128 automated tests, and all of them passed when I last ran them. They
-cover login, tasks, the timer rules, the shop, friends, the chat route, and the Gemini error cases. The manual
-test cases and results are in docs/TEST_REPORT.md.
-
-How the teaser was made: I wrote a script that runs the real app with a demo account and takes screenshots,
-an HTML page that animates them, a script that renders it frame by frame in a headless browser into a
-1080p video, and the voice-over from Gemini text-to-speech mixed with generated music.
+[SLIDE 28: Tested before we trust it. Optional: run "npm test" in the terminal.]
+For testing, we run npm test. There are 128 automated tests, and all of them passed in our last run. They cover
+login, tasks, timer rules, the shop, friends, the chat route, and the Gemini error cases. Manual test cases and
+results are in docs/TEST_REPORT.md.
 
 ==========================================================================
-7:30 - 8:00   LIMITATIONS, FUTURE WORK, CLOSING
+7:15 - 8:00   KENT: LIMITATIONS, FUTURE WORK, CLOSING
 ==========================================================================
-[SHOW: Landing page or garden]
+[SLIDE 29: Limitations and what is next. Then SLIDE 30: Thank you, for the closing and Q&A. Leave slide 30 up during questions.]
 
-Some limitations. The Gemini free tier has rate limits. There is no password reset by email. There are no
-automated tests for the frontend, and the Supabase driver is only tested manually. Push notifications and
-install need HTTPS.
+KENT:
+Some limitations. The Gemini free tier has rate limits. There is no password reset by email. We have no
+automated frontend tests, and the Supabase driver is only tested manually. Install and push notifications need
+HTTPS.
 
-For the future, I would add frontend tests, ambient sounds, and an export-my-data option.
+For the future, we would add frontend tests, ambient sounds, and an export-my-data option.
 
-To summarize: Rootine turns focus time into a garden, uses a real external API in a safe way, applies the
-Strategy pattern to a real problem, and is documented and tested. All the documentation is in the docs folder
-of the repository.
+To sum up: Rootine turns focus time into a garden, uses a real external API safely, applies the Strategy pattern
+to a real problem, and is documented and tested. All documentation is in the docs folder of our repository.
 
-Thank you. I am happy to answer questions, or to explain any part of the code.
+Thank you. We are happy to answer your questions, or to explain any part of the code.
 
 ==========================================================================
-POSSIBLE QUESTIONS - SHORT ANSWERS
+POSSIBLE QUESTIONS - WHO ANSWERS AND SHORT ANSWERS
 ==========================================================================
-Q: Why does the server handle the timer?
+Q: Why does the server handle the timer?                                     (Jecyn)
 A: So users cannot cheat by changing the browser clock, and the timer survives refreshes.
 
-Q: Where is the API key kept?
-A: In backend/.env locally and in Vercel environment variables in production. It is never in the repository.
+Q: Where is the API key kept?                                                (Jericko)
+A: In backend/.env locally and in Vercel environment variables in production. Never in the repository.
 
-Q: What if Gemini is down?
-A: The user gets a clear message, and everything else in the app still works.
+Q: What if Gemini is down?                                                   (Jericko)
+A: The user gets a clear message, and the rest of the app keeps working.
 
-Q: What does Strategy give you over an if statement?
-A: One place decides which driver to use, routes stay unchanged, and tests can use a fresh in-memory database.
-
-Q: How do you stop the AI from leaking other users' data?
+Q: How do you stop the AI from leaking other users' data?                    (Jericko)
 A: The server builds the snapshot from the logged-in user's own rows only. A test checks that another user's
    name and any email are not in the prompt.
 
-Q: What is prompt injection, and what did you do about it?
-A: A user could write task titles that look like instructions. The system prompt tells the model that the data
-   and task titles are untrusted text and must never be followed as instructions.
+Q: What is prompt injection, and what did you do about it?                   (Jericko)
+A: A user could write a task title that looks like an instruction. The system prompt says the data and task
+   titles are untrusted text and must never be followed as instructions.
+
+Q: What does Strategy give you over an if statement?                         (Ailish)
+A: One place chooses the driver, routes stay unchanged, and tests can use a fresh in-memory database.
+
+Q: How did you split the work?                                               (Kent)
+A: (UPDATE: describe who did what, and match it to the commits in GitHub.)
 
 NOTE ON AI USE (say this if your instructor requires disclosure)
-AI coding assistance was used while building Rootine and writing its documentation and tests. I reviewed it
-and I can explain the code.
+AI coding assistance was used while building Rootine and writing its documentation and tests. Every member has
+reviewed the code and can explain it.

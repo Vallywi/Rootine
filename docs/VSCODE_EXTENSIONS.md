@@ -19,7 +19,33 @@ The workspace recommends these extensions in `.vscode/extensions.json`. VS Code 
 4. Prettier: confirm `.prettierrc.json` is picked up by running **Format Document** on a `.js` file.
 5. REST Client: open `docs/rootine.http`, start the backend, click **Send Request** above a request.
 
-## Evidence to capture (TODO, screenshots in `screenshots/extensions/`)
+## Installation evidence
+
+Installed with the VS Code command line on 2026-11-25 (Windows 11). Output of `code --list-extensions --show-versions`, filtered to the six extensions:
+
+```
+bierner.markdown-mermaid@1.32.1
+eamodio.gitlens@19.7.0
+editorconfig.editorconfig@0.18.2
+esbenp.prettier-vscode@12.4.0
+humao.rest-client@0.25.1
+usernamehw.errorlens@3.30.0
+```
+
+Install command used for each one: `code --install-extension <id>`. Prettier was already installed.
+
+## Configuration files in the project
+
+| File | What it configures |
+|---|---|
+| `.vscode/extensions.json` | Recommends the six extensions when the folder is opened |
+| `.vscode/settings.json` | Prettier as default formatter, format on save, Error Lens on, LF line endings |
+| `.vscode/launch.json` | "Debug backend" and "Debug current test file" |
+| `.prettierrc.json` | Single quotes, semicolons, width 140, trailing commas |
+| `.editorconfig` | 2-space indent, UTF-8, LF, final newline |
+| `docs/rootine.http` | Requests for REST Client |
+
+## Screenshots still to take by the presenter (VS Code window, `screenshots/extensions/`)
 
 - [ ] Extensions view showing the six installed extensions
 - [ ] Prettier formatting a file (before and after)

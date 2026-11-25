@@ -45,13 +45,30 @@ Install command used for each one: `code --install-extension <id>`. Prettier was
 | `.editorconfig` | 2-space indent, UTF-8, LF, final newline |
 | `docs/rootine.http` | Requests for REST Client |
 
-## Screenshots still to take by the presenter (VS Code window, `screenshots/extensions/`)
+## Screenshots
 
-- [ ] Extensions view showing the six installed extensions
-- [ ] Prettier formatting a file (before and after)
-- [ ] GitLens blame annotation and file history
-- [ ] Error Lens showing an inline error
-- [ ] REST Client response from `/api/health` and `/api/chat`
+Captured from a separate VS Code window that uses its own profile with the same six extensions and the project's `.vscode` settings, opened on a clone of this repository. The Error Lens and Prettier examples use two small demo files (`demo-error.js`, `demo-format.js`) that exist only in that clone and are not part of the project.
+
+| # | Extension | What it shows |
+|---|---|---|
+| 1 | All six | The Extensions view filtered with `@installed` lists EditorConfig, Error Lens, GitLens, Markdown Preview Mermaid, Prettier, and REST Client |
+| 2 | Prettier | Before: an unformatted file |
+| 3 | Prettier | After: Format Document applied the rules of `.prettierrc.json` |
+| 4 | GitLens | Hovering the blame in the status bar on line 73 of `backend/src/db.js` shows the commit `6ea427b`, "Fix crash on a fresh clone", its message, and "2 files changed, 27 insertions" |
+| 5 | Error Lens | A broken copy of `ai.js` shows the errors inline (`')' expected.` and `':' expected.`) |
+| 6 | REST Client | "Send Request" on `GET {{base}}/health` in `docs/rootine.http` returned `HTTP/1.1 200 OK` from the running backend |
+
+![Installed extensions](../screenshots/extensions/01-extensions-installed.png)
+
+![Prettier, before](../screenshots/extensions/02-prettier-before.png)
+
+![Prettier, after](../screenshots/extensions/03-prettier-after.png)
+
+![GitLens blame details](../screenshots/extensions/04-gitlens-blame-hover.png)
+
+![Error Lens inline errors](../screenshots/extensions/05-error-lens-inline-error.png)
+
+![REST Client response](../screenshots/extensions/06-rest-client-response.png)
 
 ## Reflection (write your own after using them)
 

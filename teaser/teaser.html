@@ -1,0 +1,332 @@
+<!doctype html>
+<!-- Rootine 60 second teaser. Every frame is drawn by render(t) (t in seconds), so render.mjs can capture it frame by frame.
+     Open in a browser to watch it live (it plays on its own), or add ?t=42 to freeze one moment. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rootine teaser</title>
+<style>
+  @font-face { font-family: Nunito; src: url(assets/nunito.woff2) format('woff2'); font-weight: 200 1000; }
+  :root { --forest: #2f5d50; --leaf: #6da56f; --cream: #fbf6ea; --butter: #fde9a8; --blush: #f9d9df; --sky: #d6ecf3; --ink: #24352f; --muted: #5d6b64; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+  body { font-family: Nunito, system-ui, sans-serif; color: var(--ink); }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: linear-gradient(180deg, #d7ecf2 0%, #eef3e6 55%, #fbf1dc 100%); }
+  .scene { position: absolute; inset: 0; opacity: 0; will-change: opacity, transform; }
+  .center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .hills { position: absolute; left: -5%; right: -5%; bottom: -120px; height: 300px; border-radius: 50% 50% 0 0; background: #bfe2ac; }
+  .hills::after { content: ''; position: absolute; left: 10%; right: -20%; bottom: -60px; height: 260px; border-radius: 50% 50% 0 0; background: #9fd18f; }
+  .sun { position: absolute; right: 160px; top: 110px; width: 150px; height: 150px; border-radius: 50%; background: #fde58a; box-shadow: 0 0 0 26px rgba(253, 229, 138, .35), 0 0 0 60px rgba(253, 229, 138, .15); }
+  .cloud { position: absolute; width: 260px; height: 80px; border-radius: 60px; background: rgba(255, 255, 255, .85); }
+  .cloud::before { content: ''; position: absolute; left: 50px; top: -45px; width: 120px; height: 110px; border-radius: 50%; background: inherit; }
+
+  h1.logo { font-size: 150px; font-weight: 900; color: var(--forest); letter-spacing: -2px; line-height: 1; }
+  .tagline { font-size: 64px; font-weight: 800; line-height: 1.15; }
+  .tagline em { font-style: normal; color: var(--leaf); }
+  .big { font-size: 110px; font-weight: 900; line-height: 1.05; letter-spacing: -1px; color: var(--forest); }
+  .pill { display: inline-flex; align-items: center; gap: 12px; padding: 12px 28px; border-radius: 999px; background: var(--butter); color: #6a4b00; font-weight: 900; font-size: 30px; }
+  .pill--green { background: var(--forest); color: #fff; }
+
+  /* layout for app screens: caption on the left, browser window on the right */
+  .cap { position: absolute; left: 100px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; gap: 26px; }
+  .cap h2 { font-size: 72px; font-weight: 900; line-height: 1.05; color: var(--forest); letter-spacing: -1px; }
+  .cap p { font-size: 34px; line-height: 1.35; color: var(--muted); font-weight: 600; }
+  .step { width: 84px; height: 84px; border-radius: 50%; background: var(--forest); color: #fff; font-size: 44px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  .win { position: absolute; left: 700px; top: 145px; width: 1140px; height: 790px; border-radius: 28px; background: #fff; overflow: hidden; box-shadow: 0 40px 90px rgba(30, 60, 50, .28), 0 0 0 3px rgba(47, 93, 80, .12); }
+  .win__bar { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 22px; background: #f3efe4; border-bottom: 2px solid #e6dfcc; }
+  .win__bar i { width: 16px; height: 16px; border-radius: 50%; background: #e6786b; } .win__bar i:nth-child(2) { background: #f1c75b; } .win__bar i:nth-child(3) { background: #7fbf8c; }
+  .win__url { margin-left: 24px; flex: 1; max-width: 520px; height: 32px; border-radius: 16px; background: #fff; color: var(--muted); font-size: 19px; font-weight: 700; display: flex; align-items: center; padding: 0 18px; }
+  .win__view { position: absolute; top: 52px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+  .win__view img { position: absolute; left: 0; top: 0; width: 1140px; transform-origin: 0 0; }
+
+  /* Rootie chat */
+  .rootie-bg { background: radial-gradient(circle at 30% 30%, #3f7a68, #22463c 70%); }
+  .rootie-bg .big, .rootie-bg h2 { color: #fff; }
+  .chat { position: absolute; left: 860px; top: 120px; width: 960px; height: 840px; border-radius: 36px; background: #fff; box-shadow: 0 40px 100px rgba(0, 0, 0, .35); padding: 40px 46px; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+  .chat__head { display: flex; align-items: center; gap: 20px; padding-bottom: 20px; border-bottom: 3px solid #efe9da; }
+  .chat__ava { width: 84px; height: 84px; border-radius: 50%; background: #e2efe0; display: flex; align-items: center; justify-content: center; }
+  .chat__ava img { width: 64px; }
+  .chat__head b { display: block; font-size: 38px; font-weight: 900; }
+  .chat__head span { font-size: 24px; color: var(--muted); font-weight: 700; }
+  .msg { max-width: 82%; padding: 20px 26px; border-radius: 30px; font-size: 31px; line-height: 1.38; font-weight: 600; white-space: pre-wrap; }
+  .msg--me { align-self: flex-end; background: var(--forest); color: #fff; border-bottom-right-radius: 10px; }
+  .msg--bot { align-self: flex-start; background: #eef5ec; border: 3px solid #e3dccb; border-bottom-left-radius: 10px; }
+  .dots { display: inline-flex; gap: 10px; } .dots i { width: 16px; height: 16px; border-radius: 50%; background: var(--leaf); }
+  .rootie-cap { position: absolute; left: 100px; top: 0; bottom: 0; width: 700px; display: flex; flex-direction: column; justify-content: center; gap: 30px; color: #fff; }
+  .rootie-cap h2 { font-size: 84px; font-weight: 900; line-height: 1.02; letter-spacing: -1px; }
+  .rootie-cap p { font-size: 34px; line-height: 1.4; color: #d6e8df; font-weight: 600; }
+  .rootie-cap ul { list-style: none; padding: 0; display: grid; gap: 14px; font-size: 30px; font-weight: 700; color: #fff; }
+
+  /* features */
+  .feat { position: absolute; width: 520px; padding: 34px 36px; border-radius: 34px; background: #fff; box-shadow: 0 24px 60px rgba(30, 60, 50, .18); display: flex; gap: 24px; align-items: center; }
+  .feat .ico { font-size: 64px; width: 96px; height: 96px; border-radius: 26px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .feat b { display: block; font-size: 36px; font-weight: 900; color: var(--forest); }
+  .feat span { font-size: 25px; color: var(--muted); font-weight: 600; }
+  .phone { position: absolute; left: 1450px; top: 150px; width: 380px; height: 800px; border-radius: 56px; background: #1e2a26; padding: 16px; box-shadow: 0 40px 90px rgba(0, 0, 0, .3); }
+  .phone__screen { width: 100%; height: 100%; border-radius: 42px; overflow: hidden; position: relative; }
+  .phone__screen img { position: absolute; top: 0; left: 0; width: 100%; }
+
+  .float { position: absolute; will-change: transform; }
+  .url { font-size: 40px; font-weight: 900; color: #fff; background: var(--forest); padding: 18px 44px; border-radius: 999px; box-shadow: 0 8px 0 #1d3d34; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="sun"></div>
+  <div class="cloud" style="left:120px;top:140px" id="c1"></div>
+  <div class="cloud" style="left:1300px;top:300px;transform:scale(.7)" id="c2"></div>
+  <div class="hills"></div>
+
+  <!-- 1. Intro: a sunflower grows, then the logo -->
+  <section class="scene center" id="s-intro">
+    <div style="position:relative;width:520px;height:460px">
+      <img class="float" id="g0" src="assets/stage-0.png" style="width:520px;left:0;bottom:0">
+      <img class="float" id="g1" src="assets/stage-1.png" style="width:520px;left:0;bottom:0">
+      <img class="float" id="g2" src="assets/stage-2.png" style="width:520px;left:0;bottom:0">
+      <img class="float" id="g3" src="assets/stage-3.png" style="width:520px;left:0;bottom:0">
+    </div>
+    <h1 class="logo" id="logo" style="margin-top:20px">Rootine</h1>
+    <p class="tagline" id="tag" style="margin-top:14px">Focus a little. <em>Grow a lot.</em></p>
+  </section>
+
+  <!-- 2. Hook -->
+  <section class="scene center" id="s-hook">
+    <div id="hookPlants"></div>
+    <p class="big" id="hook1" style="position:absolute">Hard to stay focused?</p>
+    <p class="big" id="hook2" style="position:absolute">Turn focus time<br>into a <em style="font-style:normal;color:var(--leaf)">garden.</em></p>
+  </section>
+
+  <!-- 3 to 6. App screens -->
+  <section class="scene" id="s-focus">
+    <div class="cap"><div class="step">1</div><h2>Pick a rhythm and a seed</h2><p>15/3, 25/5, all the way to 90/20. Trees unlock when you focus longer.</p></div>
+    <div class="win"><div class="win__bar"><i></i><i></i><i></i><div class="win__url">rootine-virid.vercel.app</div></div><div class="win__view"><img id="i-focus" src="assets/focus.png"></div></div>
+  </section>
+  <section class="scene" id="s-grow">
+    <div class="cap"><div class="step">2</div><h2>Stay focused. Watch it grow.</h2><p>The timer keeps going even if you refresh or close the tab. Give up and your plant wilts.</p></div>
+    <div class="win"><div class="win__bar"><i></i><i></i><i></i><div class="win__url">rootine-virid.vercel.app</div></div><div class="win__view"><img id="i-grow" src="assets/growing.png"></div></div>
+  </section>
+  <section class="scene" id="s-garden">
+    <div class="cap"><div class="step">3</div><h2>Every session becomes a plant</h2><p>Track today, this week and this month. Keep your streak and earn badges.</p></div>
+    <div class="win"><div class="win__bar"><i></i><i></i><i></i><div class="win__url">rootine-virid.vercel.app/garden</div></div><div class="win__view"><img id="i-garden" src="assets/garden.png"></div></div>
+  </section>
+  <section class="scene" id="s-yard">
+    <div class="cap"><div class="step">4</div><h2>Build your cozy yard</h2><p>Earn coins as you focus. Buy a house, a fence, decorations, even a cat.</p></div>
+    <div class="win"><div class="win__bar"><i></i><i></i><i></i><div class="win__url">rootine-virid.vercel.app/yard</div></div><div class="win__view"><img id="i-yard" src="assets/yard.png"></div></div>
+  </section>
+
+  <!-- 7. Rootie intro -->
+  <section class="scene center rootie-bg" id="s-new">
+    <span class="pill" id="newPill">&#x2728; NEW</span>
+    <p class="big" id="newTitle" style="margin-top:34px">Meet Rootie</p>
+    <p class="tagline" id="newSub" style="color:#d6e8df;margin-top:18px">your AI garden helper</p>
+  </section>
+
+  <!-- 8. Rootie chat -->
+  <section class="scene rootie-bg" id="s-chat">
+    <div class="rootie-cap">
+      <span class="pill" style="align-self:flex-start">&#x1F4AC; Ask Rootie</span>
+      <h2>Your progress,<br>summed up in seconds</h2>
+      <ul id="chatList">
+        <li>&#x1F33F; Focus time and streaks</li>
+        <li>&#x1F33B; Plants, trees and badges</li>
+        <li>&#x2705; What to work on next</li>
+      </ul>
+      <p>Answers come from your own data only.</p>
+    </div>
+    <div class="chat" id="chatBox">
+      <div class="chat__head"><div class="chat__ava"><img src="assets/stage-1.png"></div><div><b>Rootie</b><span>Your progress assistant</span></div></div>
+      <div class="msg msg--me" id="q"></div>
+      <div class="msg msg--bot" id="typing"><span class="dots"><i></i><i></i><i></i></span></div>
+      <div class="msg msg--bot" id="a"></div>
+    </div>
+  </section>
+
+  <!-- 9. More features -->
+  <section class="scene" id="s-feat">
+    <p class="big" style="position:absolute;left:100px;top:90px;font-size:80px" id="featTitle">And so much more</p>
+    <div class="feat" style="left:100px;top:270px"><div class="ico" style="background:var(--butter)">&#x1F4DD;</div><div><b>Tasks</b><span>Priorities, due dates and Pomodoro counts</span></div></div>
+    <div class="feat" style="left:680px;top:270px"><div class="ico" style="background:var(--blush)">&#x1F91D;</div><div><b>Friends</b><span>Friend codes and a weekly leaderboard</span></div></div>
+    <div class="feat" style="left:100px;top:480px"><div class="ico" style="background:var(--sky)">&#x1F3C6;</div><div><b>22 badges</b><span>Streaks, trees, hours and more</span></div></div>
+    <div class="feat" style="left:680px;top:480px"><div class="ico" style="background:#e4def5">&#x1F319;</div><div><b>Light and dark</b><span>A sunny meadow or a night garden</span></div></div>
+    <div class="feat" style="left:100px;top:690px"><div class="ico" style="background:#dff0dc">&#x1FA99;</div><div><b>Coins and shop</b><span>Longer sessions pay more</span></div></div>
+    <div class="feat" style="left:680px;top:690px"><div class="ico" style="background:#fde3cf">&#x1F4F1;</div><div><b>Works on your phone</b><span>Install it like an app</span></div></div>
+    <div class="phone" id="phone"><div class="phone__screen"><img id="i-phone" src="assets/phone-garden.png"></div></div>
+  </section>
+
+  <!-- 10. End card -->
+  <section class="scene center" id="s-end">
+    <div id="endPlants" style="display:flex;gap:28px;align-items:flex-end;height:240px"></div>
+    <h1 class="logo" style="margin-top:20px">Rootine</h1>
+    <p class="tagline" style="margin-top:12px">Focus a little. <em>Grow a lot.</em></p>
+    <p class="url" id="endUrl" style="margin-top:50px">rootine-virid.vercel.app</p>
+    <p style="margin-top:28px;font-size:28px;font-weight:700;color:var(--muted)">Free. Works on phones and computers.</p>
+  </section>
+</div>
+
+<script>
+const CHAT = { question: 'How is my progress this week?', reply: '' };
+const $ = (id) => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = (p) => 1 - Math.pow(1 - clamp(p), 3);
+const easeIO = (p) => { p = clamp(p); return p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+
+// Scene times in seconds: [start, end]. Neighbours overlap by FADE for a cross-fade.
+const FADE = 0.5;
+const SCENES = {
+  intro: [0, 5.5], hook: [5.5, 10], focus: [10, 17], grow: [17, 23.5], garden: [23.5, 30.5], yard: [30.5, 36.5],
+  new: [36.5, 39.5], chat: [39.5, 51], feat: [51, 55.5], end: [55.5, 60.5],
+};
+const DURATION = 60;
+
+// Plants floating in the hook scene and standing in the end card.
+const PLANT_IMGS = Array.from({ length: 13 }, (_, i) => `assets/plant-${i}.png`);
+const hookSpots = [[150, 120, 150], [1580, 150, 170], [260, 720, 190], [1500, 700, 210], [820, 60, 120], [1050, 820, 140], [80, 430, 130], [1720, 450, 140]];
+$('hookPlants').innerHTML = hookSpots.map(([x, y, w], i) => `<img class="float hp" src="${PLANT_IMGS[(i * 3) % 13]}" style="left:${x}px;top:${y}px;width:${w}px">`).join('');
+$('endPlants').innerHTML = [0, 9, 3, 10, 4, 11, 5, 12, 2].map((i) => `<img class="ep" src="${PLANT_IMGS[i]}" style="width:${i >= 9 ? 190 : 140}px">`).join('');
+
+function sceneAlpha(t, [a, b]) {
+  if (t < a - FADE / 2 || t > b + FADE / 2) return 0;
+  return Math.min(clamp((t - (a - FADE / 2)) / FADE), clamp(((b + FADE / 2) - t) / FADE));
+}
+
+// Pan and zoom a screenshot inside a browser window.
+function kenBurns(img, p, { from = [1, 0, 0], to = [1.1, 0, 0] }) {
+  const k = easeIO(p);
+  const s = from[0] + (to[0] - from[0]) * k, x = from[1] + (to[1] - from[1]) * k, y = from[2] + (to[2] - from[2]) * k;
+  img.style.transform = `translate(${-x}px, ${-y}px) scale(${s})`;
+}
+
+function typeText(el, text, p) {
+  const n = Math.round(text.length * clamp(p));
+  el.textContent = text.slice(0, n);
+}
+
+window.render = function render(t) {
+  for (const [name, span] of Object.entries(SCENES)) {
+    const el = $('s-' + name);
+    const a = name === 'intro' && t < 0.25 ? 1 : sceneAlpha(t, span);
+    el.style.opacity = a;
+  }
+  // Drifting clouds everywhere.
+  $('c1').style.transform = `translateX(${t * 6}px)`;
+  $('c2').style.transform = `translateX(${-t * 4}px) scale(.7)`;
+
+  // 1. Intro: seed, sprout, growing, bloom, then the logo.
+  {
+    const stages = [0, 1, 2, 3].map((i) => $('g' + i));
+    const k = t / 2.6 * 3; // stage index over the first 2.6 seconds
+    stages.forEach((el, i) => {
+      const on = clamp(1 - Math.abs(k - i) * 1.4) + (i === 3 && k >= 3 ? 1 : 0);
+      el.style.opacity = clamp(on);
+      const pop = i === 3 ? 1 + 0.06 * Math.sin(clamp((t - 2.6) / .5) * Math.PI) : 1;
+      el.style.transform = `scale(${0.9 + 0.1 * clamp(on) * pop})`;
+      el.style.transformOrigin = '50% 100%';
+    });
+    const lp = ease(prog(t, 2.4, 3.3));
+    $('logo').style.opacity = lp; $('logo').style.transform = `translateY(${(1 - lp) * 40}px)`;
+    const tp = ease(prog(t, 3.1, 4.0));
+    $('tag').style.opacity = tp; $('tag').style.transform = `translateY(${(1 - tp) * 30}px)`;
+  }
+
+  // 2. Hook
+  {
+    const h1 = ease(prog(t, 5.7, 6.4)) * (1 - ease(prog(t, 7.5, 7.9)));
+    $('hook1').style.opacity = h1; $('hook1').style.transform = `scale(${0.92 + 0.08 * h1})`;
+    const h2 = ease(prog(t, 7.9, 8.6));
+    $('hook2').style.opacity = h2; $('hook2').style.transform = `translateY(${(1 - h2) * 40}px)`;
+    document.querySelectorAll('.hp').forEach((el, i) => {
+      const show = ease(prog(t, 7.9 + i * 0.08, 8.5 + i * 0.08));
+      el.style.opacity = show;
+      el.style.transform = `translateY(${Math.sin(t * 1.4 + i) * 12}px) scale(${0.6 + 0.4 * show}) rotate(${Math.sin(t + i) * 4}deg)`;
+    });
+  }
+
+  // Captions slide in at the start of each app scene.
+  for (const name of ['focus', 'grow', 'garden', 'yard']) {
+    const [a] = SCENES[name];
+    const p = ease(prog(t, a, a + 0.8));
+    const cap = $('s-' + name).querySelector('.cap');
+    cap.style.transform = `translateX(${(1 - p) * -60}px)`; cap.style.opacity = p;
+    const win = $('s-' + name).querySelector('.win');
+    const w = ease(prog(t, a - 0.2, a + 0.7));
+    win.style.transform = `translateY(${(1 - w) * 60}px)`;
+  }
+  // Screens are 2880 px wide; at 1140 px the scale is 0.396.
+  kenBurns($('i-focus'), prog(t, ...SCENES.focus), { from: [1, 0, 0], to: [1.35, 230, 150] });
+  kenBurns($('i-grow'), prog(t, ...SCENES.grow), { from: [1.05, 30, 0], to: [1.45, 290, 90] });
+  { // Garden: zoom on the stats, then scroll down to the badges.
+    const p = prog(t, ...SCENES.garden);
+    const img = $('i-garden');
+    const s = 1.3, y = 40 + easeIO(prog(p, 0.35, 0.95)) * 900;
+    img.style.transform = `translate(${-215}px, ${-y}px) scale(${s})`;
+  }
+  kenBurns($('i-yard'), prog(t, ...SCENES.yard), { from: [1.05, 40, 120], to: [1.5, 300, 260] });
+
+  // 7. Rootie title
+  {
+    const [a] = SCENES.new;
+    const p1 = ease(prog(t, a, a + 0.6)), p2 = ease(prog(t, a + 0.4, a + 1.1)), p3 = ease(prog(t, a + 0.8, a + 1.5));
+    $('newPill').style.opacity = p1; $('newPill').style.transform = `scale(${0.6 + 0.4 * p1})`;
+    $('newTitle').style.opacity = p2; $('newTitle').style.transform = `translateY(${(1 - p2) * 40}px)`;
+    $('newSub').style.opacity = p3;
+  }
+
+  // 8. Chat: the question is typed, Rootie thinks, then the real answer appears.
+  {
+    const [a] = SCENES.chat;
+    const box = ease(prog(t, a - 0.2, a + 0.6));
+    $('chatBox').style.transform = `translateY(${(1 - box) * 80}px)`;
+    $('chatList').querySelectorAll('li').forEach((li, i) => { const p = ease(prog(t, a + 0.6 + i * 0.4, a + 1.1 + i * 0.4)); li.style.opacity = p; li.style.transform = `translateX(${(1 - p) * -30}px)`; });
+    const qStart = a + 0.8, qEnd = qStart + 1.6;
+    $('q').style.display = t >= qStart ? '' : 'none';
+    typeText($('q'), CHAT.question, prog(t, qStart, qEnd));
+    const thinkEnd = qEnd + 1.2;
+    $('typing').style.display = t >= qEnd + 0.15 && t < thinkEnd ? '' : 'none';
+    $('typing').querySelectorAll('i').forEach((d, i) => { d.style.transform = `translateY(${Math.sin(t * 9 - i * 0.9) * 6}px)`; });
+    $('a').style.display = t >= thinkEnd ? '' : 'none';
+    typeText($('a'), CHAT.reply, prog(t, thinkEnd, thinkEnd + 5.0));
+  }
+
+  // 9. Features pop in one by one; the phone scrolls.
+  {
+    const [a] = SCENES.feat;
+    $('featTitle').style.opacity = ease(prog(t, a, a + 0.5));
+    document.querySelectorAll('.feat').forEach((el, i) => {
+      const p = ease(prog(t, a + 0.15 + i * 0.18, a + 0.6 + i * 0.18));
+      el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 40}px) scale(${0.94 + 0.06 * p})`;
+    });
+    const ph = ease(prog(t, a + 0.3, a + 1.0));
+    $('phone').style.transform = `translateY(${(1 - ph) * 120}px) rotate(${(1 - ph) * 6}deg)`;
+    const img = $('i-phone'), maxScroll = Math.max(0, img.offsetHeight - img.parentElement.offsetHeight);
+    img.style.transform = `translateY(${-easeIO(prog(t, a + 1.2, a + 4.4)) * Math.min(900, maxScroll)}px)`;
+  }
+
+  // 10. End card
+  {
+    const [a] = SCENES.end;
+    document.querySelectorAll('.ep').forEach((el, i) => {
+      const p = ease(prog(t, a + i * 0.1, a + 0.6 + i * 0.1));
+      el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 60}px)`;
+    });
+    const u = ease(prog(t, a + 1.0, a + 1.6));
+    $('endUrl').style.opacity = u; $('endUrl').style.transform = `scale(${0.85 + 0.15 * u})`;
+  }
+};
+
+window.setChat = (c) => { Object.assign(CHAT, c); };
+window.DURATION = DURATION;
+
+// Live preview when opened directly in a browser (render.mjs sets window.__capture first).
+fetch('assets/chat.json').then((r) => r.json()).then(window.setChat).catch(() => {}).finally(() => {
+  if (window.__capture) return;
+  const fixed = new URLSearchParams(location.search).get('t');
+  if (fixed !== null) return window.render(Number(fixed));
+  const t0 = performance.now();
+  const loop = () => { window.render(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); };
+  loop();
+});
+window.render(0);
+</script>
+</body>
+</html>

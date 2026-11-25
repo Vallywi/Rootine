@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "humao.rest-client",
+    "editorconfig.editorconfig",
+    "bierner.markdown-mermaid"
+  ]
+}

@@ -1,0 +1,102 @@
+﻿[
+    {
+        "file":  "vo-00.wav",
+        "start":  0.6,
+        "seconds":  4.59,
+        "max":  4.8,
+        "tempo":  1.15,
+        "text":  "This is Rootine. Focus a little... grow a lot.",
+        "heard":  "This is routine. Focus a little, grow a lot.",
+        "match":  89
+    },
+    {
+        "file":  "vo-01.wav",
+        "start":  5.8,
+        "seconds":  4.61,
+        "max":  4.2,
+        "tempo":  1.15,
+        "text":  "Hard to stay focused? Rootine turns your focus time into a garden.",
+        "heard":  "Hard to stay focused? Routine turns your focus time into a garden.",
+        "match":  92
+    },
+    {
+        "file":  "vo-02.wav",
+        "start":  10.56,
+        "seconds":  7.41,
+        "max":  6.6,
+        "tempo":  1.15,
+        "text":  "Pick a rhythm, from a quick sprint to deep work, and choose a seed. Focus longer to unlock trees.",
+        "heard":  "Pick a rhythm from a quick sprint to deep work, and choose a seat. Focus longer to unlock trees.",
+        "match":  95
+    },
+    {
+        "file":  "vo-03.wav",
+        "start":  18.12,
+        "seconds":  5.85,
+        "max":  6.2,
+        "tempo":  1,
+        "text":  "Stay on task, and your plant grows with the timer. Give up... and it wilts.",
+        "heard":  "Stay on task and your plant grows with the timer. Give up and it wilts.",
+        "match":  100
+    },
+    {
+        "file":  "vo-04.wav",
+        "start":  24.12,
+        "seconds":  6.45,
+        "max":  6.7,
+        "tempo":  1.12,
+        "text":  "Every finished session becomes a plant. Track your minutes, keep your streak, and earn badges.",
+        "heard":  "Every finished session becomes a plant. Track your minutes, keep your streak, and earn badges.",
+        "match":  100
+    },
+    {
+        "file":  "vo-05.wav",
+        "start":  30.8,
+        "seconds":  5.51,
+        "max":  5.7,
+        "tempo":  1.12,
+        "text":  "Spend your coins on a cozy yard: a house, a fence... even a cat.",
+        "heard":  "Spend your coins on a cozy yard, a house, a fence, even a cat.",
+        "match":  100
+    },
+    {
+        "file":  "vo-06.wav",
+        "start":  36.8,
+        "seconds":  3.07,
+        "max":  2.9,
+        "tempo":  1.15,
+        "text":  "And now... meet Rootie!",
+        "heard":  "And now, meet Rudy.",
+        "match":  75
+    },
+    {
+        "file":  "vo-07.wav",
+        "start":  40.02,
+        "seconds":  10.74,
+        "max":  11,
+        "tempo":  1.02,
+        "text":  "Your A.I. garden helper. Just ask how you are doing, and Rootie sums up your progress in seconds: your focus time, your streak, and what to work on next.",
+        "heard":  "Your AI garden helper. Just ask how you are doing, and Rudy sums up your progress in seconds: your focus time, your streak, and what to work on next.",
+        "match":  97
+    },
+    {
+        "file":  "vo-08.wav",
+        "start":  51.2,
+        "seconds":  4.03,
+        "max":  4.3,
+        "tempo":  1.03,
+        "text":  "Plus tasks, friends, a leaderboard, and dark mode.",
+        "heard":  "Plus, tasks, friends, a leaderboard, and dark mode.",
+        "match":  100
+    },
+    {
+        "file":  "vo-09.wav",
+        "start":  55.55,
+        "seconds":  4.03,
+        "max":  4.2,
+        "tempo":  1.15,
+        "text":  "Rootine. Start growing today. It is free!",
+        "heard":  "routine start growing today. It is free.",
+        "match":  86
+    }
+]

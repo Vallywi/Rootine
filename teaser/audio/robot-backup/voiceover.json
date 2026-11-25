@@ -1,0 +1,82 @@
+﻿[
+    {
+        "file":  "vo-00.wav",
+        "start":  0.6,
+        "seconds":  4.3,
+        "max":  4.8,
+        "rate":  1,
+        "text":  "This is Rootine. Focus a little. Grow a lot."
+    },
+    {
+        "file":  "vo-01.wav",
+        "start":  5.8,
+        "seconds":  4.1,
+        "max":  4.2,
+        "rate":  2,
+        "text":  "Hard to stay focused? Rootine turns your focus time into a garden."
+    },
+    {
+        "file":  "vo-02.wav",
+        "start":  10.3,
+        "seconds":  6.22,
+        "max":  6.6,
+        "rate":  2,
+        "text":  "Pick a focus rhythm, from a quick sprint to deep work, and choose a seed. Focus longer to unlock trees."
+    },
+    {
+        "file":  "vo-03.wav",
+        "start":  17.3,
+        "seconds":  5.61,
+        "max":  6.2,
+        "rate":  1,
+        "text":  "Stay on task, and your plant grows with the timer. Give up, and it wilts."
+    },
+    {
+        "file":  "vo-04.wav",
+        "start":  23.8,
+        "seconds":  6.4,
+        "max":  6.7,
+        "rate":  1,
+        "text":  "Every finished session becomes a plant. Track your minutes, keep your streak, and earn badges."
+    },
+    {
+        "file":  "vo-05.wav",
+        "start":  30.8,
+        "seconds":  5.67,
+        "max":  5.7,
+        "rate":  0,
+        "text":  "Spend the coins you earn on a cozy yard, with a house, a fence, and even a cat."
+    },
+    {
+        "file":  "vo-06.wav",
+        "start":  36.8,
+        "seconds":  2.27,
+        "max":  2.9,
+        "rate":  0,
+        "text":  "And now, meet Rootie."
+    },
+    {
+        "file":  "vo-07.wav",
+        "start":  39.8,
+        "seconds":  9.79,
+        "max":  11,
+        "rate":  1,
+        "text":  "Your A.I. garden helper. Just ask how you are doing, and Rootie sums up your own progress in seconds: your focus time, your streak, and what to work on next."
+    },
+    {
+        "file":  "vo-08.wav",
+        "start":  51.2,
+        "seconds":  3.94,
+        "max":  4.3,
+        "rate":  2,
+        "text":  "Plus tasks, friends, a leaderboard, and dark mode."
+    },
+    {
+        "file":  "vo-09.wav",
+        "start":  55.8,
+        "seconds":  3.88,
+        "max":  4.2,
+        "rate":  2,
+        "text":  "Rootine. Start growing today. It is free."
+    }
+]

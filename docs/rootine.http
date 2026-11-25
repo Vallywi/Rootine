@@ -1,0 +1,42 @@
+# REST Client (humao.rest-client) requests for Rootine.
+# Run the backend first: npm run dev:backend
+# The key is read from backend/.env on the server. Never paste a real key into this file.
+
+@base = http://localhost:4000/api
+
+### 1. Health check
+GET {{base}}/health
+
+### 2. Register (sets a session cookie and returns a csrfToken)
+# @name register
+POST {{base}}/auth/register
+Content-Type: application/json
+X-Rootine-CSRF: anything
+
+{
+  "email": "demo@example.com",
+  "password": "demo-password-123",
+  "displayName": "Demo",
+  "fullName": "Demo User",
+  "age": 20,
+  "gender": "prefer_not_to_say"
+}
+
+### 3. Ask Rootie (calls the Gemini API through the server)
+@csrf = {{register.response.body.csrfToken}}
+
+POST {{base}}/chat
+Content-Type: application/json
+X-Rootine-CSRF: {{csrf}}
+
+{
+  "messages": [{ "role": "user", "content": "How is my progress?" }],
+  "tzOffset": 480
+}
+
+### 4. Invalid input (expect 400 with a message)
+POST {{base}}/chat
+Content-Type: application/json
+X-Rootine-CSRF: {{csrf}}
+
+{ "messages": [] }

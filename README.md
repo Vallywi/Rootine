@@ -2,7 +2,78 @@
 
 A Pomodoro focus web app. While you focus, a plant grows. Finish the session, then tap **Collect plant** to add it to your garden. Give up and it withers. Pick a rhythm that fits you (15/3, 25/5, 40/10, 50/10, 75/15, 90/20, or your own), and take the short tour on your first visit. Grow 9 flowers and plants, or 4 trees that need a longer focus (40, 50, 75, or 90 minutes), then place your collected plants outside in the Yard. It works in any browser, on phones and computers, and can be installed from Chrome like an app (PWA).
 
-Plans and specs are in [`docs/`](docs/README.md).
+![Rootine landing page](screenshots/landing.png)
+
+Plans and specs are in [`docs/`](docs/README.md). Teaser video: [`teaser/rootine-teaser.mp4`](teaser/rootine-teaser.mp4).
+
+## Features
+
+### Pick a rhythm and plant a seed
+Six focus rhythms from a 15/3 sprint to a 90/20 ultradian block, or your own. Trees unlock when you focus for 40 minutes or more.
+
+![Choose a rhythm](screenshots/focus.png)
+
+### Watch it grow
+The plant grows with the timer. The server keeps the time, so refreshing or closing the tab does not break a session. Give up and the plant withers.
+
+![A growing plant](screenshots/growing.png)
+
+### Collect plants, keep streaks, earn badges
+Every finished session becomes a plant you can name. The garden shows focus minutes for today, this week and this month, your streak, and badges with progress.
+
+![Garden](screenshots/garden.png)
+
+### Build a cozy yard and spend coins
+Coins come from collected plants. Buy houses, fences, decorations and pets, and place your plants outside.
+
+| Yard | Shop |
+|---|---|
+| ![Yard](screenshots/yard.png) | ![Shop](screenshots/shop.png) |
+
+### Tasks
+Track tasks with a kind, urgency, status, due date and notes.
+
+![Tasks](screenshots/tasks.png)
+
+### Friends and leaderboard
+Add friends with a friend code and compare focus minutes. Friends only see your nickname, photo and score.
+
+![Friends](screenshots/friends.png)
+
+### Rootie, the AI assistant (Google Gemini API)
+Ask "How is my progress this week?" and Rootie answers with your real numbers. The server calls the Gemini API with a snapshot of your own data only. The API key never reaches the browser. Without a key the rest of the app still works. See [`docs/AI-CHAT-SETUP.md`](docs/AI-CHAT-SETUP.md).
+
+![Rootie chat](screenshots/rootie-chat.png)
+
+### Works on your phone
+Install it from the browser like an app (PWA), with light and dark themes.
+
+<img src="screenshots/phone-garden.png" alt="Rootine on a phone" width="320">
+
+## Tech stack
+
+| Part | Technology |
+|---|---|
+| Frontend | React 19, Vite 7, PWA plugin |
+| Backend | Node.js 20+, Express 5, zod, helmet |
+| Database | PostgreSQL (Supabase), PGlite for local use and tests |
+| External API | Google Gemini `generateContent` |
+| Design pattern | Strategy (interchangeable database drivers in `backend/src/db.js`) |
+| Hosting | Vercel |
+
+## Course documentation
+
+| Document | File |
+|---|---|
+| Requirements (SRS) | [`docs/SRS.md`](docs/SRS.md) |
+| Architecture | [`docs/architecture.md`](docs/architecture.md) |
+| API documentation | [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md) |
+| Design pattern | [`docs/DESIGN_PATTERNS.md`](docs/DESIGN_PATTERNS.md) |
+| User manual | [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md) |
+| Test report | [`docs/TEST_REPORT.md`](docs/TEST_REPORT.md) |
+| VS Code extensions | [`docs/VSCODE_EXTENSIONS.md`](docs/VSCODE_EXTENSIONS.md) |
+| Git and GitHub workflow | [`docs/GITHUB_WORKFLOW.md`](docs/GITHUB_WORKFLOW.md) |
+| Presentation script | [`docs/PRESENTATION_SCRIPT.txt`](docs/PRESENTATION_SCRIPT.txt) |
 
 ## What is inside
 
@@ -37,7 +108,7 @@ Growing a plant normally takes 15 minutes or more, and a tree takes 40 to 90. To
 ### Tests
 
 ```bash
-npm test                 # 45 backend tests (auth, tasks, settings, timer rules, garden)
+npm test                 # 128 backend tests (auth, tasks, settings, timer rules, garden)
 ```
 
 ## Use Supabase as the database
@@ -76,12 +147,6 @@ Notes:
 - No email verification and no password reset. A forgotten password cannot be recovered by the user. Signed-in users can change their password and delete their account.
 - Any valid email is accepted at registration.
 - The server is the source of truth for the timer. The browser only shows the countdown.
-
-## Profile drawer, photos, and friends
-
-Tap your name at the top right to open the side drawer: photo, details, settings, and Sign out. Friends has your friend code, an add box, and a leaderboard (focus minutes, this week or all time). Friends only see your nickname, photo, and score. In the last minute of a session the timer turns amber and plays one soft chime.
-
-After pulling this version, restart the backend and run `npm run db:init` once. It only adds columns and a table.
 
 ## Not built yet
 
